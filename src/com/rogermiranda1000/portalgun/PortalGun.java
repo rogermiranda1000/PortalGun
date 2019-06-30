@@ -161,71 +161,7 @@ public class PortalGun extends JavaPlugin
                   portales.put(args[0], new Portal(args[1].split(","),args[2].split(",")));
               }
           } catch (Exception e) { e.printStackTrace(); }
-      /*File file1 = new File(getDataFolder(), "portal1.yml");
-      File file2 = new File(getDataFolder(), "portal2.yml");
-      File file1L = new File(getDataFolder(), "portal1L.yml");
-      File file2L = new File(getDataFolder(), "portal2L.yml");
-      if (file1.exists() && file2.exists() && file1L.exists() && file2L.exists()) {
-          for(int a = 0; a<2; a++) {
-              try {
-                  File file = file2;
-                  if(a==0) file = file1;
-                  BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-                  String l;
-                  while ((l = br.readLine()) != null) {
 
-                      String[] args = l.split("[>]", 2);
-                      if (args.length != 2)
-                          continue;
-                      portales.put(args[0], new Portal());
-                      String[] arg = args[1].split(",");
-                      Double[] parsed = new Double[3];
-                      for (int c = 0; c < 3; c++) {
-                          String result = arg[c + 1];
-                          result = result.replaceAll("x", "");
-                          result = result.replaceAll("y", "");
-                          result = result.replaceAll("z", "");
-                          result = result.replaceAll("=", "");
-                          parsed[c] = Double.valueOf(Double.parseDouble(result));
-                      }
-
-                      String world = arg[0].substring(31);
-                      world = world.substring(0, world.length() - 1);
-                      getLogger().info(world);
-                      World mundo = Bukkit.getServer().getWorld(world);
-                      if (mundo != null) {
-                          portales.get(args[0]).world[a] = world;
-                          for(int b = 0; b<4; b++) {
-                              portales.get(args[0]).loc[a][b] = parsed[b].doubleValue();
-                          }
-                          //this.portal1.put(args[0], new Location(mundo, parsed[0].doubleValue(), parsed[1].doubleValue(), parsed[2].doubleValue()));
-                      }
-                  }
-                  br.close();
-              } catch (Exception e) {
-                  e.printStackTrace();
-              }
-          }
-          for(int a=0; a<2; a++) {
-              File f = file2L;
-              if(a==0) f = file1L;
-              try {
-                  BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
-                  String l;
-                  while ((l = br.readLine()) != null) {
-
-                      String[] args = l.split("[>]", 2);
-                      if (args.length != 2)
-                          continue;
-                      portales.get(args[0]).dir[a]=args[1].charAt(0);
-                      //this.portal2L.put(args[0], args[1]);
-                  }
-                  br.close();
-              } catch (Exception e) {
-                  e.printStackTrace();
-              }
-          }*/
-        
         cancelPortals(true);
       }
     }
