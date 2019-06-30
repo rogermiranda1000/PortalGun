@@ -1,0 +1,30 @@
+name: PortalGun
+main: com.rogermiranda1000.portalgun.PortalGun
+version: 1.3
+author: rogermiranda1000
+commands:
+    portalgun:
+        description: Get the PortalGun
+        usage: /<command>
+permissions:
+    portalgun.portalgun:
+        description: Get the PortalGun
+        default: op
+    portalgun.open:
+        description: Open portals
+        default: true
+    portalgun.remove:
+        description: Remove your portals
+        default: true
+    portalgun.destroy:
+        description: Can destroy portals placing or breaking blocks.
+        default: true
+    portalgun.remove.all:
+        description: Remove all the portals
+        default: op
+    portalgun.overrideblocks:
+        description: Override only in certain blocks condition
+        default: op
+    portalgun.overrideotherportals:
+        description: Override only your portals condition
+        default: op
