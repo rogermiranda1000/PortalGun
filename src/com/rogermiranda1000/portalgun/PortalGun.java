@@ -39,8 +39,9 @@ import org.bukkit.util.Vector;
 
 public class PortalGun extends JavaPlugin
 {
+    public static PortalGun instancia;
   public static FileConfiguration config;
-    HashMap<String, Portal> portales = new HashMap<String, Portal>();
+   public HashMap<String, Portal> portales = new HashMap<String, Portal>();
   List<Entity> entidad_portal = new ArrayList<Entity>();
   
   int tasks;
@@ -57,7 +58,9 @@ public class PortalGun extends JavaPlugin
   
   public void onEnable() {
     getLogger().info("Plugin activated.");
-    
+
+      instancia = this;
+
     config = getConfig();
     try {
       if (!getDataFolder().exists()) getDataFolder().mkdirs(); 
@@ -255,17 +258,7 @@ public class PortalGun extends JavaPlugin
             } 
           }*/
           
-          @EventHandler
-          public void onDead(PlayerDeathEvent e) {
-              String nick = e.getEntity().getName();
-              if(!PortalGun.config.getBoolean("delete_portals_on_death")) return;
-              if(!portales.containsKey(nick)) return;
 
-              PortalGun.this.cancelPortals(false);
-              portales.remove(nick);
-              PortalGun.this.cancelPortals(true);
-              e.getEntity().getPlayer().sendMessage("§6§l[PortalGun] " + ChatColor.RED + PortalGun.config.getString("portal_removed_by_death"));
-          }
 
           @EventHandler
           public void onMove(PlayerMoveEvent e) {
@@ -548,7 +541,7 @@ public class PortalGun extends JavaPlugin
 	  return false;
   }
   
-  private void cancelPortals(boolean open) {
+  public void cancelPortals(boolean open) {
 	  for (String ply : portales.keySet()) {
           Portal p = portales.get(ply);
 		  try { Bukkit.getServer().getScheduler().cancelTask(((Integer)p.task).intValue()); }
