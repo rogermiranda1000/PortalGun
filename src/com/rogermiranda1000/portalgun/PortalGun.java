@@ -36,12 +36,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
-
 public class PortalGun extends JavaPlugin
 {
-    public static PortalGun instancia;
   public static FileConfiguration config;
-   public HashMap<String, Portal> portales = new HashMap<String, Portal>();
+    HashMap<String, Portal> portales = new HashMap<String, Portal>();
   List<Entity> entidad_portal = new ArrayList<Entity>();
   
   int tasks;
@@ -51,6 +49,7 @@ public class PortalGun extends JavaPlugin
   Boolean tp_log;
   int part_task = 0;
   int delay = 2;
+  public static final String clearPrefix=ChatColor.GOLD+""+ChatColor.BOLD+"[PortalGun] ",prefix=clearPrefix+ChatColor.RED;
   
   Particle Pportal1;
   Particle Pportal2;
@@ -58,9 +57,7 @@ public class PortalGun extends JavaPlugin
   
   public void onEnable() {
     getLogger().info("Plugin activated.");
-
-      instancia = this;
-
+    
     config = getConfig();
     try {
       if (!getDataFolder().exists()) getDataFolder().mkdirs(); 
@@ -171,13 +168,13 @@ public class PortalGun extends JavaPlugin
 
       this.item = new ItemStack(Material.getMaterial(config.getString("portalgun_material")));
       ItemMeta meta = this.item.getItemMeta();
-      meta.setDisplayName("§6§lPortalGun");
+      meta.setDisplayName(ChatColor.GOLD+""+ChatColor.BOLD+"PortalGun");
       this.item.setItemMeta(meta);
       this.item.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
 
       botas = new ItemStack(Material.LEATHER_BOOTS);
       LeatherArmorMeta meta2 = (LeatherArmorMeta) botas.getItemMeta();
-      meta2.setDisplayName("§aPortal Boots");
+      meta2.setDisplayName(ChatColor.GREEN+"Portal Boots");
       meta2.setUnbreakable(true);
       meta2.setColor(Color.WHITE);
       botas.setItemMeta(meta2);
@@ -241,10 +238,10 @@ public class PortalGun extends JavaPlugin
                       } 
                       Player destino = Bukkit.getPlayer(o);
                       String message = PortalGun.config.getString("your_portal_destroyed").replace("[player]", e.getPlayer().getName());
-                      if (destino.getName().equalsIgnoreCase(o)) destino.sendMessage("§6§l[PortalGun] " + ChatColor.RED + message);
+                      if (destino.getName().equalsIgnoreCase(o)) destino.sendMessage(prefix+ message);
                       
                       String message2 = PortalGun.config.getString("destroy_portal").replace("[player]", o);
-                      rompedor.sendMessage("§6§l[PortalGun] " + ChatColor.RED + message2);
+                      rompedor.sendMessage(prefix+ message2);
                       
                       PortalGun.this.cancelPortals(false);
                       PortalGun.this.portal1.remove(o);
@@ -258,7 +255,17 @@ public class PortalGun extends JavaPlugin
             } 
           }*/
           
+          @EventHandler
+          public void onDead(PlayerDeathEvent e) {
+              String nick = e.getEntity().getName();
+              if(!PortalGun.config.getBoolean("delete_portals_on_death")) return;
+              if(!portales.containsKey(nick)) return;
 
+              PortalGun.this.cancelPortals(false);
+              portales.remove(nick);
+              PortalGun.this.cancelPortals(true);
+              e.getEntity().getPlayer().sendMessage(prefix+ PortalGun.config.getString("portal_removed_by_death"));
+          }
 
           @EventHandler
           public void onMove(PlayerMoveEvent e) {
@@ -295,7 +302,7 @@ public class PortalGun extends JavaPlugin
               cancelPortals(false);
               portales.remove(player.getName());
               cancelPortals(true);
-              player.sendMessage("§6§l[PortalGun] " + ChatColor.RED + PortalGun.config.getString("portal_removed_by_world_change"));
+              player.sendMessage(prefix+ PortalGun.config.getString("portal_removed_by_world_change"));
           }
 
           
@@ -308,7 +315,7 @@ public class PortalGun extends JavaPlugin
                 && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
               event.setCancelled(true);
               if (!player.hasPermission("portalgun.open")) {
-                player.sendMessage("§6§l[PortalGun] " + ChatColor.RED + PortalGun.config.getString("no_permissions"));
+                player.sendMessage(prefix+ PortalGun.config.getString("no_permissions"));
                 return;
               } 
               BlockIterator iter = new BlockIterator(player, max_length);
@@ -325,7 +332,7 @@ public class PortalGun extends JavaPlugin
               boolean ground = false;
               
               if (!lastBlock.getType().isSolid()) {
-                player.sendMessage("§6§l[PortalGun] " + ChatColor.RED + PortalGun.config.getString("portal_denied"));
+                player.sendMessage(prefix+ PortalGun.config.getString("portal_denied"));
                 return;
               }
                 List<String> b = Arrays.asList(PortalGun.config.getString("blocks").replace(" ", "").split(","));
@@ -337,18 +344,18 @@ public class PortalGun extends JavaPlugin
                   last.setY(last.getY()-1D);
                   last = getGroundBlock(looking, last);
                    if(last==null) {
-                      player.sendMessage("§6§l[PortalGun] " + ChatColor.RED + PortalGun.config.getString("portal_failed"));
+                      player.sendMessage(prefix+ PortalGun.config.getString("portal_failed"));
                       return;
                   }
                   if(!last.getBlock().getType().isSolid()) {
-                      player.sendMessage("§6§l[PortalGun] " + ChatColor.RED + PortalGun.config.getString("portal_denied"));
+                      player.sendMessage(prefix+ PortalGun.config.getString("portal_denied"));
                       return;
                   }
                   ground = true;
               }
               if (!player.hasPermission("portalgun.overrideblocks") && (!b.contains(String.valueOf(lastBlock.getType()).replace("LEGACY_","")) ||
             		  !b.contains(String.valueOf(last.getBlock().getType()).replace("LEGACY_","")))) {
-                player.sendMessage("§6§l[PortalGun] " + ChatColor.RED + PortalGun.config.getString("denied_block"));
+                player.sendMessage(prefix+ PortalGun.config.getString("denied_block"));
                   //player.sendMessage(String.valueOf(lastBlock.getType())+" - "+String.valueOf(b));
                 return;
               }
@@ -363,7 +370,7 @@ public class PortalGun extends JavaPlugin
                   } else if (looking.equalsIgnoreCase("W")) {
                       block.setZ(block.getZ() - 1.0D);
                   } else {
-                      player.sendMessage("§6§l[PortalGun] " + ChatColor.RED + PortalGun.config.getString("portal_failed"));
+                      player.sendMessage(prefix+ PortalGun.config.getString("portal_failed"));
                       return;
                   }
               } else {
@@ -374,7 +381,7 @@ public class PortalGun extends JavaPlugin
               Location block2 = new Location(block.getWorld(), block.getX(), block.getY() + 1.0D, block.getZ());
               if (block.getBlock().getType() != Material.AIR || (block2.getBlock().getType() != Material.AIR && !ground) ||
                       (ground && last.getBlock().getType()!=Material.AIR)) {
-            	  player.sendMessage("§6§l[PortalGun] " + ChatColor.RED + PortalGun.config.getString("portal_denied"));
+            	  player.sendMessage(prefix+ PortalGun.config.getString("portal_denied"));
             	  return;
               }
 
@@ -389,7 +396,7 @@ public class PortalGun extends JavaPlugin
               else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) { loc2 = block; } 
               if (loc1 != null && loc2 != null && (loc1.equals(loc2) || (new Location(loc1.getWorld(), loc1.getX(), loc1.getY() + 1.0D, loc1.getZ())).equals(loc2) ||
             		  (new Location(loc1.getWorld(), loc1.getX(), loc1.getY() - 1.0D, loc1.getZ())).equals(loc2))) {
-            	  player.sendMessage("§6§l[PortalGun] " + ChatColor.RED + PortalGun.config.getString("same_portal"));
+            	  player.sendMessage(prefix+ PortalGun.config.getString("same_portal"));
             	  return;
               }
               if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
@@ -415,15 +422,15 @@ public class PortalGun extends JavaPlugin
             	  player.playSound(player.getLocation(), Sound.ENTITY_SLIME_JUMP, 3.0F, 0.5F);
             	  PortalGun.this.getLogger().info(String.valueOf(player.getName()) + " >> " + block.getBlockX() + ", " + block.getBlockY() + ", " + block.getBlockZ() + " (" + looking + ")");
             	  String message = PortalGun.config.getString("half_portal_opened").replace("[pos]", String.valueOf(block.getX()) + ", " + block.getY() + ", " + block.getZ());
-            	  player.sendMessage("§6§l[PortalGun] " + ChatColor.GREEN + message);
+            	  player.sendMessage(clearPrefix + ChatColor.GREEN + message);
             	  PortalGun.this.getLogger().info(String.valueOf(player.getName()) + " has opened a portal.");
-            	  player.sendMessage("§6§l[PortalGun] " + ChatColor.GREEN + PortalGun.config.getString("portal_opened"));
+            	  player.sendMessage(clearPrefix + ChatColor.GREEN + PortalGun.config.getString("portal_opened"));
             	  PortalGun.this.cancelPortals(true);
               } else {
             	  player.playSound(player.getLocation(), Sound.ENTITY_SLIME_JUMP, 3.0F, 0.5F);
             	  PortalGun.this.getLogger().info(String.valueOf(player.getName()) + " >> " + block.getBlockX() + ", " + block.getBlockY() + ", " + block.getBlockZ() + " (" + looking + ")");
-            	  String message = PortalGun.config.getString("half_portal_opened").replace("[pos]", String.valueOf(block.getX()) + ", " + block.getY() + ", " + block.getZ());
-            	  player.sendMessage("§6§l[PortalGun] " + ChatColor.GREEN + message);
+            	  String message = PortalGun.config.getString("half_portal_opened").replace("[pos]", block.getX() + ", " + block.getY() + ", " + block.getZ());
+            	  player.sendMessage(clearPrefix + ChatColor.GREEN + message);
               }
           }
       },this);
@@ -508,23 +515,23 @@ public class PortalGun extends JavaPlugin
 					  cancelPortals(false);
 					  if (args.length == 2 && args[1].equalsIgnoreCase("all")) {
 						  if (!player.hasPermission("portalgun.remove.all")) {
-							  player.sendMessage("§6§l[PortalGun] " + ChatColor.RED + config.getString("no_permissions"));
+							  player.sendMessage(prefix+ config.getString("no_permissions"));
 							  return true;
 						  }
 						  portales.clear();
 						  sender.sendMessage(ChatColor.RED + config.getString("force_portal_remove"));
 					  } else if (portales.containsKey(player.getName())) {
 						  portales.remove(player.getName());
-						  player.sendMessage("§6§l[PortalGun] " + ChatColor.GREEN + config.getString("portal_remove"));
+						  player.sendMessage(clearPrefix+ ChatColor.GREEN + config.getString("portal_remove"));
 					  } else {
-						  player.sendMessage("§6§l[PortalGun] " + ChatColor.RED + config.getString("no_portals"));
+						  player.sendMessage(prefix+ config.getString("no_portals"));
 					  }
 					  cancelPortals(true);
 				  } else {
-					  player.sendMessage("§6§l[PortalGun] " + ChatColor.RED + config.getString("no_permissions"));
+					  player.sendMessage(prefix+ config.getString("no_permissions"));
 				  }
 			  } else if (args[0].equalsIgnoreCase("?")) {
-				  player.sendMessage("§6§l[PortalGun]");
+				  player.sendMessage(clearPrefix);
 				  player.sendMessage(ChatColor.GOLD + "/portalgun " + ChatColor.GREEN + "- " + config.getString("info_get_PortalGun"));
 				  player.sendMessage(ChatColor.GOLD + "/portalgun remove " + ChatColor.GREEN + "- " + config.getString("info_remove_portals"));
 				  player.sendMessage(ChatColor.GOLD + "/portalgun remove all " + ChatColor.GREEN + "- " + config.getString("info_remove_all_portals"));
@@ -532,16 +539,16 @@ public class PortalGun extends JavaPlugin
 		  } else if (player.hasPermission("portalgun.portalgun")) {
               player.getInventory().addItem(new ItemStack[] { this.item });
               player.getInventory().addItem(new ItemStack[] { botas });
-			  player.sendMessage("§6§l[PortalGun] " + ChatColor.GREEN + config.getString("give_gun"));
+			  player.sendMessage(clearPrefix+ ChatColor.GREEN + config.getString("give_gun"));
 		  } else {
-			  player.sendMessage("§6§l[PortalGun] " + ChatColor.RED + config.getString("no_permissions"));
+			  player.sendMessage(prefix+ config.getString("no_permissions"));
 		  }
 		  return true;
 	  }
 	  return false;
   }
   
-  public void cancelPortals(boolean open) {
+  private void cancelPortals(boolean open) {
 	  for (String ply : portales.keySet()) {
           Portal p = portales.get(ply);
 		  try { Bukkit.getServer().getScheduler().cancelTask(((Integer)p.task).intValue()); }
@@ -627,14 +634,19 @@ public class PortalGun extends JavaPlugin
 		  }
 	  },this.delay, this.delay);
   }
-  
-  private void playParticle(Location loc, Integer proceso, String look, boolean down, Integer color) {
+
+  private void playParticle(Location loc, int proceso, String look, boolean down, Integer color) {
 	  double x = loc.getBlockX();
 	  double y = loc.getBlockY();
 	  double z = loc.getBlockZ();
-      double suma = 0.0D;
-      double suma2 = 0.0D;
-	  if (proceso.intValue() == 0) { suma = 0.5D; }
+      double suma = 0;
+      double suma2 = 0;
+
+      double grado=2*Math.PI*proceso/21;
+      suma=0.9D*Math.cos(grado);
+      suma2=1.8D*Math.sin(grado);
+
+      /*if (proceso.intValue() == 0) { suma = 0.5D; }
 	  else if (proceso.intValue() == 1) { suma = 0.6D; suma2 += 0.1D; }
 	  else if (proceso.intValue() == 2) { suma = 0.7D; suma2 += 0.25D; }
 	  else if (proceso.intValue() == 3) { suma = 0.8D; suma2 += 0.4D; }
@@ -655,7 +667,7 @@ public class PortalGun extends JavaPlugin
 	  else if (proceso.intValue() == 18) { suma = 0.1D; suma2 += 0.6D; }
 	  else if (proceso.intValue() == 19) { suma = 0.2D; suma2 += 0.4D; }
 	  else if (proceso.intValue() == 20) { suma = 0.3D; suma2 += 0.25D; }
-	  else if (proceso.intValue() == 21) { suma = 0.4D; suma2 += 0.1D; }
+	  else if (proceso.intValue() == 21) { suma = 0.4D; suma2 += 0.1D; }*/
 
 	  if(!down) {
 	      y+=suma2;
