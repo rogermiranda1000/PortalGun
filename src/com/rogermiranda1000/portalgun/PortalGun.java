@@ -632,12 +632,9 @@ public class PortalGun extends JavaPlugin
 	  double x = loc.getBlockX();
 	  double y = loc.getBlockY();
 	  double z = loc.getBlockZ();
-      double suma = 0;
-      double suma2 = 0;
-
       double grado=2*Math.PI*proceso/21;
-      suma=0.9D*Math.cos(grado);
-      suma2=1.8D*Math.sin(grado);
+      double suma = 0.9D*Math.cos(grado);
+      double suma2 = 1.8D*Math.sin(grado);
 
       /*if (proceso.intValue() == 0) { suma = 0.5D; }
 	  else if (proceso.intValue() == 1) { suma = 0.6D; suma2 += 0.1D; }
