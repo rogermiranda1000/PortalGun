@@ -99,6 +99,7 @@ public class PortalGun extends JavaPlugin
           getConfig().set("only_certain_blocks", Boolean.valueOf(false));
           getConfig().set("use_only_your_portals", Boolean.valueOf(false));
           getConfig().set("remove_portals_on_world_change", Boolean.valueOf(false));
+          getConfig().set("give_boots_with_gun", Boolean.valueOf(true));
         getConfig().set("blocks", "QUARTZ_BLOCK");
         saveConfig();
       } else {
@@ -142,9 +143,13 @@ public class PortalGun extends JavaPlugin
               getConfig().set("portal_removed_by_world_change", "You can't keep portals between worlds.");
               saveConfig();
           }
-        if (!getConfig().isSet("blocks")) {
-            getConfig().set("blocks", "QUARTZ_BLOCK");
-            saveConfig();
+          if (!getConfig().isSet("blocks")) {
+              getConfig().set("blocks", "QUARTZ_BLOCK");
+              saveConfig();
+          }
+          if (!getConfig().isSet("give_boots_with_gun")) {
+              getConfig().set("give_boots_with_gun", Boolean.valueOf(true));
+              saveConfig();
           }
       }
     } catch (Exception e) {
@@ -163,6 +168,7 @@ public class PortalGun extends JavaPlugin
                   if(args.length!=3) continue;
                   portales.put(args[0], new Portal(args[1].split(","),args[2].split(",")));
               }
+              br.close();
           } catch (Exception e) { e.printStackTrace(); }
 
         cancelPortals(true);
@@ -462,36 +468,6 @@ public class PortalGun extends JavaPlugin
                 bw.flush();
                 bw.close();
             } catch (IOException e) { e.printStackTrace(); }
-		  /*for(int a = 0; a<2; a++) {
-              try {
-                  File file = new File(getDataFolder(), "portal"+String.valueOf(a+1)+".yml");
-                  BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-                  for (String n : portales.keySet()) {
-                      Portal p = portales.get(n);
-                      Location l = new Location(Bukkit.getServer().getWorld(p.world[a]), p.loc[a][0], p.loc[a][1], p.loc[a][2]);
-                      bw.write(n + ">" + String.valueOf(l));
-                      bw.newLine();
-                  }
-                  bw.flush();
-                  bw.close();
-              } catch (IOException e) {
-                  e.printStackTrace();
-              }
-          }
-          for(int a = 0; a<2; a++) {
-              try {
-                  File file = new File(getDataFolder(), "portal"+String.valueOf(a+1)+"L.yml");
-                  BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-                  for (String p : portales.keySet()) {
-                      bw.write(String.valueOf(p) + ">" + portales.get(p).dir[a]);
-                      bw.newLine();
-                  }
-                  bw.flush();
-                  bw.close();
-              } catch (IOException e) {
-                  e.printStackTrace();
-              }
-          }*/
 	  }
   }
   
@@ -531,7 +507,7 @@ public class PortalGun extends JavaPlugin
 			  }
 		  } else if (player.hasPermission("portalgun.portalgun")) {
               player.getInventory().addItem(new ItemStack[] { this.item });
-              player.getInventory().addItem(new ItemStack[] { botas });
+              if(config.getBoolean("give_boots_with_gun")) player.getInventory().addItem(new ItemStack[] { botas });
 			  player.sendMessage(clearPrefix+ ChatColor.GREEN + config.getString("give_gun"));
 		  } else {
 			  player.sendMessage(prefix+ config.getString("no_permissions"));
