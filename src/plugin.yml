@@ -1,6 +1,6 @@
 name: PortalGun
 main: com.rogermiranda1000.portalgun.PortalGun
-version: 1.3
+version: 1.4
 author: rogermiranda1000
 commands:
     portalgun:
@@ -28,3 +28,6 @@ permissions:
     portalgun.overrideotherportals:
         description: Override only your portals condition
         default: op
+    portalgun.boots:
+        description: Get the Portal Boots
+        default: true

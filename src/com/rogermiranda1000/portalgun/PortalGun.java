@@ -99,7 +99,6 @@ public class PortalGun extends JavaPlugin
           getConfig().set("only_certain_blocks", Boolean.valueOf(false));
           getConfig().set("use_only_your_portals", Boolean.valueOf(false));
           getConfig().set("remove_portals_on_world_change", Boolean.valueOf(false));
-          getConfig().set("give_boots_with_gun", Boolean.valueOf(true));
         getConfig().set("blocks", "QUARTZ_BLOCK");
         saveConfig();
       } else {
@@ -145,10 +144,6 @@ public class PortalGun extends JavaPlugin
           }
           if (!getConfig().isSet("blocks")) {
               getConfig().set("blocks", "QUARTZ_BLOCK");
-              saveConfig();
-          }
-          if (!getConfig().isSet("give_boots_with_gun")) {
-              getConfig().set("give_boots_with_gun", Boolean.valueOf(true));
               saveConfig();
           }
       }
@@ -507,7 +502,7 @@ public class PortalGun extends JavaPlugin
 			  }
 		  } else if (player.hasPermission("portalgun.portalgun")) {
               player.getInventory().addItem(new ItemStack[] { this.item });
-              if(config.getBoolean("give_boots_with_gun")) player.getInventory().addItem(new ItemStack[] { botas });
+              if(player.hasPermission("portalgun.boots")) player.getInventory().addItem(new ItemStack[] { botas });
 			  player.sendMessage(clearPrefix+ ChatColor.GREEN + config.getString("give_gun"));
 		  } else {
 			  player.sendMessage(prefix+ config.getString("no_permissions"));
