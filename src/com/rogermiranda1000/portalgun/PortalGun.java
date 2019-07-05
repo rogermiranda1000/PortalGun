@@ -7,10 +7,8 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -61,92 +59,64 @@ public class PortalGun extends JavaPlugin
 
       instancia = this;
 
+
+      HashMap<String,String> c = new HashMap<String, String>();
+      c.put("portal_denied", "You can't open a portal here.");
+      c.put("no_permissions", "You don't have permissions to do this.");
+      c.put("half_portal_opened", "Portal opened at [pos].");
+      c.put("portal_opened", "The portals have been linked.");
+      c.put("portal_failed", "Error at opening the portal!");
+      c.put("no_portals", "You don't have any opened portals right now.");
+      c.put("same_portal", "You can't place both portals at the same block!");
+      c.put("portal_remove", "You deleted successfully your portals.");
+      c.put("portal_removed_by_death", "Your portals have been deleted due to your death.");
+      c.put("portal_removed_by_world_change", "You can't keep portals between worlds.");
+      c.put("force_portal_remove", "Deleted all portals.");
+      c.put("give_gun", "PortalGun gived!");
+      c.put("info_get_PortalGun", "Get your PortalGun.");
+      c.put("info_remove_portals", "Delete your active portals.");
+      c.put("info_remove_all_portals", "Delete all the active portals.");
+      c.put("destroy_portal", "You have destroyed [player]'s portal.");
+      c.put("your_portal_destroyed", "Your portal has been destroyed by [player].");
+      c.put("denied_block", "You can't open a portal in that block.");
+      c.put("max_portal_length", "80");
+      c.put("all_portal_particles", "false");
+      c.put("teleport_log", "true");
+      c.put("portalgun_material", "BLAZE_ROD");
+      c.put("portal1_particle", "FLAME");
+      c.put("portal2_particle", "VILLAGER_HAPPY");
+      c.put("remove_on_leave", "true");
+      c.put("keep_portals_on_stop", "false");
+      c.put("delete_portals_on_death", "false");
+      c.put("only_certain_blocks", "false");
+      c.put("use_only_your_portals", "false");
+      c.put("remove_portals_on_world_change", "false");
+      c.put("blocks", "QUARTZ_BLOCK");
     config = getConfig();
+
+    //Create/actualize config file
     try {
       if (!getDataFolder().exists()) getDataFolder().mkdirs(); 
       File file = new File(getDataFolder(), "config.yml");
+      boolean need = false;
+
       if (!file.exists()) {
-        getLogger().info("Creating config.yml...");
-        file.createNewFile();
-        
-        getConfig().set("portal_denied", "You can't open a portal here.");
-        getConfig().set("no_permissions", "You don't have permissions to do this.");
-        getConfig().set("half_portal_opened", "Portal opened at [pos].");
-        getConfig().set("portal_opened", "The portals have been linked.");
-        getConfig().set("portal_failed", "Error at opening the portal!");
-        getConfig().set("no_portals", "You don't have any opened portals right now.");
-        getConfig().set("same_portal", "You can't place both portals at the same block!");
-          getConfig().set("portal_remove", "You deleted successfully your portals.");
-          getConfig().set("portal_removed_by_death", "Your portals have been deleted due to your death.");
-          getConfig().set("portal_removed_by_world_change", "You can't keep portals between worlds.");
-        getConfig().set("force_portal_remove", "Deleted all portals.");
-        getConfig().set("give_gun", "PortalGun gived!");
-        getConfig().set("info_get_PortalGun", "Get your PortalGun.");
-        getConfig().set("info_remove_portals", "Delete your active portals.");
-        getConfig().set("info_remove_all_portals", "Delete all the active portals.");
-        getConfig().set("destroy_portal", "You have destroyed [player]'s portal.");
-        getConfig().set("your_portal_destroyed", "Your portal has been destroyed by [player].");
-        getConfig().set("denied_block", "You can't open a portal in that block.");
-        getConfig().set("max_portal_length", Integer.valueOf(80));
-        getConfig().set("all_portal_particles", Boolean.valueOf(false));
-        getConfig().set("teleport_log", Boolean.valueOf(true));
-        getConfig().set("portalgun_material", "BLAZE_ROD");
-        getConfig().set("portal1_particle", "FLAME");
-        getConfig().set("portal2_particle", "VILLAGER_HAPPY");
-        getConfig().set("remove_on_leave", Boolean.valueOf(true));
-        getConfig().set("keep_portals_on_stop", Boolean.valueOf(false));
-        getConfig().set("delete_portals_on_death", Boolean.valueOf(false));
-          getConfig().set("only_certain_blocks", Boolean.valueOf(false));
-          getConfig().set("use_only_your_portals", Boolean.valueOf(false));
-          getConfig().set("remove_portals_on_world_change", Boolean.valueOf(false));
-        getConfig().set("blocks", "QUARTZ_BLOCK");
-        saveConfig();
-      } else {
-        if (!getConfig().isSet("destroy_portal")) {
-          getConfig().set("destroy_portal", "You have destroyed [player]'s portal.");
-          saveConfig();
-        }
-        if (!getConfig().isSet("your_portal_destroyed")) {
-            getConfig().set("your_portal_destroyed", "Your portal has been destroyed by [player].");
-            saveConfig();
-          }
-        if (!getConfig().isSet("denied_block")) {
-            getConfig().set("denied_block", "You can't open a portal in that block.");
-            saveConfig();
-          }
-        if (!getConfig().isSet("keep_portals_on_stop")) {
-            getConfig().set("keep_portals_on_stop", Boolean.valueOf(false));
-            saveConfig();
-          }
-        if (!getConfig().isSet("delete_portals_on_death")) {
-            getConfig().set("delete_portals_on_death", Boolean.valueOf(false));
-            saveConfig();
-          }
-          if (!getConfig().isSet("only_certain_blocks")) {
-              getConfig().set("only_certain_blocks", Boolean.valueOf(false));
-              saveConfig();
-          }
-          if (!getConfig().isSet("use_only_your_portals")) {
-              getConfig().set("use_only_your_portals", Boolean.valueOf(false));
-              saveConfig();
-          }
-          if (!getConfig().isSet("remove_portals_on_world_change")) {
-              getConfig().set("remove_portals_on_world_change", Boolean.valueOf(false));
-              saveConfig();
-          }
-          if (!getConfig().isSet("portal_removed_by_death")) {
-              getConfig().set("portal_removed_by_death", "Your portals have been deleted due to your death.");
-              saveConfig();
-          }
-          if (!getConfig().isSet("portal_removed_by_world_change")) {
-              getConfig().set("portal_removed_by_world_change", "You can't keep portals between worlds.");
-              saveConfig();
-          }
-          if (!getConfig().isSet("blocks")) {
-              getConfig().set("blocks", "QUARTZ_BLOCK");
-              saveConfig();
-          }
+          getLogger().info("Creating config.yml...");
+          file.createNewFile();
+          need = true;
       }
+
+        for(Map.Entry<String, String> entry : c.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if(need || !getConfig().isSet(key)) {
+                getConfig().set(key,value);
+                need = true;
+            }
+        }
+
+        if(need) saveConfig();
+
     } catch (Exception e) {
       e.printStackTrace();
     } 
