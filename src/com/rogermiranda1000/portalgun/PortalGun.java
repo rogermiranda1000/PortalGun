@@ -39,11 +39,11 @@ public class PortalGun extends JavaPlugin
     public static PortalGun instancia;
   public static FileConfiguration config;
    public HashMap<String, Portal> portales = new HashMap<String, Portal>();
-  List<Entity> entidad_portal = new ArrayList<Entity>();
+  public List<Entity> entidad_portal = new ArrayList<Entity>();
   
   int tasks;
-    ItemStack item;
-    ItemStack botas;
+  public ItemStack item;
+  public ItemStack botas;
   Boolean all_particles;
   Boolean tp_log;
   int part_task = 0;
@@ -52,7 +52,8 @@ public class PortalGun extends JavaPlugin
 
   Particle Pportal1;
   Particle Pportal2;
-  Boolean ROL;
+  public Boolean ROL;
+  public int max_length;
   
   public void onEnable() {
     getLogger().info("Plugin activated.");
@@ -109,7 +110,7 @@ public class PortalGun extends JavaPlugin
         for(Map.Entry<String, String> entry : c.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            if(need || !getConfig().isSet(key)) {
+            if(!getConfig().isSet(key)) {
                 getConfig().set(key,value);
                 need = true;
             }
@@ -154,253 +155,16 @@ public class PortalGun extends JavaPlugin
       botas.setItemMeta(meta2);
       botas.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
     
-    final int max_length = config.getInt("max_portal_length");
+    max_length = config.getInt("max_portal_length");
     this.all_particles = Boolean.valueOf(config.getBoolean("all_portal_particles"));
     if (this.all_particles.booleanValue()) this.delay = 15; 
     this.tp_log = Boolean.valueOf(config.getBoolean("teleport_log"));
     this.Pportal1 = Particle.valueOf(config.getString("portal1_particle"));
     this.Pportal2 = Particle.valueOf(config.getString("portal2_particle"));
-    this.ROL = Boolean.valueOf(config.getBoolean("remove_on_leave"));
-    
-    getServer().getPluginManager().registerEvents(new Listener() {
-          @EventHandler
-          //public abstract void onLeave(PlayerQuitEvent event);
-          public void onLeave(PlayerQuitEvent event) {
-            if (!PortalGun.this.ROL.booleanValue())
-              return; 
-            String nick = event.getPlayer().getName();
-            if (!portales.containsKey(nick)) return;
-            //if (!PortalGun.this.portal2.containsKey(nick)) return;
-            PortalGun.this.cancelPortals(false);
-            portales.remove(nick);
-            //PortalGun.this.portal2.remove(nick);
-            PortalGun.this.cancelPortals(true);
-          }
-
-          @EventHandler(ignoreCancelled = true)
-          public void onTabCompleteEvent(TabCompleteEvent e) {
-            if (e.getBuffer().equals("/portalgun ")) {
-            	e.setCompletions(Arrays.asList(new String[] { "?", "remove", "remove all" }));
-            }
-            else if (e.getBuffer().equals("/portalgun remove ")) {
-            	e.setCompletions(Arrays.asList(new String[] { "all" })); 
-            }
-          }
-          
-          /*@EventHandler
-          public void onPlaceBlock(BlockPlaceEvent e) {
-            Location block = e.getBlock().getLocation();
-            Location down = new Location(block.getWorld(), block.getX(), block.getY() - 1.0D, block.getZ());
-            if (!PortalGun.this.portal1.containsValue(block) && !PortalGun.this.portal2.containsValue(block) && !PortalGun.this.portal1.containsValue(down) &&
-            		!PortalGun.this.portal2.containsValue(down))
-              return;  for (int x = 0; x != 2; x++) {
-              Location loc = block;
-              if (x == 1) loc = down;
-              
-              for (int y = 0; y != 2; y++) {
-                HashMap<String, Location> portal = PortalGun.this.portal1;
-                if (y == 1) portal = PortalGun.this.portal2;
-                
-                if (portal.containsValue(loc)) {
-                  for (String o : portal.keySet()) {
-                    if (((Location)portal.get(o)).equals(loc)) {
-                      Player rompedor = e.getPlayer();
-                      if (!rompedor.hasPermission("portalgun.destroy")) {
-                        e.setCancelled(true);
-                        
-                        return;
-                      } 
-                      Player destino = Bukkit.getPlayer(o);
-                      String message = PortalGun.config.getString("your_portal_destroyed").replace("[player]", e.getPlayer().getName());
-                      if (destino.getName().equalsIgnoreCase(o)) destino.sendMessage(prefix+ message);
-                      
-                      String message2 = PortalGun.config.getString("destroy_portal").replace("[player]", o);
-                      rompedor.sendMessage(prefix+ message2);
-                      
-                      PortalGun.this.cancelPortals(false);
-                      PortalGun.this.portal1.remove(o);
-                      PortalGun.this.portal2.remove(o);
-                      PortalGun.this.cancelPortals(true);
-                      return;
-                    } 
-                  } 
-                }
-              } 
-            } 
-          }*/
-          
-
-
-          @EventHandler
-          public void onMove(PlayerMoveEvent e) {
-              /*if (e.getFrom().getWorld()==e.getTo().getWorld() && e.getFrom().getBlockX() == e.getTo().getBlockX() && e.getFrom().getBlockY() == e.getTo().getBlockY() && e.getFrom().getBlockZ() == e.getTo().getBlockZ())
-                  return;*/
-              Player player = e.getPlayer();
-              Location loc = e.getTo().getBlock().getLocation();
-                if(player.getInventory().getBoots()!=null && player.getInventory().getBoots().equals(botas)) player.setFallDistance(0);
-              for (String s : portales.keySet()) {
-                  Portal p = portales.get(s);
-                  if(p.world[0]=="" || p.world[1]=="") continue;
-                  double l[] = {loc.getX(), loc.getY(), loc.getZ()};
-                int result = p.contains(l,loc.getWorld().getName());
-                double temp[] = {e.getFrom().getBlock().getLocation().getX(),e.getFrom().getBlock().getLocation().getY(),e.getFrom().getBlock().getLocation().getZ()};
-                if(result==-1) continue;
-                  if(p.down[result] && result==p.contains(temp,loc.getWorld().getName())) continue;
-                if(config.getBoolean("use_only_your_portals") && !player.hasPermission("portalgun.overrideotherportals") && player.getName()!=s) continue;
-                  if (entidad_portal.contains(player)) entidad_portal.remove(player);
-                String Nlooking = getCardinalDirection(player);
-                if(!Nlooking.equalsIgnoreCase(String.valueOf(Nlooking.charAt(0)))) continue;
-
-                int op = 0;
-                if(result==0) op = 1;
-                if(p.dir[result]==Nlooking.charAt(0) || p.down[result])
-                    teletransporte(new Location(Bukkit.getServer().getWorld(p.world[op]), p.loc[op][0], p.loc[op][1], p.loc[op][2]), player,
-                            String.valueOf(p.dir[op]), String.valueOf(p.dir[result]), p.down[op], p.down[result]);
-               }
-          }
-
-          @EventHandler
-          public void onWorldChange(PlayerChangedWorldEvent e) {
-              Player player = e.getPlayer();
-              if (!PortalGun.config.getBoolean("remove_portals_on_world_change") || !portales.containsKey(player.getName())) return;
-              cancelPortals(false);
-              portales.remove(player.getName());
-              cancelPortals(true);
-              player.sendMessage(prefix+ PortalGun.config.getString("portal_removed_by_world_change"));
-          }
-
-          
-          @EventHandler
-          public void onPlayerUse(PlayerInteractEvent event) {
-            Player player = event.getPlayer();
-            
-            if (!player.getInventory().getItemInMainHand().equals(PortalGun.this.item) && !player.getInventory().getItemInOffHand().equals(PortalGun.this.item)) return;
-            if(event.getAction() != Action.LEFT_CLICK_AIR && event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_AIR
-                && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-              event.setCancelled(true);
-              if (!player.hasPermission("portalgun.open")) {
-                player.sendMessage(prefix+ PortalGun.config.getString("no_permissions"));
-                return;
-              } 
-              BlockIterator iter = new BlockIterator(player, max_length);
-              Block lastBlock = iter.next();
-              while (iter.hasNext()) {
-                lastBlock = iter.next();
-                if (lastBlock.getType() == Material.AIR) {
-                  continue;
-                }
-                break;
-              }
-              Location block = lastBlock.getLocation();
-              Location last = new Location(block.getWorld(), block.getX(), block.getY() + 1.0D, block.getZ());
-              boolean ground = false;
-              
-              if (!lastBlock.getType().isSolid()) {
-                player.sendMessage(prefix+ PortalGun.config.getString("portal_denied"));
-                return;
-              }
-                List<String> b = Arrays.asList(PortalGun.config.getString("blocks").replace(" ", "").split(","));
-                String looking = getCardinalDirection(player);
-              if(last.getBlock().getType()==Material.AIR) {
-                  //Portal en el suelo
-                  double x = 0D;
-                  double z = 0D;
-                  last.setY(last.getY()-1D);
-                  last = getGroundBlock(looking, last);
-                   if(last==null) {
-                      player.sendMessage(prefix+ PortalGun.config.getString("portal_failed"));
-                      return;
-                  }
-                  if(!last.getBlock().getType().isSolid()) {
-                      player.sendMessage(prefix+ PortalGun.config.getString("portal_denied"));
-                      return;
-                  }
-                  ground = true;
-              }
-              if (!player.hasPermission("portalgun.overrideblocks") && (!b.contains(String.valueOf(lastBlock.getType()).replace("LEGACY_","")) ||
-            		  !b.contains(String.valueOf(last.getBlock().getType()).replace("LEGACY_","")))) {
-                player.sendMessage(prefix+ PortalGun.config.getString("denied_block"));
-                  //player.sendMessage(String.valueOf(lastBlock.getType())+" - "+String.valueOf(b));
-                return;
-              }
-              
-              if(!ground) {
-                  if (looking.equalsIgnoreCase("N")) {
-                      block.setX(block.getX() + 1.0D);
-                  } else if (looking.equalsIgnoreCase("S")) {
-                      block.setX(block.getX() - 1.0D);
-                  } else if (looking.equalsIgnoreCase("E")) {
-                      block.setZ(block.getZ() + 1.0D);
-                  } else if (looking.equalsIgnoreCase("W")) {
-                      block.setZ(block.getZ() - 1.0D);
-                  } else {
-                      player.sendMessage(prefix+ PortalGun.config.getString("portal_failed"));
-                      return;
-                  }
-              } else {
-                  block.setY(block.getY()+1);
-                  last.setY(last.getY()+1);
-              }
-
-              Location block2 = new Location(block.getWorld(), block.getX(), block.getY() + 1.0D, block.getZ());
-              if (block.getBlock().getType() != Material.AIR || (block2.getBlock().getType() != Material.AIR && !ground) ||
-                      (ground && last.getBlock().getType()!=Material.AIR)) {
-            	  player.sendMessage(prefix+ PortalGun.config.getString("portal_denied"));
-            	  return;
-              }
-
-              Location loc1 = null;
-              Location loc2 = null;
-                if(!portales.containsKey(player.getName())) portales.put(player.getName(), new Portal());
-
-                Portal p = portales.get(player.getName());
-                if(p.world[0]!="") loc1 = new Location(Bukkit.getServer().getWorld(p.world[0]), p.loc[0][0], p.loc[0][1], p.loc[0][2]);
-                if(p.world[1]!="") loc2 = new Location(Bukkit.getServer().getWorld(p.world[1]), p.loc[1][0], p.loc[1][1], p.loc[1][2]);
-              if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) { loc1 = block; }
-              else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) { loc2 = block; } 
-              if (loc1 != null && loc2 != null && (loc1.equals(loc2) || (new Location(loc1.getWorld(), loc1.getX(), loc1.getY() + 1.0D, loc1.getZ())).equals(loc2) ||
-            		  (new Location(loc1.getWorld(), loc1.getX(), loc1.getY() - 1.0D, loc1.getZ())).equals(loc2))) {
-            	  player.sendMessage(prefix+ PortalGun.config.getString("same_portal"));
-            	  return;
-              }
-              if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
-                  p.loc[0][0] = block.getX();
-                  p.loc[0][1] = block.getY();
-                  p.loc[0][2] = block.getZ();
-                  p.dir[0] = looking.charAt(0);
-                  p.world[0] = block.getWorld().getName();
-                  p.down[0] = ground;
-                  //getLogger().info(String.valueOf(block.getWorld())+"-"+p.world[0]);
-                  loc1 = new Location(Bukkit.getServer().getWorld(p.world[0]), p.loc[0][0], p.loc[0][1], p.loc[0][2]);
-              } else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                  p.loc[1][0] = block.getX();
-                  p.loc[1][1] = block.getY();
-                  p.loc[1][2] = block.getZ();
-                  p.dir[1] = looking.charAt(0);
-                  p.world[1] = block.getWorld().getName();
-                  p.down[1] = ground;
-                  loc2 = new Location(Bukkit.getServer().getWorld(p.world[1]), p.loc[1][0], p.loc[1][1], p.loc[1][2]);
-                  //getLogger().info(String.valueOf(Bukkit.getServer().getWorld(p.world[1]))+"-"+String.valueOf(loc2.getWorld()));
-              }
-              if (loc1 != null && loc2 != null) { 
-            	  player.playSound(player.getLocation(), Sound.ENTITY_SLIME_JUMP, 3.0F, 0.5F);
-            	  PortalGun.this.getLogger().info(String.valueOf(player.getName()) + " >> " + block.getBlockX() + ", " + block.getBlockY() + ", " + block.getBlockZ() + " (" + looking + ")");
-            	  String message = PortalGun.config.getString("half_portal_opened").replace("[pos]", String.valueOf(block.getX()) + ", " + block.getY() + ", " + block.getZ());
-            	  player.sendMessage(clearPrefix + ChatColor.GREEN + message);
-            	  PortalGun.this.getLogger().info(String.valueOf(player.getName()) + " has opened a portal.");
-            	  player.sendMessage(clearPrefix + ChatColor.GREEN + PortalGun.config.getString("portal_opened"));
-            	  PortalGun.this.cancelPortals(true);
-              } else {
-            	  player.playSound(player.getLocation(), Sound.ENTITY_SLIME_JUMP, 3.0F, 0.5F);
-            	  PortalGun.this.getLogger().info(String.valueOf(player.getName()) + " >> " + block.getBlockX() + ", " + block.getBlockY() + ", " + block.getBlockZ() + " (" + looking + ")");
-            	  String message = PortalGun.config.getString("half_portal_opened").replace("[pos]", block.getX() + ", " + block.getY() + ", " + block.getZ());
-            	  player.sendMessage(clearPrefix + ChatColor.GREEN + message);
-              }
-          }
-      },this);
+    ROL = Boolean.valueOf(config.getBoolean("remove_on_leave"));
   }
 
-  Location getGroundBlock(String look, Location loc) {
+  public Location getGroundBlock(String look, Location loc) {
       //getLogger().info(look);
       Location last = loc.clone();
       if (look.equalsIgnoreCase("N")) {
@@ -577,29 +341,6 @@ public class PortalGun extends JavaPlugin
       double suma = 0.9D*Math.cos(grado);
       double suma2 = 1.8D*Math.sin(grado);
 
-      /*if (proceso.intValue() == 0) { suma = 0.5D; }
-	  else if (proceso.intValue() == 1) { suma = 0.6D; suma2 += 0.1D; }
-	  else if (proceso.intValue() == 2) { suma = 0.7D; suma2 += 0.25D; }
-	  else if (proceso.intValue() == 3) { suma = 0.8D; suma2 += 0.4D; }
-	  else if (proceso.intValue() == 4) { suma = 0.9D; suma2 += 0.6D; }
-	  else if (proceso.intValue() == 5) { suma = 0.9D; suma2 += 0.8D; }
-	  else if (proceso.intValue() == 6) { suma = 0.9D; suma2++; }
-	  else if (proceso.intValue() == 7) { suma = 0.9D; suma2 += 1.2D; }
-	  else if (proceso.intValue() == 8) { suma = 0.8D; suma2 += 1.4D; }
-	  else if (proceso.intValue() == 9) { suma = 0.7D; suma2 += 1.6D; }
-	  else if (proceso.intValue() == 10) { suma = 0.6D; suma2 += 1.8D; }
-	  else if (proceso.intValue() == 11) { suma = 0.5D; suma2 += 1.8D; }
-	  else if (proceso.intValue() == 12) { suma = 0.4D; suma2 += 1.8D; }
-	  else if (proceso.intValue() == 13) { suma = 0.3D; suma2 += 1.6D; }
-	  else if (proceso.intValue() == 14) { suma = 0.2D; suma2 += 1.4D; }
-	  else if (proceso.intValue() == 15) { suma = 0.1D; suma2 += 1.2D; }
-	  else if (proceso.intValue() == 16) { suma = 0.1D; suma2++; }
-	  else if (proceso.intValue() == 17) { suma = 0.1D; suma2 += 0.8D; }
-	  else if (proceso.intValue() == 18) { suma = 0.1D; suma2 += 0.6D; }
-	  else if (proceso.intValue() == 19) { suma = 0.2D; suma2 += 0.4D; }
-	  else if (proceso.intValue() == 20) { suma = 0.3D; suma2 += 0.25D; }
-	  else if (proceso.intValue() == 21) { suma = 0.4D; suma2 += 0.1D; }*/
-
 	  if(!down) {
 	      y+=suma2;
 
@@ -632,7 +373,7 @@ public class PortalGun extends JavaPlugin
 	  loc.getWorld().spawnParticle(particula, x, y, z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
 	}
   
-  private void teletransporte(Location loc, Entity player, String look, String lastL, boolean down, boolean lastD) {
+  public void teletransporte(Location loc, Entity player, String look, String lastL, boolean down, boolean lastD) {
 	  if (!this.entidad_portal.contains(player)) { this.entidad_portal.add(player); }
 	  else { return; }
 	  
@@ -689,7 +430,7 @@ public class PortalGun extends JavaPlugin
 	  player.setVelocity(vel);
   }
   
-  private static String getCardinalDirection(Player player) {
+  public static String getCardinalDirection(Player player) {
 	  double rotation = ((player.getLocation().getYaw() - 90.0F) % 360.0F);
   
   if (rotation < 0.0D) {

@@ -1,11 +1,11 @@
 package com.rogermiranda1000.portalgun;
 
 public class Portal {
-    double[][] loc = new double[2][3];
-    String[] world = {"", ""};
-    char[] dir = {' ', ' '};
+    public double[][] loc = new double[2][3];
+    public String[] world = {"", ""};
+    public char[] dir = {' ', ' '};
     int task = 0;
-    boolean down[] = {false, false};
+    public boolean down[] = {false, false};
 
     public Portal() {}
     public Portal(String[] l1, String[] l2) {
