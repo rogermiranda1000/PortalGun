@@ -48,7 +48,6 @@ public class onUse implements Listener {
         player.sendMessage(PortalGun.prefix+ PortalGun.config.getString("portal_denied"));
         return;
     }
-    List<String> b = Arrays.asList(PortalGun.config.getString("blocks").replace(" ", "").split(","));
     String looking = PortalGun.getCardinalDirection(player);
     if(last.getBlock().getType()==Material.AIR) {
         //Portal en el suelo
@@ -66,10 +65,15 @@ public class onUse implements Listener {
         }
         ground = true;
     }
-    if (!player.hasPermission("portalgun.overrideblocks") && (!b.contains(String.valueOf(lastBlock.getType()).replace("LEGACY_","")) ||
-            !b.contains(String.valueOf(last.getBlock().getType()).replace("LEGACY_","")))) {
+
+    if(lastBlock.getDrops().isEmpty() || last.getBlock().getDrops().isEmpty()) {
+        player.sendMessage(PortalGun.prefix+ PortalGun.config.getString("portal_failed"));
+        return;
+    }
+    if (PortalGun.config.getBoolean("only_certain_blocks") && (!player.hasPermission("portalgun.overrideblocks") &&
+            (!PortalGun.instancia.b.contains(lastBlock.getType().toString().toLowerCase()+":"+String.valueOf(lastBlock.getDrops().iterator().next().getDurability())) ||
+                    !PortalGun.instancia.b.contains(last.getBlock().getType().toString().toLowerCase()+":"+String.valueOf(lastBlock.getDrops().iterator().next().getDurability()))))) {
         player.sendMessage(PortalGun.prefix+ PortalGun.config.getString("denied_block"));
-        //player.sendMessage(String.valueOf(lastBlock.getType())+" - "+String.valueOf(b));
         return;
     }
 

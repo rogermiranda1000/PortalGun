@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
+import com.rogermiranda1000.eventos.*;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -54,6 +55,7 @@ public class PortalGun extends JavaPlugin
   Particle Pportal2;
   public Boolean ROL;
   public int max_length;
+  public List<String> b;
   
   public void onEnable() {
     getLogger().info("Plugin activated.");
@@ -92,7 +94,7 @@ public class PortalGun extends JavaPlugin
       c.put("only_certain_blocks", "false");
       c.put("use_only_your_portals", "false");
       c.put("remove_portals_on_world_change", "false");
-      c.put("blocks", "QUARTZ_BLOCK");
+      c.put("blocks", "wool:0,quartz_block:0,quartz_block:1,quartz_block:2,concrete:0");
     config = getConfig();
 
     //Create/actualize config file
@@ -111,7 +113,10 @@ public class PortalGun extends JavaPlugin
             String key = entry.getKey();
             String value = entry.getValue();
             if(!getConfig().isSet(key)) {
-                getConfig().set(key,value);
+                if(value=="true") getConfig().set(key,Boolean.valueOf(true));
+                else if(value=="false") getConfig().set(key,Boolean.valueOf(false));
+                else if(value=="80") getConfig().set(key,Integer.valueOf(80));
+                else getConfig().set(key,value);
                 need = true;
             }
         }
@@ -120,7 +125,7 @@ public class PortalGun extends JavaPlugin
 
     } catch (Exception e) {
       e.printStackTrace();
-    } 
+    }
     
     if (config.getBoolean("keep_portals_on_stop")) {
       getLogger().info("Loading portals...");
@@ -162,6 +167,16 @@ public class PortalGun extends JavaPlugin
     this.Pportal1 = Particle.valueOf(config.getString("portal1_particle"));
     this.Pportal2 = Particle.valueOf(config.getString("portal2_particle"));
     ROL = Boolean.valueOf(config.getBoolean("remove_on_leave"));
+    b = Arrays.asList(PortalGun.config.getString("blocks").replace(" ", "").toLowerCase().split(","));
+
+
+      getServer().getPluginManager().registerEvents(new onDead(), this);
+      getServer().getPluginManager().registerEvents(new onLeave(), this);
+      getServer().getPluginManager().registerEvents(new onMove(), this);
+      getServer().getPluginManager().registerEvents(new onPlaceBlock(), this);
+      getServer().getPluginManager().registerEvents(new onTab(), this);
+      getServer().getPluginManager().registerEvents(new onUse(), this);
+      getServer().getPluginManager().registerEvents(new onWorldChange(), this);
   }
 
   public Location getGroundBlock(String look, Location loc) {
@@ -280,15 +295,15 @@ public class PortalGun extends JavaPlugin
 				  }
 				  if (PortalGun.this.all_particles.booleanValue()) {
 					  for (int proc = 0; proc != 22; proc++) {
-						  PortalGun.this.playParticle(loc, Integer.valueOf(proc), look, f, Integer.valueOf(color));
+						  playParticle(loc, Integer.valueOf(proc), look, f, Integer.valueOf(color));
 					  }
 				  } else {
-					  PortalGun.this.playParticle(loc, Integer.valueOf(PortalGun.this.part_task), look, f, Integer.valueOf(color));
-					  PortalGun.this.part_task += 10;
-					  if (PortalGun.this.part_task > 21) PortalGun.this.part_task -= 21;
-					  PortalGun.this.playParticle(loc, Integer.valueOf(PortalGun.this.part_task), look, f, Integer.valueOf(color));
-					  PortalGun.this.part_task++;
-					  if (PortalGun.this.part_task > 21) PortalGun.this.part_task -= 21;
+					  playParticle(loc, Integer.valueOf(part_task), look, f, Integer.valueOf(color));
+					  part_task += 10;
+					  if (part_task > 21) part_task -= 21;
+					  playParticle(loc, Integer.valueOf(part_task), look, f, Integer.valueOf(color));
+					  part_task++;
+					  if (part_task > 21) part_task -= 21;
 				  }
 			  }
 			  List<Entity> entidades = new ArrayList<Entity>();
@@ -337,9 +352,9 @@ public class PortalGun extends JavaPlugin
 	  double x = loc.getBlockX();
 	  double y = loc.getBlockY();
 	  double z = loc.getBlockZ();
-      double grado=2*Math.PI*proceso/21;
-      double suma = 0.9D*Math.cos(grado);
-      double suma2 = 1.8D*Math.sin(grado);
+	  double grado=2*Math.PI*proceso/21;
+      double suma = 0.45D*(1+Math.cos(grado));
+      double suma2 = 0.9D*(1+Math.sin(grado));
 
 	  if(!down) {
 	      y+=suma2;
