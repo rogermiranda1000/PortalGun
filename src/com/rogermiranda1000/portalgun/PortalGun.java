@@ -168,6 +168,9 @@ public class PortalGun extends JavaPlugin
     this.Pportal2 = Particle.valueOf(config.getString("portal2_particle"));
     ROL = Boolean.valueOf(config.getBoolean("remove_on_leave"));
     b = Arrays.asList(PortalGun.config.getString("blocks").replace(" ", "").toLowerCase().split(","));
+    for(int x = 0; x<b.size(); x++) {
+        if(!b.get(x).contains(":")) b.set(x, b.get(x)+":0");
+    }
 
 
       getServer().getPluginManager().registerEvents(new onDead(), this);

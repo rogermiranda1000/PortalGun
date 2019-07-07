@@ -66,15 +66,17 @@ public class onUse implements Listener {
         ground = true;
     }
 
-    if(lastBlock.getDrops().isEmpty() || last.getBlock().getDrops().isEmpty()) {
-        player.sendMessage(PortalGun.prefix+ PortalGun.config.getString("portal_failed"));
-        return;
-    }
-    if (PortalGun.config.getBoolean("only_certain_blocks") && (!player.hasPermission("portalgun.overrideblocks") &&
-            (!PortalGun.instancia.b.contains(lastBlock.getType().toString().toLowerCase()+":"+String.valueOf(lastBlock.getDrops().iterator().next().getDurability())) ||
-                    !PortalGun.instancia.b.contains(last.getBlock().getType().toString().toLowerCase()+":"+String.valueOf(lastBlock.getDrops().iterator().next().getDurability()))))) {
-        player.sendMessage(PortalGun.prefix+ PortalGun.config.getString("denied_block"));
-        return;
+    if(PortalGun.config.getBoolean("only_certain_blocks")) {
+        if (lastBlock.getDrops().isEmpty() || last.getBlock().getDrops().isEmpty()) {
+            player.sendMessage(PortalGun.prefix + PortalGun.config.getString("portal_failed"));
+            return;
+        }
+        if (!player.hasPermission("portalgun.overrideblocks") &&
+                (!PortalGun.instancia.b.contains(lastBlock.getType().toString().toLowerCase() + ":" + String.valueOf(lastBlock.getDrops().iterator().next().getDurability())) ||
+                        !PortalGun.instancia.b.contains(last.getBlock().getType().toString().toLowerCase() + ":" + String.valueOf(lastBlock.getDrops().iterator().next().getDurability())))) {
+            player.sendMessage(PortalGun.prefix + PortalGun.config.getString("denied_block"));
+            return;
+        }
     }
 
     if(!ground) {

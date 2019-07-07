@@ -1,6 +1,6 @@
 name: PortalGun
 main: com.rogermiranda1000.portalgun.PortalGun
-version: 1.5
+version: 1.6
 author: rogermiranda1000
 commands:
     portalgun:
