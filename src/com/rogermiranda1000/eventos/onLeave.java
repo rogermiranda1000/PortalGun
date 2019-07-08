@@ -8,7 +8,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class onLeave implements Listener {
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {
-        if (!PortalGun.instancia.ROL.booleanValue())
+        if (!PortalGun.instancia.ROL)
             return;
         String nick = event.getPlayer().getName();
         if (!PortalGun.instancia.portales.containsKey(nick)) return;

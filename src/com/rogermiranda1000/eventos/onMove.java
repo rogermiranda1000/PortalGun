@@ -23,7 +23,7 @@ public class onMove implements Listener {
             double temp[] = {e.getFrom().getBlock().getLocation().getX(),e.getFrom().getBlock().getLocation().getY(),e.getFrom().getBlock().getLocation().getZ()};
             if(result==-1) continue;
             if(p.down[result] && result==p.contains(temp,loc.getWorld().getName())) continue;
-            if(PortalGun.config.getBoolean("use_only_your_portals") && !player.hasPermission("portalgun.overrideotherportals") && player.getName()!=s) continue;
+            if(!PortalGun.instancia.public_portals && !player.hasPermission("portalgun.overrideotherportals") && player.getName()!=s) continue;
             if (PortalGun.instancia.entidad_portal.contains(player)) PortalGun.instancia.entidad_portal.remove(player);
             String Nlooking = PortalGun.getCardinalDirection(player);
             if(!Nlooking.equalsIgnoreCase(String.valueOf(Nlooking.charAt(0)))) continue;

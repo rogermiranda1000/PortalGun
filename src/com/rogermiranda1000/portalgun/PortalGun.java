@@ -45,15 +45,16 @@ public class PortalGun extends JavaPlugin
   int tasks;
   public ItemStack item;
   public ItemStack botas;
-  Boolean all_particles;
-  Boolean tp_log;
+  boolean all_particles;
+  boolean tp_log;
   int part_task = 0;
   int delay = 2;
   public static final String clearPrefix=ChatColor.GOLD+""+ChatColor.BOLD+"[PortalGun] ",prefix=clearPrefix+ChatColor.RED;
 
   Particle Pportal1;
   Particle Pportal2;
-  public Boolean ROL;
+    public boolean ROL;
+    public boolean public_portals;
   public int max_length;
   public List<String> b;
   
@@ -162,11 +163,12 @@ public class PortalGun extends JavaPlugin
     
     max_length = config.getInt("max_portal_length");
     this.all_particles = Boolean.valueOf(config.getBoolean("all_portal_particles"));
-    if (this.all_particles.booleanValue()) this.delay = 15; 
+    if (all_particles) delay = 15;
     this.tp_log = Boolean.valueOf(config.getBoolean("teleport_log"));
     this.Pportal1 = Particle.valueOf(config.getString("portal1_particle"));
     this.Pportal2 = Particle.valueOf(config.getString("portal2_particle"));
     ROL = Boolean.valueOf(config.getBoolean("remove_on_leave"));
+      public_portals = !Boolean.valueOf(config.getBoolean("use_only_your_portals"));
     b = Arrays.asList(PortalGun.config.getString("blocks").replace(" ", "").toLowerCase().split(","));
     for(int x = 0; x<b.size(); x++) {
         if(!b.get(x).contains(":")) b.set(x, b.get(x)+":0");
@@ -228,21 +230,23 @@ public class PortalGun extends JavaPlugin
 		  if (args.length >= 1) {
 			  if (args[0].equalsIgnoreCase("remove")) {
 				  if (player.hasPermission("portalgun.remove")) {
-					  cancelPortals(false);
 					  if (args.length == 2 && args[1].equalsIgnoreCase("all")) {
+                          cancelPortals(false);
 						  if (!player.hasPermission("portalgun.remove.all")) {
 							  player.sendMessage(prefix+ config.getString("no_permissions"));
 							  return true;
 						  }
 						  portales.clear();
 						  sender.sendMessage(ChatColor.RED + config.getString("force_portal_remove"));
+                          cancelPortals(true);
 					  } else if (portales.containsKey(player.getName())) {
+                          cancelPortals(false);
 						  portales.remove(player.getName());
 						  player.sendMessage(clearPrefix+ ChatColor.GREEN + config.getString("portal_remove"));
+                          cancelPortals(true);
 					  } else {
 						  player.sendMessage(prefix+ config.getString("no_portals"));
 					  }
-					  cancelPortals(true);
 				  } else {
 					  player.sendMessage(prefix+ config.getString("no_permissions"));
 				  }
@@ -276,13 +280,13 @@ public class PortalGun extends JavaPlugin
               //getLogger().info(String.valueOf(loc1.getWorld())+"-"+p.world[0]);
               //getLogger().info(String.valueOf(loc1));
               Location loc2 = new Location(Bukkit.getServer().getWorld(p.world[1]), p.loc[1][0], p.loc[1][1], p.loc[1][2]);
-			  if (loc1 != null && loc2 != null) portal(loc1, loc2, String.valueOf(p.dir[0]), String.valueOf(p.dir[1]), p.down[0], p.down[1]);
+			  if (loc1 != null && loc2 != null) portal(loc1, loc2, String.valueOf(p.dir[0]), String.valueOf(p.dir[1]), p.down[0], p.down[1], ply);
               p.task=this.tasks;
 		  }
 	  }
   }
   
-  private void portal(final Location loc1, final Location loc2, final String look1, final String look2, final boolean f1, final boolean f2) {
+  private void portal(final Location loc1, final Location loc2, final String look1, final String look2, final boolean f1, final boolean f2, final String player) {
 	  this.tasks = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 		  public void run() {
 			  for (int a = 0; a != 2; a++) {
@@ -296,15 +300,15 @@ public class PortalGun extends JavaPlugin
 					  f = f1;
 					  color = 0;
 				  }
-				  if (PortalGun.this.all_particles.booleanValue()) {
+				  if (PortalGun.this.all_particles) {
 					  for (int proc = 0; proc != 22; proc++) {
-						  playParticle(loc, Integer.valueOf(proc), look, f, Integer.valueOf(color));
+						  playParticle(loc, Integer.valueOf(proc), look, f, Integer.valueOf(color), player);
 					  }
 				  } else {
-					  playParticle(loc, Integer.valueOf(part_task), look, f, Integer.valueOf(color));
+					  playParticle(loc, Integer.valueOf(part_task), look, f, Integer.valueOf(color), player);
 					  part_task += 10;
 					  if (part_task > 21) part_task -= 21;
-					  playParticle(loc, Integer.valueOf(part_task), look, f, Integer.valueOf(color));
+					  playParticle(loc, Integer.valueOf(part_task), look, f, Integer.valueOf(color), player);
 					  part_task++;
 					  if (part_task > 21) part_task -= 21;
 				  }
@@ -351,13 +355,13 @@ public class PortalGun extends JavaPlugin
 	  },this.delay, this.delay);
   }
 
-  private void playParticle(Location loc, int proceso, String look, boolean down, Integer color) {
+  private void playParticle(Location loc, int proceso, String look, boolean down, Integer color, String player) {
 	  double x = loc.getBlockX();
 	  double y = loc.getBlockY();
 	  double z = loc.getBlockZ();
 	  double grado=2*Math.PI*proceso/21;
-      double suma = 0.45D*(1+Math.cos(grado));
-      double suma2 = 0.9D*(1+Math.sin(grado));
+      double suma = 0.45D*(1.1D+Math.cos(grado));
+      double suma2 = 0.9D*(1.1D+Math.sin(grado));
 
 	  if(!down) {
 	      y+=suma2;
@@ -388,7 +392,13 @@ public class PortalGun extends JavaPlugin
 	  Particle particula = this.Pportal2;
 	  if (color.intValue() == 0) particula = this.Pportal1;
       //getLogger().info(String.valueOf(loc.getWorld()));
-	  loc.getWorld().spawnParticle(particula, x, y, z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+	  if(public_portals) loc.getWorld().spawnParticle(particula, x, y, z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+	  else {
+	      Player ply = Bukkit.getPlayer(player);
+	      for(Player a: Bukkit.getOnlinePlayers()) {
+	        if(a.hasPermission("portalgun.overrideotherportals") || (ply!=null&&a==ply)) a.spawnParticle(particula, x, y, z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+          }
+      }
 	}
   
   public void teletransporte(Location loc, Entity player, String look, String lastL, boolean down, boolean lastD) {
@@ -397,7 +407,7 @@ public class PortalGun extends JavaPlugin
 	  
 	  if (loc.getWorld().getPlayers().size() == 0 && !(player instanceof Player)) return;
 	  if (!player.getPassengers().isEmpty() && player.getPassengers().get(0) instanceof Player) player = (Entity)player.getPassengers().get(0);
-	  if (this.tp_log.booleanValue()) getLogger().info("Teleporting " + player.getName() + "...");
+	  if (this.tp_log) getLogger().info("Teleporting " + player.getName() + "...");
 
       Vector vel = player.getVelocity().clone();
       double predominante = 0D;
