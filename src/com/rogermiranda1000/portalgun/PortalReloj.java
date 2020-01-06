@@ -129,20 +129,14 @@ public class PortalReloj implements Runnable, Listener{
     public void alCargar(ChunkLoadEvent e){
         if(bt!=null)return;
         Chunk c=e.getChunk();
-        if(a==c||b==c){
-            iniciar();
-            System.out.println("INICIA");
-        }
+        if(a==c||b==c)iniciar();
     }
 
     @EventHandler
     public void alDescargar(ChunkUnloadEvent e){
         if(bt==null)return;
         Chunk c=e.getChunk();
-        if((a==c&&!b.isLoaded())||(b==c&&!a.isLoaded())){
-            detener();
-            System.out.println("CIERRA");
-        }
+        if((a==c&&!b.isLoaded())||(b==c&&!a.isLoaded()))detener();
     }
 
 }
