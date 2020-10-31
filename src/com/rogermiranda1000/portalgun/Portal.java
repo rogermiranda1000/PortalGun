@@ -4,7 +4,7 @@ public class Portal {
     public double[][] loc = new double[2][3];
     public String[] world = {"", ""};
     public char[] dir = {' ', ' '};
-    int task = 0;
+    PortalReloj reloj;
     public boolean down[] = {false, false};
 
     public Portal() {}

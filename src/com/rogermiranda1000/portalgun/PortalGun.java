@@ -47,7 +47,6 @@ public class PortalGun extends JavaPlugin
   public ItemStack botas;
   boolean all_particles;
   boolean tp_log;
-  int part_task = 0;
   int delay = 2;
   public static final String clearPrefix=ChatColor.GOLD+""+ChatColor.BOLD+"[PortalGun] ",prefix=clearPrefix+ChatColor.RED;
 
@@ -184,7 +183,7 @@ public class PortalGun extends JavaPlugin
       getServer().getPluginManager().registerEvents(new onWorldChange(), this);
   }
 
-  public Location getGroundBlock(String look, Location loc) {
+  public static Location getGroundBlock(String look, Location loc) {
       //getLogger().info(look);
       Location last = loc.clone();
       if (look.equalsIgnoreCase("N")) {
@@ -271,8 +270,10 @@ public class PortalGun extends JavaPlugin
   public void cancelPortals(boolean open) {
 	  for (String ply : portales.keySet()) {
           Portal p = portales.get(ply);
-		  try { Bukkit.getServer().getScheduler().cancelTask(((Integer)p.task).intValue()); }
-		  catch (Exception exception) {}
+          if(p.reloj!=null){
+              p.reloj.eliminar();
+              p.reloj=null;
+          }
 		  
 		  if (open) {
               //getLogger().info(String.valueOf(Bukkit.getWorld(p.world[0]))+"-"+p.loc[0][0]+"-"+p.loc[0][1]+"-"+p.loc[0][2]);
@@ -280,82 +281,12 @@ public class PortalGun extends JavaPlugin
               //getLogger().info(String.valueOf(loc1.getWorld())+"-"+p.world[0]);
               //getLogger().info(String.valueOf(loc1));
               Location loc2 = new Location(Bukkit.getServer().getWorld(p.world[1]), p.loc[1][0], p.loc[1][1], p.loc[1][2]);
-			  if (loc1 != null && loc2 != null) portal(loc1, loc2, String.valueOf(p.dir[0]), String.valueOf(p.dir[1]), p.down[0], p.down[1], ply);
-              p.task=this.tasks;
+			  if (loc1 != null && loc2 != null) p.reloj=new PortalReloj(loc1, loc2, String.valueOf(p.dir[0]), String.valueOf(p.dir[1]), p.down[0], p.down[1], ply);
 		  }
 	  }
   }
-  
-  private void portal(final Location loc1, final Location loc2, final String look1, final String look2, final boolean f1, final boolean f2, final String player) {
-	  this.tasks = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-		  public void run() {
-			  for (int a = 0; a != 2; a++) {
-				  Location loc = loc2;
-                  String look = look2;
-                  Boolean f = f2;
-				  int color = 1;
-				  if (a == 0) {
-					  loc = loc1;
-					  look = look1;
-					  f = f1;
-					  color = 0;
-				  }
-				  if (PortalGun.this.all_particles) {
-					  for (int proc = 0; proc != 22; proc++) {
-						  playParticle(loc, Integer.valueOf(proc), look, f, Integer.valueOf(color), player);
-					  }
-				  } else {
-					  playParticle(loc, Integer.valueOf(part_task), look, f, Integer.valueOf(color), player);
-					  part_task += 10;
-					  if (part_task > 21) part_task -= 21;
-					  playParticle(loc, Integer.valueOf(part_task), look, f, Integer.valueOf(color), player);
-					  part_task++;
-					  if (part_task > 21) part_task -= 21;
-				  }
-			  }
-			  List<Entity> entidades = new ArrayList<Entity>();
-			  entidades.addAll(Arrays.asList(loc1.getWorld().getChunkAt(loc1).getEntities()));
-			  if(f1) entidades.addAll(Arrays.asList(loc1.getWorld().getChunkAt(getGroundBlock(look1, loc1)).getEntities()));
-			  entidades.addAll(Arrays.asList(loc2.getWorld().getChunkAt(loc2).getEntities()));
-              if(f2) entidades.addAll(Arrays.asList(loc2.getWorld().getChunkAt(getGroundBlock(look2, loc2)).getEntities()));
-			  if (entidades.size() > 0) for (Entity player : entidades) {
-				  try {
-					  World mundo = player.getLocation().getWorld();
-					  double xp = player.getLocation().getBlockX();
-					  double yp = player.getLocation().getBlockY();
-					  double zp = player.getLocation().getBlockZ();
-					  double xloc1 = loc1.getBlockX();
-					  //if (xloc1 < 0.0D) xloc1++;
-					  double xloc2 = loc2.getBlockX();
-					  //if (xloc2 < 0.0D) xloc2++;
-					  double zloc1 = loc1.getBlockZ();
-					  //if (zloc1 < 0.0D) zloc1++;
-					  double zloc2 = loc2.getBlockZ();
-					  //if (zloc2 < 0.0D) zloc2++;
-					  if (player instanceof Player) {
-					      //isPlayerTp((Player) player, loc1, loc2, look1, look2);
-					      continue;
-					  }
-					  if((mundo.equals(loc1.getWorld()) && xp == xloc1 && yp == loc1.getBlockY() && zp == zloc1) ||
-                              (f1 && mundo.equals(loc1.getWorld()) && xp == getGroundBlock(look1, loc1).getBlockX() &&
-                                      yp == getGroundBlock(look1, loc1).getBlockY() && zp == getGroundBlock(look1, loc1).getBlockZ())) {
-						  PortalGun.this.teletransporte(loc2, player, look2, look1, f2, f1);
-						  continue;
-					  }
-					  if (mundo.equals(loc2.getWorld()) && xp == xloc2 && yp == loc2.getBlockY() && zp == zloc2||
-                              (f2 && mundo.equals(loc2.getWorld()) && xp == getGroundBlock(look2, loc2).getBlockX() &&
-                                      yp == getGroundBlock(look2, loc2).getBlockY() && zp == getGroundBlock(look2, loc2).getBlockZ())) {
-						  PortalGun.this.teletransporte(loc1, player, look1, look2, f1, f2);
-						  continue;
-					  }
-					  if (PortalGun.this.entidad_portal.contains(player)) PortalGun.this.entidad_portal.remove(player);
-				  } catch (Exception e) { e.printStackTrace(); }
-			  }
-		  }
-	  },this.delay, this.delay);
-  }
 
-  private void playParticle(Location loc, int proceso, String look, boolean down, Integer color, String player) {
+  public static void playParticle(Location loc, int proceso, String look, boolean down, Integer color, String player) {
 	  double x = loc.getBlockX();
 	  double y = loc.getBlockY();
 	  double z = loc.getBlockZ();
@@ -389,10 +320,10 @@ public class PortalGun extends JavaPlugin
               z+=suma;
           }
       }
-	  Particle particula = this.Pportal2;
-	  if (color.intValue() == 0) particula = this.Pportal1;
+	  Particle particula = instancia.Pportal2;
+	  if (color.intValue() == 0) particula = instancia.Pportal1;
       //getLogger().info(String.valueOf(loc.getWorld()));
-	  if(public_portals) loc.getWorld().spawnParticle(particula, x, y, z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+	  if(instancia.public_portals) loc.getWorld().spawnParticle(particula, x, y, z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
 	  else {
 	      Player ply = Bukkit.getPlayer(player);
 	      for(Player a: Bukkit.getOnlinePlayers()) {
