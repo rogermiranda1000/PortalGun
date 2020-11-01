@@ -12,34 +12,23 @@ import java.util.*;
 import com.rogermiranda1000.eventos.*;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 public class PortalGun extends JavaPlugin
 {
     public static PortalGun instancia;
   public static FileConfiguration config;
-   public HashMap<String, Portal> portales = new HashMap<String, Portal>();
+   public HashMap<String, LPortal> portales = new HashMap<String, LPortal>();
   public List<Entity> entidad_portal = new ArrayList<Entity>();
   
   int tasks;
@@ -137,7 +126,7 @@ public class PortalGun extends JavaPlugin
               while ((l=br.readLine())!=null) {
                   String[] args = l.split(">");
                   if(args.length!=3) continue;
-                  portales.put(args[0], new Portal(args[1].split(","),args[2].split(",")));
+                  portales.put(args[0], new LPortal(args[1].split(","),args[2].split(",")));
               }
               br.close();
           } catch (Exception e) { e.printStackTrace(); }
@@ -161,13 +150,13 @@ public class PortalGun extends JavaPlugin
       botas.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
     
     max_length = config.getInt("max_portal_length");
-    this.all_particles = Boolean.valueOf(config.getBoolean("all_portal_particles"));
+    this.all_particles = config.getBoolean("all_portal_particles");
     if (all_particles) delay = 15;
-    this.tp_log = Boolean.valueOf(config.getBoolean("teleport_log"));
+    this.tp_log = config.getBoolean("teleport_log");
     this.Pportal1 = Particle.valueOf(config.getString("portal1_particle"));
     this.Pportal2 = Particle.valueOf(config.getString("portal2_particle"));
-    ROL = Boolean.valueOf(config.getBoolean("remove_on_leave"));
-      public_portals = !Boolean.valueOf(config.getBoolean("use_only_your_portals"));
+    ROL = config.getBoolean("remove_on_leave");
+      public_portals = !config.getBoolean("use_only_your_portals");
     b = Arrays.asList(PortalGun.config.getString("blocks").replace(" ", "").toLowerCase().split(","));
     for(int x = 0; x<b.size(); x++) {
         if(!b.get(x).contains(":")) b.set(x, b.get(x)+":0");
@@ -269,7 +258,7 @@ public class PortalGun extends JavaPlugin
   
   public void cancelPortals(boolean open) {
 	  for (String ply : portales.keySet()) {
-          Portal p = portales.get(ply);
+          LPortal p = portales.get(ply);
           if(p.reloj!=null){
               p.reloj.eliminar();
               p.reloj=null;
@@ -388,44 +377,5 @@ public class PortalGun extends JavaPlugin
 
 	  player.setVelocity(vel);
   }
-  
-  public static String getCardinalDirection(Player player) {
-	  double rotation = ((player.getLocation().getYaw() - 90.0F) % 360.0F);
-  
-  if (rotation < 0.0D) {
-      rotation += 360.0D;
-    }
-    
-    if (0.0D <= rotation && rotation < 22.5D)
-      return "N"; 
-    if (22.5D <= rotation && rotation < 67.5D) {
-        /*if (rotation - 22.5D <= 22.5D) return "N";
-        else return "E";*/
-        return "NE";
-    }
-    if (67.5D <= rotation && rotation < 112.5D)
-      return "E";
-    if (112.5D <= rotation && rotation < 157.5D) {
-        /*if (rotation - 112.5D <= 22.5D) return "E";
-        else return "S";*/
-        return "SE";
-    }
-    if (157.5D <= rotation && rotation < 202.5D)
-      return "S"; 
-    if (202.5D <= rotation && rotation < 247.5D) {
-        /*if (rotation - 202.5D <= 22.5D) return "S";
-        else return "W";*/
-        return "SW";
-    }
-    if (247.5D <= rotation && rotation < 292.5D)
-      return "W"; 
-    if (292.5D <= rotation && rotation < 337.5D) {
-        /*if (rotation - 292.5D <= 22.5D) return "W";
-        else return "N";*/
-        return "NW";
-    }
-    if (337.5D <= rotation && rotation < 360.0D) return "N";
-    return null;
- }
 
 }

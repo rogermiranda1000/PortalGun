@@ -1,7 +1,9 @@
 package com.rogermiranda1000.eventos;
 
-import com.rogermiranda1000.portalgun.Portal;
+import com.rogermiranda1000.portalgun.Direction;
+import com.rogermiranda1000.portalgun.LPortal;
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.ItemManager;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,15 +17,12 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.BlockIterator;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class onUse implements Listener {
     @EventHandler
     public void onPlayerUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
-        if (!player.getInventory().getItemInMainHand().equals(PortalGun.instancia.item) && !player.getInventory().getItemInOffHand().equals(PortalGun.instancia.item)) return;
+        if (!ItemManager.hasItemInHand(player, PortalGun.instancia.item)) return;
         if(event.getAction() != Action.LEFT_CLICK_AIR && event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_AIR
              && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         event.setCancelled(true);
@@ -48,13 +47,13 @@ public class onUse implements Listener {
         player.sendMessage(PortalGun.prefix+ PortalGun.config.getString("portal_denied"));
         return;
     }
-    String looking = PortalGun.getCardinalDirection(player);
+    Direction looking = Direction.getDirection(player);
     if(last.getBlock().getType()==Material.AIR) {
         //Portal en el suelo
         double x = 0D;
         double z = 0D;
         last.setY(last.getY()-1D);
-        last = PortalGun.instancia.getGroundBlock(looking, last);
+        last = PortalGun.instancia.getGroundBlock(looking.name(), last);
         if(last==null) {
             player.sendMessage(PortalGun.prefix+ PortalGun.config.getString("portal_failed"));
             return;
@@ -80,15 +79,11 @@ public class onUse implements Listener {
     }
 
     if(!ground) {
-        if (looking.equalsIgnoreCase("N")) {
-            block.setX(block.getX() + 1.0D);
-        } else if (looking.equalsIgnoreCase("S")) {
-            block.setX(block.getX() - 1.0D);
-        } else if (looking.equalsIgnoreCase("E")) {
-            block.setZ(block.getZ() + 1.0D);
-        } else if (looking.equalsIgnoreCase("W")) {
-            block.setZ(block.getZ() - 1.0D);
-        } else {
+        if (looking == Direction.N) block.setX(block.getX() + 1.0D);
+        else if (looking == Direction.S) block.setX(block.getX() - 1.0D);
+        else if (looking == Direction.E)  block.setZ(block.getZ() + 1.0D);
+        else if (looking == Direction.W) block.setZ(block.getZ() - 1.0D);
+        else {
             player.sendMessage(PortalGun.prefix+ PortalGun.config.getString("portal_failed"));
             return;
         }
@@ -106,11 +101,11 @@ public class onUse implements Listener {
 
     Location loc1 = null;
     Location loc2 = null;
-    if(!PortalGun.instancia.portales.containsKey(player.getName())) PortalGun.instancia.portales.put(player.getName(), new Portal());
+    if(!PortalGun.instancia.portales.containsKey(player.getName())) PortalGun.instancia.portales.put(player.getName(), new LPortal());
 
-    Portal p = PortalGun.instancia.portales.get(player.getName());
-    if(p.world[0]!="") loc1 = new Location(Bukkit.getServer().getWorld(p.world[0]), p.loc[0][0], p.loc[0][1], p.loc[0][2]);
-    if(p.world[1]!="") loc2 = new Location(Bukkit.getServer().getWorld(p.world[1]), p.loc[1][0], p.loc[1][1], p.loc[1][2]);
+    LPortal p = PortalGun.instancia.portales.get(player.getName());
+    if(!p.world[0].isEmpty()) loc1 = new Location(Bukkit.getServer().getWorld(p.world[0]), p.loc[0][0], p.loc[0][1], p.loc[0][2]);
+    if(!p.world[1].isEmpty()) loc2 = new Location(Bukkit.getServer().getWorld(p.world[1]), p.loc[1][0], p.loc[1][1], p.loc[1][2]);
     if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) { loc1 = block; }
     else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) { loc2 = block; }
     if (loc1 != null && loc2 != null && (loc1.equals(loc2) || (new Location(loc1.getWorld(), loc1.getX(), loc1.getY() + 1.0D, loc1.getZ())).equals(loc2) ||
@@ -122,7 +117,7 @@ public class onUse implements Listener {
         p.loc[0][0] = block.getX();
         p.loc[0][1] = block.getY();
         p.loc[0][2] = block.getZ();
-        p.dir[0] = looking.charAt(0);
+        p.dir[0] = looking.name().charAt(0);
         p.world[0] = block.getWorld().getName();
         p.down[0] = ground;
         //getLogger().info(String.valueOf(block.getWorld())+"-"+p.world[0]);
@@ -131,7 +126,7 @@ public class onUse implements Listener {
         p.loc[1][0] = block.getX();
         p.loc[1][1] = block.getY();
         p.loc[1][2] = block.getZ();
-        p.dir[1] = looking.charAt(0);
+        p.dir[1] = looking.name().charAt(0);
         p.world[1] = block.getWorld().getName();
         p.down[1] = ground;
         loc2 = new Location(Bukkit.getServer().getWorld(p.world[1]), p.loc[1][0], p.loc[1][1], p.loc[1][2]);

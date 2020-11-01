@@ -1,14 +1,14 @@
 package com.rogermiranda1000.portalgun;
 
-public class Portal {
+public class LPortal {
     public double[][] loc = new double[2][3];
     public String[] world = {"", ""};
     public char[] dir = {' ', ' '};
     PortalReloj reloj;
     public boolean down[] = {false, false};
 
-    public Portal() {}
-    public Portal(String[] l1, String[] l2) {
+    public LPortal() {}
+    public LPortal(String[] l1, String[] l2) {
         for(int a = 0; a<2; a++) {
             String[] l = l2;
             if(a==0) l = l1;
