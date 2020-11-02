@@ -23,8 +23,8 @@ public class onUse implements Listener {
         Player player = event.getPlayer();
 
         if (!ItemManager.hasItemInHand(player, PortalGun.instancia.item)) return;
-        if(event.getAction() != Action.LEFT_CLICK_AIR && event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_AIR
-             && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        if(event.getAction() == Action.PHYSICAL) return;
+
         event.setCancelled(true);
         if (!player.hasPermission("portalgun.open")) {
             player.sendMessage(PortalGun.prefix+ PortalGun.config.getString("no_permissions"));
@@ -146,5 +146,5 @@ public class onUse implements Listener {
         String message = PortalGun.config.getString("half_portal_opened").replace("[pos]", block.getX() + ", " + block.getY() + ", " + block.getZ());
         player.sendMessage(PortalGun.clearPrefix + ChatColor.GREEN + message);
     }
-}
+    }
 }
