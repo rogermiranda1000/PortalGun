@@ -1,4 +1,4 @@
-package com.rogermiranda1000.eventos;
+package com.rogermiranda1000.portalgun.eventos;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

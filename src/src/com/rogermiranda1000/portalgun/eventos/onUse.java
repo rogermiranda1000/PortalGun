@@ -1,9 +1,10 @@
-package com.rogermiranda1000.eventos;
+package com.rogermiranda1000.portalgun.eventos;
 
 import com.rogermiranda1000.portalgun.Direction;
 import com.rogermiranda1000.portalgun.LPortal;
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.ItemManager;
+import com.rogermiranda1000.portalgun.files.Language;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -16,8 +17,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.BlockIterator;
+import org.bukkit.util.Vector;
 
 public class onUse implements Listener {
+    private boolean emptyBlock(Block b) {
+        return (b.isPassable() || b.isLiquid());
+    }
+
     @EventHandler
     public void onPlayerUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
@@ -27,26 +33,32 @@ public class onUse implements Listener {
 
         event.setCancelled(true);
         if (!player.hasPermission("portalgun.open")) {
-            player.sendMessage(PortalGun.prefix+ PortalGun.config.getString("no_permissions"));
+            player.sendMessage(PortalGun.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
             return;
         }
-        BlockIterator iter = new BlockIterator(player, PortalGun.instancia.max_length);
-        Block lastBlock = iter.next();
-        while (iter.hasNext()) {
-            lastBlock = iter.next();
-            if (lastBlock.getType() == Material.AIR) {
-                continue;
-            }
-            break;
-        }
-    Location block = lastBlock.getLocation();
-    Location last = new Location(block.getWorld(), block.getX(), block.getY() + 1.0D, block.getZ());
-    boolean ground = false;
 
-    if (!lastBlock.getType().isSolid()) {
-        player.sendMessage(PortalGun.prefix+ PortalGun.config.getString("portal_denied"));
-        return;
-    }
+        // raytracing
+        BlockIterator iter = new BlockIterator(player, PortalGun.instancia.max_length);
+        Block colliderBlock = iter.next(), lastBlock;
+        do {
+            lastBlock = colliderBlock;
+            colliderBlock = iter.next();
+        } while (emptyBlock(colliderBlock) && iter.hasNext());
+
+        Location colliderBlockLocation = colliderBlock.getLocation(), lastBlockLocation = lastBlock.getLocation();
+        Vector dif = colliderBlockLocation.subtract(lastBlockLocation).toVector();
+
+        Material lastBlockType = lastBlock.getType();
+        if (!lastBlockType.isSolid()) {
+            player.sendMessage(PortalGun.errorPrefix + Language.PORTAL_DENIED);
+            return;
+        }
+        if (PortalGun.config.getBoolean("only_certain_blocks") && !player.hasPermission("portalgun.overrideblocks") &&
+                !PortalGun.instancia.b.contains(lastBlockType.toString().toLowerCase() + ":" + String.valueOf(lastBlock.getDrops().iterator().next().getDurability()))) {
+            player.sendMessage(PortalGun.errorPrefix + Language.PORTAL_BLOCK_DENIED);
+            return;
+        }
+
     Direction looking = Direction.getDirection(player);
     if(last.getBlock().getType()==Material.AIR) {
         //Portal en el suelo

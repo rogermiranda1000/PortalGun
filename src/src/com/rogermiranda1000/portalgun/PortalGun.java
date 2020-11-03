@@ -1,15 +1,12 @@
 package com.rogermiranda1000.portalgun;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.*;
 
-import com.rogermiranda1000.eventos.*;
+import com.rogermiranda1000.portalgun.eventos.*;
+import com.rogermiranda1000.portalgun.files.FileManager;
+import com.rogermiranda1000.portalgun.files.Language;
+import com.rogermiranda1000.portalgun.portals.Portal;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -27,50 +24,33 @@ import org.bukkit.util.Vector;
 public class PortalGun extends JavaPlugin
 {
     public static PortalGun instancia;
-  public static FileConfiguration config;
-   public HashMap<String, LPortal> portales = new HashMap<String, LPortal>();
-  public List<Entity> entidad_portal = new ArrayList<Entity>();
-  
-  int tasks;
-  public ItemStack item;
-  public ItemStack botas;
-  boolean all_particles;
-  boolean tp_log;
-  int delay = 2;
-  public static final String clearPrefix=ChatColor.GOLD+""+ChatColor.BOLD+"[PortalGun] ",prefix=clearPrefix+ChatColor.RED;
+    public static FileConfiguration config;
+    public List<Entity> entidad_portal = new ArrayList<Entity>();
 
-  Particle Pportal1;
-  Particle Pportal2;
+    int tasks;
+    public ItemStack item;
+    public ItemStack botas;
+    boolean all_particles;
+    boolean tp_log;
+    int delay = 2;
+    public static final String clearPrefix=ChatColor.GOLD+""+ChatColor.BOLD+"[PortalGun] ", errorPrefix=clearPrefix+ChatColor.RED;
+
+    Particle Pportal1;
+    Particle Pportal2;
     public boolean ROL;
     public boolean public_portals;
-  public int max_length;
-  public List<String> b;
-  
-  public void onEnable() {
-    getLogger().info("Plugin activated.");
+    public int max_length;
+    public List<String> b;
 
-      instancia = this;
+    public void onEnable() {
+        getLogger().info("Plugin activated.");
 
+        instancia = this;
 
+        FileManager.loadFiles();
+
+        // TODO: config
       HashMap<String,String> c = new HashMap<String, String>();
-      c.put("portal_denied", "You can't open a portal here.");
-      c.put("no_permissions", "You don't have permissions to do this.");
-      c.put("half_portal_opened", "Portal opened at [pos].");
-      c.put("portal_opened", "The portals have been linked.");
-      c.put("portal_failed", "Error at opening the portal!");
-      c.put("no_portals", "You don't have any opened portals right now.");
-      c.put("same_portal", "You can't place both portals at the same block!");
-      c.put("portal_remove", "You deleted successfully your portals.");
-      c.put("portal_removed_by_death", "Your portals have been deleted due to your death.");
-      c.put("portal_removed_by_world_change", "You can't keep portals between worlds.");
-      c.put("force_portal_remove", "Deleted all portals.");
-      c.put("give_gun", "PortalGun gived!");
-      c.put("info_get_PortalGun", "Get your PortalGun.");
-      c.put("info_remove_portals", "Delete your active portals.");
-      c.put("info_remove_all_portals", "Delete all the active portals.");
-      c.put("destroy_portal", "You have destroyed [player]'s portal.");
-      c.put("your_portal_destroyed", "Your portal has been destroyed by [player].");
-      c.put("denied_block", "You can't open a portal in that block.");
       c.put("max_portal_length", "80");
       c.put("all_portal_particles", "false");
       c.put("teleport_log", "true");
@@ -88,7 +68,7 @@ public class PortalGun extends JavaPlugin
 
     //Create/actualize config file
     try {
-      if (!getDataFolder().exists()) getDataFolder().mkdirs(); 
+      if (!getDataFolder().exists()) getDataFolder().mkdir();
       File file = new File(getDataFolder(), "config.yml");
       boolean need = false;
 
@@ -115,8 +95,9 @@ public class PortalGun extends JavaPlugin
     } catch (Exception e) {
       e.printStackTrace();
     }
-    
-    if (config.getBoolean("keep_portals_on_stop")) {
+
+    // TODO: Cargar portales
+    /*if (config.getBoolean("keep_portals_on_stop")) {
       getLogger().info("Loading portals...");
       File file = new File(getDataFolder(), "portal.yml");
       if(file.exists()) {
@@ -133,7 +114,7 @@ public class PortalGun extends JavaPlugin
 
         cancelPortals(true);
       }
-    }
+    }*/
 
       this.item = new ItemStack(Material.getMaterial(config.getString("portalgun_material")));
       ItemMeta meta = this.item.getItemMeta();
@@ -150,13 +131,13 @@ public class PortalGun extends JavaPlugin
       botas.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
     
     max_length = config.getInt("max_portal_length");
-    this.all_particles = config.getBoolean("all_portal_particles");
-    if (all_particles) delay = 15;
     this.tp_log = config.getBoolean("teleport_log");
-    this.Pportal1 = Particle.valueOf(config.getString("portal1_particle"));
-    this.Pportal2 = Particle.valueOf(config.getString("portal2_particle"));
+        Portal.allParticlesAtOnce = config.getBoolean("all_portal_particles");
+        Portal.setParticle(Particle.valueOf(config.getString("portal1_particle")), true);
+        Portal.setParticle(Particle.valueOf(config.getString("portal2_particle")), true);
     ROL = config.getBoolean("remove_on_leave");
-      public_portals = !config.getBoolean("use_only_your_portals");
+        // TODO: public portals
+      //public_portals = !config.getBoolean("use_only_your_portals");
     b = Arrays.asList(PortalGun.config.getString("blocks").replace(" ", "").toLowerCase().split(","));
     for(int x = 0; x<b.size(); x++) {
         if(!b.get(x).contains(":")) b.set(x, b.get(x)+":0");
@@ -166,10 +147,8 @@ public class PortalGun extends JavaPlugin
       getServer().getPluginManager().registerEvents(new onDead(), this);
       getServer().getPluginManager().registerEvents(new onLeave(), this);
       getServer().getPluginManager().registerEvents(new onMove(), this);
-      getServer().getPluginManager().registerEvents(new onPlaceBlock(), this);
       getServer().getPluginManager().registerEvents(new onTab(), this);
       getServer().getPluginManager().registerEvents(new onUse(), this);
-      getServer().getPluginManager().registerEvents(new onWorldChange(), this);
   }
 
   public static Location getGroundBlock(String look, Location loc) {
@@ -193,7 +172,8 @@ public class PortalGun extends JavaPlugin
 
   public void onDisable() {
 	  getLogger().info("Plugin disabled.");
-	  if (config.getBoolean("keep_portals_on_stop")) {
+      // TODO: Guardar portales
+	  /*if (config.getBoolean("keep_portals_on_stop")) {
 		  getLogger().info("Saving portals...");
           try {
 		        File file = new File(getDataFolder(), "portal.yml");
@@ -205,58 +185,70 @@ public class PortalGun extends JavaPlugin
                 bw.flush();
                 bw.close();
             } catch (IOException e) { e.printStackTrace(); }
-	  }
+	  }*/
   }
   
   public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 	  Player player = (sender instanceof Player) ? (Player)sender : null;
-	  if (cmd.getName().equalsIgnoreCase("portalgun")) {
-		  if (player == null) {
-			  sender.sendMessage("Don't use this command in console.");
-			  return true;
-		  }
-		  if (args.length >= 1) {
-			  if (args[0].equalsIgnoreCase("remove")) {
-				  if (player.hasPermission("portalgun.remove")) {
-					  if (args.length == 2 && args[1].equalsIgnoreCase("all")) {
-                          cancelPortals(false);
-						  if (!player.hasPermission("portalgun.remove.all")) {
-							  player.sendMessage(prefix+ config.getString("no_permissions"));
-							  return true;
-						  }
-						  portales.clear();
-						  sender.sendMessage(ChatColor.RED + config.getString("force_portal_remove"));
-                          cancelPortals(true);
-					  } else if (portales.containsKey(player.getName())) {
-                          cancelPortals(false);
-						  portales.remove(player.getName());
-						  player.sendMessage(clearPrefix+ ChatColor.GREEN + config.getString("portal_remove"));
-                          cancelPortals(true);
-					  } else {
-						  player.sendMessage(prefix+ config.getString("no_portals"));
-					  }
-				  } else {
-					  player.sendMessage(prefix+ config.getString("no_permissions"));
-				  }
-			  } else if (args[0].equalsIgnoreCase("?")) {
-				  player.sendMessage(clearPrefix);
-				  player.sendMessage(ChatColor.GOLD + "/portalgun " + ChatColor.GREEN + "- " + config.getString("info_get_PortalGun"));
-				  player.sendMessage(ChatColor.GOLD + "/portalgun remove " + ChatColor.GREEN + "- " + config.getString("info_remove_portals"));
-				  player.sendMessage(ChatColor.GOLD + "/portalgun remove all " + ChatColor.GREEN + "- " + config.getString("info_remove_all_portals"));
-			  }
-		  } else if (player.hasPermission("portalgun.portalgun")) {
+	  if (!cmd.getName().equalsIgnoreCase("portalgun")) return false;
+
+	  if (player == null) {
+	      sender.sendMessage("Don't use this command in console.");
+	      return true;
+	  }
+
+	  if (args.length == 0) {
+	      // Get the PortalGun (and/or PortalBoots)
+          if (player.hasPermission("portalgun.portalgun")) {
               player.getInventory().addItem(new ItemStack[] { this.item });
               if(player.hasPermission("portalgun.boots")) player.getInventory().addItem(new ItemStack[] { botas });
-			  player.sendMessage(clearPrefix+ ChatColor.GREEN + config.getString("give_gun"));
-		  } else {
-			  player.sendMessage(prefix+ config.getString("no_permissions"));
-		  }
-		  return true;
-	  }
-	  return false;
+              player.sendMessage(clearPrefix + ChatColor.GREEN + Language.USER_GET.getText());
+          } else {
+              player.sendMessage(errorPrefix + Language.USER_NO_PERMISSIONS.getText());
+          }
+
+          return true;
+      }
+
+	  if (args[0].equalsIgnoreCase("remove")) {
+          // Remove portals
+          if (!player.hasPermission("portalgun.remove")) {
+              player.sendMessage(errorPrefix + Language.USER_NO_PERMISSIONS.getText());
+
+              return true;
+          }
+
+          if (args.length == 1) {
+              if (Portal.removePortal(player)) player.sendMessage(clearPrefix + ChatColor.GREEN + Language.USER_REMOVE.getText());
+              else player.sendMessage(errorPrefix + Language.USER_NO_PORTALS.getText());
+
+              return true;
+          }
+
+          if (args.length == 2 && args[1].equalsIgnoreCase("all")) {
+              if (!player.hasPermission("portalgun.remove.all")) {
+                  player.sendMessage(errorPrefix + Language.USER_NO_PERMISSIONS.getText());
+
+                  return true;
+              }
+
+              sender.sendMessage(ChatColor.RED + Language.HELP_REMOVE_ALL.getText());
+
+              return true;
+          }
+      }
+
+      // Help command
+      player.sendMessage(clearPrefix);
+      player.sendMessage(ChatColor.GOLD + "  /portalgun " + ChatColor.GREEN + "- " + Language.HELP_GET.getText());
+      player.sendMessage(ChatColor.GOLD + "  /portalgun remove " + ChatColor.GREEN + "- " + Language.HELP_REMOVE.getText());
+      player.sendMessage(ChatColor.GOLD + "  /portalgun remove all " + ChatColor.GREEN + "- " + Language.HELP_REMOVE_ALL.getText());
+
+      return true;
   }
-  
-  public void cancelPortals(boolean open) {
+
+  // TODO: cancel portals (clock?)
+  /*public void cancelPortals(boolean open) {
 	  for (String ply : portales.keySet()) {
           LPortal p = portales.get(ply);
           if(p.reloj!=null){
@@ -265,15 +257,12 @@ public class PortalGun extends JavaPlugin
           }
 		  
 		  if (open) {
-              //getLogger().info(String.valueOf(Bukkit.getWorld(p.world[0]))+"-"+p.loc[0][0]+"-"+p.loc[0][1]+"-"+p.loc[0][2]);
               Location loc1 = new Location(Bukkit.getServer().getWorld(p.world[0]), p.loc[0][0], p.loc[0][1], p.loc[0][2]);
-              //getLogger().info(String.valueOf(loc1.getWorld())+"-"+p.world[0]);
-              //getLogger().info(String.valueOf(loc1));
               Location loc2 = new Location(Bukkit.getServer().getWorld(p.world[1]), p.loc[1][0], p.loc[1][1], p.loc[1][2]);
-			  if (loc1 != null && loc2 != null) p.reloj=new PortalReloj(loc1, loc2, String.valueOf(p.dir[0]), String.valueOf(p.dir[1]), p.down[0], p.down[1], ply);
+			  p.reloj=new PortalReloj(loc1, loc2, String.valueOf(p.dir[0]), String.valueOf(p.dir[1]), p.down[0], p.down[1], ply);
 		  }
 	  }
-  }
+  }*/
 
   public static void playParticle(Location loc, int proceso, String look, boolean down, Integer color, String player) {
 	  double x = loc.getBlockX();

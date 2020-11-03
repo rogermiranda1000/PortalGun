@@ -1,4 +1,4 @@
-package com.rogermiranda1000.eventos;
+package com.rogermiranda1000.portalgun.eventos;
 
 import com.rogermiranda1000.portalgun.Direction;
 import com.rogermiranda1000.portalgun.LPortal;

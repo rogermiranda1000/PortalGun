@@ -1,10 +1,10 @@
-package com.rogermiranda1000.portals;
+package com.rogermiranda1000.portalgun.portals;
 
 import com.rogermiranda1000.portalgun.Direction;
 import org.bukkit.Location;
 
-public class FloorPortal extends Portal {
-    FloorPortal(Location loc, Direction dir, boolean isLeft) {
+public class WallPortal extends Portal {
+    WallPortal(Location loc, Direction dir, boolean isLeft) {
         super(loc, dir, isLeft);
     }
 
@@ -14,5 +14,9 @@ public class FloorPortal extends Portal {
 
     public void playParticle() {
 
+    }
+
+    public Location getTeleportLocation() {
+        return this.position;
     }
 }
