@@ -4,12 +4,8 @@ import com.rogermiranda1000.portalgun.Direction;
 import org.bukkit.Location;
 
 public class CeilingPortal extends Portal {
-    CeilingPortal(Location loc, Direction dir, boolean isLeft) {
+    public CeilingPortal(Location loc, Direction dir, boolean isLeft) {
         super(loc, dir, isLeft);
-    }
-
-    public boolean insidePortal(Location loc) {
-        return false;
     }
 
     public void playParticle() {
@@ -18,5 +14,9 @@ public class CeilingPortal extends Portal {
 
     public Location getTeleportLocation() {
         return this.position;
+    }
+
+    public Portal clone() {
+        return new CeilingPortal(this.position, this.direction, this.isLeft);
     }
 }

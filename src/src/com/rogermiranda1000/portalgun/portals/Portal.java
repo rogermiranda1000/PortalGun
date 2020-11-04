@@ -17,7 +17,7 @@ public abstract class Portal {
 
     private Portal linked;
     protected final Location position;
-    protected final Direction direction;
+    protected final Direction direction; // TODO: direction implicid in Yaw
     protected final boolean isLeft; // used in the particle's color
 
     static {
@@ -26,7 +26,7 @@ public abstract class Portal {
         Portal.particles = new Particle[2];
     }
 
-    Portal(Location loc, Direction dir, boolean isLeft) {
+    protected Portal(Location loc, Direction dir, boolean isLeft) {
         this.position = loc;
         this.direction = dir;
         this.isLeft = isLeft;
@@ -36,14 +36,29 @@ public abstract class Portal {
         this.linked = l;
     }
 
+    public static Portal getPortal(Location loc) {
+        return portalsLocations.get(loc).clone();
+    }
+
+    public static boolean existsPortal(Location loc) {
+        return portalsLocations.containsKey(loc);
+    }
+
+    public boolean collides() {
+        return Portal.existsPortal(this.getTeleportLocation());
+    }
+
+    public Direction getDirection() {
+        return this.direction;
+    }
+
     /**
      * @param id user's UUID
      * @param p new portal
-     * @param leftPortal is it left-type portal (true), or the right-type (false)
      */
-    public void setPortal(UUID id, Portal p, boolean leftPortal) {
+    public static void setPortal(UUID id, Portal p) {
         Portal[] userPortals = Portal.portals.get(id);
-        int pos = (leftPortal ? 0 : 1), otherPos = (!leftPortal ? 0 : 1); // left portal => pos 0
+        int pos = (p.isLeft ? 0 : 1), otherPos = (!p.isLeft ? 0 : 1); // left portal => pos 0
 
         if (userPortals == null) {
             userPortals = new Portal[2];
@@ -63,10 +78,9 @@ public abstract class Portal {
     /**
      * @param u user
      * @param p new portal
-     * @param leftPortal is it left-type portal (true), or the right-type (false)
      */
-    public void setPortal(Player u, Portal p, boolean leftPortal) {
-        setPortal(u.getUniqueId(), p, leftPortal);
+    public static void setPortal(Player u, Portal p) {
+        Portal.setPortal(u.getUniqueId(), p.clone());
     }
 
     /**
@@ -134,7 +148,7 @@ public abstract class Portal {
         Portal.particles[pos] = particle;
     }
 
-    public abstract boolean insidePortal(Location loc);
     public abstract void playParticle();
     public abstract Location getTeleportLocation();
+    public abstract Portal clone();
 }

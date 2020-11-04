@@ -5,6 +5,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 public enum Language {
     HELP_GET("help.get_portalgun"),
@@ -90,21 +91,25 @@ public enum Language {
         if (!language.equalsIgnoreCase("english") && !language.equalsIgnoreCase("español") && !language.equalsIgnoreCase("català"))
             return false;
 
-        YamlConfiguration lang = new YamlConfiguration();
-        File languageFile = new File(Language.languagePath, language + ".yml");
-        if (!languageFile.exists()) {
-            try {
-                lang.load(languageFile);
-                if (language.equalsIgnoreCase("english")) lang.addDefaults(getEnglishFile());
-                else if (language.equalsIgnoreCase("español")) lang.addDefaults(getEnglishFile());
-                else if (language.equalsIgnoreCase("català")) lang.addDefaults(getEnglishFile());
-                lang.save(languageFile);
-            } catch(Exception e){
-                e.printStackTrace();
-            }
+        final YamlConfiguration lang = new YamlConfiguration();
+        final File languageFile = new File(Language.languagePath, language + ".yml");
+        try {
+            languageFile.createNewFile();
+
+            if (language.equalsIgnoreCase("english")) Language.addValues(lang, Language.getEnglishFile());
+            else if (language.equalsIgnoreCase("español"));
+            else if (language.equalsIgnoreCase("català"));
+
+            lang.save(languageFile);
+        } catch(Exception e){
+            e.printStackTrace();
         }
 
         return true;
+    }
+
+    private static void addValues(YamlConfiguration lang, HashMap<String, Object> hashMap) {
+        for (Map.Entry<String, Object> entrada : hashMap.entrySet()) lang.set(entrada.getKey(), entrada.getValue());
     }
 
     private static HashMap<String, Object> getEnglishFile() {
@@ -113,7 +118,7 @@ public enum Language {
         r.put(Language.PORTAL_DENIED.key, "You can't open a portal here.");
         r.put(Language.PORTAL_BLOCK_DENIED.key, "You can't open a portal in that block.");
         r.put(Language.USER_NO_PERMISSIONS.key, "You don't have permissions to do this.");
-        r.put(Language.PORTAL_OPENED.key, "Portal opened at [pos].");
+        r.put(Language.PORTAL_OPENED.key, "[player] has opened a portal at [pos].");
         r.put(Language.USER_NO_PORTALS.key, "You don't have any opened portals right now.");
         r.put(Language.PORTAL_COLLIDING.key, "You can't place both portals at the same block!");
         r.put(Language.USER_REMOVE.key, "You deleted successfully your portals.");

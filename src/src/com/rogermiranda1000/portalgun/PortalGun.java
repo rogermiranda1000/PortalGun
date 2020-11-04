@@ -62,7 +62,8 @@ public class PortalGun extends JavaPlugin
       c.put("delete_portals_on_death", "false");
       c.put("only_certain_blocks", "false");
       c.put("use_only_your_portals", "false");
-      c.put("remove_portals_on_world_change", "false");
+        c.put("remove_portals_on_world_change", "false");
+        c.put("language", "english");
       c.put("blocks", "wool:0,quartz_block:0,quartz_block:1,quartz_block:2,concrete:0");
     config = getConfig();
 

@@ -34,4 +34,7 @@ public enum Direction {
     public static Direction getDirection(Entity e) {
         return Direction.getDirection(e.getLocation().getYaw());
     }
+    public boolean diagonal() {
+        return this == Direction.NE || this == Direction.SE || this == Direction.SW || this == Direction.NW;
+    }
 }
