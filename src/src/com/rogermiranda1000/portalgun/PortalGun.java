@@ -211,11 +211,10 @@ public class PortalGun extends JavaPlugin
           return true;
       }
 
+      // Remove portals
 	  if (args[0].equalsIgnoreCase("remove")) {
-          // Remove portals
           if (!player.hasPermission("portalgun.remove")) {
               player.sendMessage(errorPrefix + Language.USER_NO_PERMISSIONS.getText());
-
               return true;
           }
 
@@ -233,6 +232,7 @@ public class PortalGun extends JavaPlugin
                   return true;
               }
 
+              Portal.removeAllPortals();
               sender.sendMessage(ChatColor.RED + Language.HELP_REMOVE_ALL.getText());
 
               return true;
@@ -311,7 +311,7 @@ public class PortalGun extends JavaPlugin
       }
 	}
   
-  public void teletransporte(Location loc, Entity player, String look, String lastL, boolean down, boolean lastD) {
+  /*public void teletransporte(Location loc, Entity player, String look, String lastL, boolean down, boolean lastD) {
 	  if (!this.entidad_portal.contains(player)) { this.entidad_portal.add(player); }
 	  else { return; }
 	  
@@ -366,6 +366,6 @@ public class PortalGun extends JavaPlugin
 	  }
 
 	  player.setVelocity(vel);
-  }
+  }*/
 
 }

@@ -15,10 +15,12 @@ public abstract class Portal {
     private static Particle[] particles;
     public static boolean allParticlesAtOnce;
 
-    private Portal linked;
+    protected Portal linked;
     protected final Location position;
     protected final Direction direction; // TODO: direction implicid in Yaw
     protected final boolean isLeft; // used in the particle's color
+    protected final Location []teleportLocations;
+    protected final Location []supportLocations;
 
     static {
         Portal.portals = new HashMap<>();
@@ -27,9 +29,36 @@ public abstract class Portal {
     }
 
     protected Portal(Location loc, Direction dir, boolean isLeft) {
-        this.position = loc;
+        this.position = loc.clone();
         this.direction = dir;
         this.isLeft = isLeft;
+        this.teleportLocations = this.calculateTeleportLocation();
+        this.supportLocations = this.calculateSupportLocation();
+        this.linked = null;
+    }
+
+    public Location getPosition() {
+        return this.position.clone();
+    }
+
+    public Location []getTeleportLocations() {
+        return this.teleportLocations.clone();
+    }
+
+    public Location []getSupportLocations() {
+        return this.supportLocations.clone();
+    }
+
+    /**
+     * @param loc location to check
+     * @return index (teleportLocations[return] equals loc); -1 if not found
+     */
+    public short getLocationIndex(Location loc) {
+        short x;
+        for (x = 0; x < this.teleportLocations.length; x++) {
+            if (loc.equals(this.teleportLocations[x])) return x;
+        }
+        return -1;
     }
 
     public void setLinked(Portal l) {
@@ -37,7 +66,7 @@ public abstract class Portal {
     }
 
     public static Portal getPortal(Location loc) {
-        return portalsLocations.get(loc).clone();
+        return portalsLocations.get(loc);
     }
 
     public static boolean existsPortal(Location loc) {
@@ -45,7 +74,11 @@ public abstract class Portal {
     }
 
     public boolean collides() {
-        return Portal.existsPortal(this.getTeleportLocation());
+        for (Location l : this.teleportLocations) {
+            if (Portal.existsPortal(l)) return true;
+        }
+
+        return false;
     }
 
     public Direction getDirection() {
@@ -57,6 +90,12 @@ public abstract class Portal {
      * @param p new portal
      */
     public static void setPortal(UUID id, Portal p) {
+        try {
+            p = (Portal)p.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+
         Portal[] userPortals = Portal.portals.get(id);
         int pos = (p.isLeft ? 0 : 1), otherPos = (!p.isLeft ? 0 : 1); // left portal => pos 0
 
@@ -67,11 +106,14 @@ public abstract class Portal {
         else {
             // user have portals; the old one (if exists) must be eliminated
             Portal.removePortal(userPortals[pos]);
-            if (userPortals[otherPos] != null) userPortals[otherPos].setLinked(p);
+            if (userPortals[otherPos] != null) {
+                userPortals[otherPos].setLinked(p);
+                p.setLinked(userPortals[otherPos]);
+            }
         }
 
         // TODO: x2 teleport locations
-        Portal.portalsLocations.put(p.getTeleportLocation(), p);
+        for (Location l: p.teleportLocations) Portal.portalsLocations.put(l, p);
         userPortals[pos] = p;
     }
 
@@ -80,14 +122,17 @@ public abstract class Portal {
      * @param p new portal
      */
     public static void setPortal(Player u, Portal p) {
-        Portal.setPortal(u.getUniqueId(), p.clone());
+        Portal.setPortal(u.getUniqueId(), p);
     }
 
     /**
      * @param p portal to be eliminated on HashMap (if exists)
      */
     public static void removePortal(Portal p) {
-        if (p != null) portalsLocations.remove(p.getTeleportLocation());
+        if (p != null) {
+            if (p.linked != null) p.linked.setLinked(null);
+            for (Location l: p.teleportLocations) Portal.portalsLocations.remove(l);
+        }
     }
 
     /**
@@ -132,10 +177,28 @@ public abstract class Portal {
         return sb.toString();
     }
 
-    public void teleportToDestiny(Entity e) {
+    private static float getYaw(float playerYaw, Direction p1, Direction p2) {
+        if (!Direction.aligned(p1, p2)) playerYaw += (p2.getValue() - p1.getValue());
+        else if (p1 == p2) playerYaw += 180.f;
+
+        return playerYaw % 360;
+    }
+
+    public boolean teleportToDestiny(Entity e, short index) {
         if (this.linked != null) {
-            e.teleport(this.linked.getTeleportLocation());
+            if (index < 0 || index >= this.linked.teleportLocations.length) index = 0;
+
+            Location l = this.linked.teleportLocations[index].clone();
+            l.add(0.5f, 0.f, 0.5f); // center
+            l.setPitch(e.getLocation().getPitch());
+            l.setYaw(Portal.getYaw(e.getLocation().getYaw(), this.direction, this.linked.direction)); // Yaw
+
+            // TODO: conserve velocity
+            e.teleport(l);
+            return true;
         }
+
+        return false;
     }
 
     protected Particle getParticle() {
@@ -149,6 +212,6 @@ public abstract class Portal {
     }
 
     public abstract void playParticle();
-    public abstract Location getTeleportLocation();
-    public abstract Portal clone();
+    public abstract Location []calculateTeleportLocation();
+    public abstract Location []calculateSupportLocation();
 }

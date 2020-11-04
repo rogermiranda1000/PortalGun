@@ -1,15 +1,17 @@
 package com.rogermiranda1000.portalgun.eventos;
 
-import com.rogermiranda1000.portalgun.Direction;
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 public class onMove implements Listener {
+    static
+
     // TODO: all entity instead of player
     @EventHandler
     public void onMove(PlayerMoveEvent e) {
@@ -21,6 +23,9 @@ public class onMove implements Listener {
         if (portal == null) return;
 
         // TODO: velocity direction instead of looking direction
-        if (Direction.getDirection(player.getLocation().getYaw()) == portal.getDirection()) portal.teleportToDestiny(player);
+        if(portal.getPosition().add(0.5f, 0.f, 0.5f).distance(e.getTo()) <= 0.95f)
+        /*if (Direction.getDirection(player.getLocation().getYaw()).equals(portal.getDirection().getOpposite()))*/ {
+            if(portal.teleportToDestiny(player, portal.getLocationIndex(loc))) player.playSound(player.getLocation(), Sound.ENTITY_SHULKER_TELEPORT, 3.0F, 0.5F);
+        }
     }
 }

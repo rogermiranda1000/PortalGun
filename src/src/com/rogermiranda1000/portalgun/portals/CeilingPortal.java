@@ -3,7 +3,7 @@ package com.rogermiranda1000.portalgun.portals;
 import com.rogermiranda1000.portalgun.Direction;
 import org.bukkit.Location;
 
-public class CeilingPortal extends Portal {
+public class CeilingPortal extends Portal implements Cloneable {
     public CeilingPortal(Location loc, Direction dir, boolean isLeft) {
         super(loc, dir, isLeft);
     }
@@ -12,11 +12,15 @@ public class CeilingPortal extends Portal {
 
     }
 
-    public Location getTeleportLocation() {
-        return this.position;
+    // TODO: Ceiling calculations
+    public Location []calculateTeleportLocation() {
+        return new Location[] {this.getPosition()};
     }
 
-    public Portal clone() {
-        return new CeilingPortal(this.position, this.direction, this.isLeft);
+    public Location []calculateSupportLocation() {
+        return new Location[] {
+                this.getPosition(),
+                this.getPosition().add(0.f, 1.f, 0.f)
+        };
     }
 }

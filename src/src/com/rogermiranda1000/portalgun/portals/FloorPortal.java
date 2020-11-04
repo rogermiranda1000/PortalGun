@@ -3,7 +3,7 @@ package com.rogermiranda1000.portalgun.portals;
 import com.rogermiranda1000.portalgun.Direction;
 import org.bukkit.Location;
 
-public class FloorPortal extends Portal {
+public class FloorPortal extends Portal implements Cloneable {
     public FloorPortal(Location loc, Direction dir, boolean isLeft) {
         super(loc, dir, isLeft);
     }
@@ -12,11 +12,15 @@ public class FloorPortal extends Portal {
 
     }
 
-    public Location getTeleportLocation() {
-        return this.position;
+    // TODO: Floor calculations
+    public Location []calculateTeleportLocation() {
+        return new Location[] {this.getPosition()};
     }
 
-    public Portal clone() {
-        return new FloorPortal(this.position, this.direction, this.isLeft);
+    public Location []calculateSupportLocation() {
+        return new Location[] {
+                this.getPosition(),
+                this.getPosition().add(0.f, 1.f, 0.f)
+        };
     }
 }

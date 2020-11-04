@@ -91,13 +91,13 @@ public class PortalReloj implements Runnable, Listener{
                 if((mundo.equals(l1.getWorld()) && xp == xloc1 && yp == l1.getBlockY() && zp == zloc1) ||
                         (b1 && mundo.equals(l1.getWorld()) && xp == PortalGun.getGroundBlock(look1, l1).getBlockX() &&
                                 yp == PortalGun.getGroundBlock(look1, l1).getBlockY() && zp == PortalGun.getGroundBlock(look1, l1).getBlockZ())) {
-                    PortalGun.instancia.teletransporte(l2, player, look2, look1, b2, b1);
+                    //PortalGun.instancia.teletransporte(l2, player, look2, look1, b2, b1);
                     continue;
                 }
                 if (mundo.equals(l2.getWorld()) && xp == xloc2 && yp == l2.getBlockY() && zp == zloc2||
                         (b2 && mundo.equals(l2.getWorld()) && xp == PortalGun.getGroundBlock(look2, l2).getBlockX() &&
                                 yp == PortalGun.getGroundBlock(look2, l2).getBlockY() && zp == PortalGun.getGroundBlock(look2, l2).getBlockZ())) {
-                    PortalGun.instancia.teletransporte(l1, player, look1, look2, b1, b2);
+                    //PortalGun.instancia.teletransporte(l1, player, look1, look2, b1, b2);
                     continue;
                 }
                 if (PortalGun.instancia.entidad_portal.contains(player)) PortalGun.instancia.entidad_portal.remove(player);

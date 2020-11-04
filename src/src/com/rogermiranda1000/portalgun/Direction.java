@@ -37,4 +37,34 @@ public enum Direction {
     public boolean diagonal() {
         return this == Direction.NE || this == Direction.SE || this == Direction.SW || this == Direction.NW;
     }
+
+    public Direction getOpposite() {
+        return Direction.values()[this.ordinal() + (this.ordinal() > 3 ?  -4 : 4)];
+    }
+
+    public static boolean aligned(Direction d1, Direction d2) {
+        return d1 == d2 || d1.getOpposite() == d2;
+    }
+
+    // TODO: diagonals
+    public float getValue() {
+        float r = 0.f;
+
+        switch (this) {
+            case N:
+                r = 0.f;
+                break;
+            case E:
+                r = 90.f;
+                break;
+            case S:
+                r = 180.f;
+                break;
+            case W:
+                r = 270.f;
+                break;
+        }
+
+        return r;
+    }
 }
