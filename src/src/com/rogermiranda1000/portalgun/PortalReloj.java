@@ -1,5 +1,6 @@
 package com.rogermiranda1000.portalgun;
 
+import com.rogermiranda1000.portalgun.portals.Portal;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -41,6 +42,8 @@ public class PortalReloj implements Runnable, Listener{
     }
 
     public void run() {
+
+
         for (int a = 0; a != 2; a++) {
             Location loc = l2;
             String look = look2;

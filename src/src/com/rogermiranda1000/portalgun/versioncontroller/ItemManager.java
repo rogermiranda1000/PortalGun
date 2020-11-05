@@ -1,6 +1,5 @@
-package com.rogermiranda1000.portalgun;
+package com.rogermiranda1000.portalgun.versioncontroller;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -15,7 +14,7 @@ public class ItemManager {
     static {
         try {
             // version < 1.9
-            if(ItemManager.getVersion()<9) getItemFunction = getItemList(PlayerInventory.class.getMethod("getItemInHand"));
+            if(VersionController.getVersion()<9) getItemFunction = getItemList(PlayerInventory.class.getMethod("getItemInHand"));
             // version >= 1.9
             else getItemFunction = getItemList(PlayerInventory.class.getMethod("getItemInMainHand"), PlayerInventory.class.getMethod("getItemInOffHand"));
         } catch(NoSuchMethodException NSMEx) {
@@ -39,13 +38,6 @@ public class ItemManager {
                 return new ItemStack[0];
             }
         };
-    }
-
-    /**
-     * @return minecraft version (1.XX)
-     */
-    private static int getVersion() {
-        return Integer.parseInt(Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1]);
     }
 
     public static ItemStack[] getItemInHand(Player player){

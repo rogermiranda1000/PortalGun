@@ -1,12 +1,16 @@
 package com.rogermiranda1000.portalgun.portals;
 
 import com.rogermiranda1000.portalgun.Direction;
+import com.rogermiranda1000.portalgun.PortalGun;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.function.Function;
@@ -17,14 +21,19 @@ public abstract class Portal {
     private static Particle[] particles;
     public static Function<Block, Boolean> isEmptyBlock;
     public static Function<Block, Boolean> isValidBlock;
+    protected static final int iterations = 20;
 
     protected Portal linked;
     protected final Location position;
     protected final Direction direction; // TODO: direction implicid in Yaw
     protected final boolean isLeft; // used in the particle's color
+    private short currentParticle;
+    protected final Player owner;
+    private final Location []particleLocations;
 
     /* ABSTRACT FUNCTIONS */
-    public abstract void playParticle();
+    public abstract Location getParticlePosition(short currentParticle);
+    public abstract Vector getApproachVector();
     public abstract Location []calculateTeleportLocation();
     public abstract Location []calculateSupportLocation();
 
@@ -34,15 +43,64 @@ public abstract class Portal {
         Portal.particles = new Particle[2];
     }
 
-    protected Portal(Location loc, Direction dir, boolean isLeft) {
+    protected Portal(Player owner, Location loc, Direction dir, boolean isLeft) {
+        this.owner = owner;
         this.position = loc.clone();
         this.direction = dir;
         this.isLeft = isLeft;
         this.linked = null;
+        this.currentParticle = 0;
+        this.particleLocations = this.calculateParticles();
     }
 
     public Location getPosition() {
         return this.position.clone();
+    }
+
+    public static ArrayList<Portal> getPortals() {
+        ArrayList<Portal> r = new ArrayList<>();
+
+        for (Portal[] portals : Portal.portals.values()) {
+            for (short x = 0; x < portals.length; x++) {
+                if (portals[x] != null) r.add(portals[x]);
+            }
+        }
+
+        return r;
+    }
+
+    private Location[] calculateParticles() {
+        Location []l = new Location[Portal.iterations];
+
+        for (short x = 0; x < Portal.iterations; x++) {
+            l[x] = this.getParticlePosition(x);
+        }
+
+        return l;
+    }
+
+    private static void spawnParticle(Location loc, Particle particle, Player owner) {
+        if (loc == null) return;
+        // TODO: more than one player, on leaves, crashes?
+
+        if(PortalGun.instancia.public_portals) loc.getWorld().spawnParticle(particle, loc.getX(), loc.getY(), loc.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
+        else {
+            for(Player ply: Bukkit.getOnlinePlayers()) {
+                if(ply.hasPermission("portalgun.overrideotherportals") || ply.equals(owner)) ply.spawnParticle(particle, loc.getX(), loc.getY(), loc.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
+            }
+        }
+    }
+
+    public void playParticle() {
+        Portal.spawnParticle(this.particleLocations[this.currentParticle], this.getParticle(), this.owner);
+
+        this.currentParticle += Portal.iterations/2;
+        this.currentParticle %= Portal.iterations;
+
+        Portal.spawnParticle(this.particleLocations[this.currentParticle], this.getParticle(), this.owner);
+
+        this.currentParticle++;
+        this.currentParticle %= Portal.iterations;
     }
 
     /**
@@ -211,6 +269,7 @@ public abstract class Portal {
         return playerPitch;
     }
 
+    // TODO: teleport block deviation
     public boolean teleportToDestiny(Entity e, short index) {
         if (this.linked != null) {
             Location []tp = this.linked.calculateTeleportLocation();
@@ -218,11 +277,13 @@ public abstract class Portal {
 
             Location l = tp[index];
             l.add(0.5f, 0.f, 0.5f); // center
-            l.setPitch(Portal.getPitch(e.getLocation().getPitch(), this, this.linked));
+            l.setPitch(Portal.getPitch(e.getLocation().getPitch(), this, this.linked)); // Pitch
             l.setYaw(Portal.getYaw(e.getLocation().getYaw(), this.direction, this.linked.direction)); // Yaw
 
-            // TODO: conserve velocity
             e.teleport(l);
+
+            e.setVelocity( this.linked.getApproachVector().multiply( -e.getVelocity().dot(this.getApproachVector()) ) );
+
             return true;
         }
 

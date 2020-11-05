@@ -2,21 +2,25 @@ package com.rogermiranda1000.portalgun.eventos;
 
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.portals.Portal;
+import com.rogermiranda1000.portalgun.portals.WallPortal;
+import com.rogermiranda1000.portalgun.versioncontroller.SoundManager;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.util.Vector;
 
 public class onMove implements Listener {
-    static
-
     // TODO: all entity instead of player
     @EventHandler
     public void onMove(PlayerMoveEvent e) {
-        Player player = e.getPlayer();
         if (e.getTo() == null) return;
+        Vector delta = (e.getTo().clone()).subtract(e.getFrom()).multiply(0.2f /* blocks/second */ * 0.05f /* second/tick */).toVector();
+        if (delta.length() == 0.f) return; // not moving?
+
+        Player player = e.getPlayer();
         Location loc = e.getTo().getBlock().getLocation();
 
         if(player.getInventory().getBoots()!=null && player.getInventory().getBoots().equals(PortalGun.instancia.botas)) player.setFallDistance(0);
@@ -24,10 +28,23 @@ public class onMove implements Listener {
         Portal portal = Portal.getPortal(loc);
         if (portal == null) return;
 
-        // TODO: velocity direction instead
-        //if(loc.clone().add(0.5f, 0.5f, 0.5f).distance(e.getTo()) <= 0.95f)
-        /*if (Direction.getDirection(player.getLocation().getYaw()).equals(portal.getDirection().getOpposite()))*/ //{
-            if(portal.teleportToDestiny(player, portal.getLocationIndex(loc))) player.playSound(player.getLocation(), Sound.ENTITY_SHULKER_TELEPORT, 3.0F, 0.5F);
-        //}
+        // TODO: player velocity??
+        if (portal instanceof WallPortal) {
+            double approachVelocitySquare = delta.dot(portal.getApproachVector());
+            if(approachVelocitySquare <= 0.f) return; // not approaching
+            approachVelocitySquare = Math.pow(approachVelocitySquare, 2);
+
+            // approachVelocitySquare < deltaX.dot(deltaX) - approachVelocitySquare
+            // traveling faster in other direction?
+            if (2*approachVelocitySquare < delta.dot(delta) /* square of each element */) return;
+        }
+        else {
+            if (!(player.getVelocity().dot(portal.getApproachVector()) >= 0.f)) return;
+        }
+        //player.setVelocity(playerVelocity);
+
+        // TODO: enderman if not shulker yet
+        if(portal.teleportToDestiny(player, portal.getLocationIndex(loc))) player.playSound(player.getLocation(), SoundManager.getTeleportSound(), 3.0F, 0.5F);
+
     }
 }

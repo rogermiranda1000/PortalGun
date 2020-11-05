@@ -2,14 +2,17 @@ package com.rogermiranda1000.portalgun.portals;
 
 import com.rogermiranda1000.portalgun.Direction;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
-public class FloorPortal extends Portal implements Cloneable {
-    public FloorPortal(Location loc, Direction dir, boolean isLeft) {
-        super(loc, dir, isLeft);
+public class FloorPortal extends TopPortal implements Cloneable {
+    public FloorPortal(Player owner, Location loc, Direction dir, boolean isLeft) {
+        super(owner, loc, dir, isLeft);
     }
 
-    public void playParticle() {
-
+    // TODO: is this the best way?
+    protected float getParticleY() {
+        return 1.1f;
     }
 
     public Location []calculateTeleportLocation() {
@@ -21,10 +24,7 @@ public class FloorPortal extends Portal implements Cloneable {
         };
     }
 
-    public Location []calculateSupportLocation() {
-        return new Location[] {
-                this.getPosition(),
-                this.direction.getOpposite().addOneBlock(this.getPosition())
-        };
+    public Vector getApproachVector() {
+        return new Vector(0.f, -1.f, 0.f);
     }
 }

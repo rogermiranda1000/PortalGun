@@ -2,7 +2,7 @@ package com.rogermiranda1000.portalgun.eventos;
 
 import com.rogermiranda1000.portalgun.Direction;
 import com.rogermiranda1000.portalgun.PortalGun;
-import com.rogermiranda1000.portalgun.ItemManager;
+import com.rogermiranda1000.portalgun.versioncontroller.ItemManager;
 import com.rogermiranda1000.portalgun.files.Language;
 import com.rogermiranda1000.portalgun.portals.CeilingPortal;
 import com.rogermiranda1000.portalgun.portals.FloorPortal;
@@ -38,7 +38,7 @@ public class onUse implements Listener {
         Block colliderBlock = iter.next();
         while (Portal.isEmptyBlock.apply(colliderBlock) && iter.hasNext()) colliderBlock = iter.next();
 
-        Portal p = getMatchingPortal(colliderBlock.getLocation(), event.getAction().equals(Action.LEFT_CLICK_BLOCK) || event.getAction().equals(Action.LEFT_CLICK_AIR),
+        Portal p = getMatchingPortal(player, colliderBlock.getLocation(), event.getAction().equals(Action.LEFT_CLICK_BLOCK) || event.getAction().equals(Action.LEFT_CLICK_AIR),
                 Direction.getDirection((Entity)player), player.getLocation().getBlock().getLocation().subtract(colliderBlock.getLocation()).toVector());
 
         if (p == null) {
@@ -46,6 +46,7 @@ public class onUse implements Listener {
             return;
         }
 
+        // TODO: collides, but same portal to replace?
         // existing portal in that location?
         if (p.collides()) {
             player.sendMessage(PortalGun.errorPrefix + Language.PORTAL_COLLIDING.getText());
@@ -59,23 +60,23 @@ public class onUse implements Listener {
         ));
     }
 
-    Portal getMatchingPortal(Location loc, boolean isLeft, Direction direction, Vector v) {
+    Portal getMatchingPortal(Player owner, Location loc, boolean isLeft, Direction direction, Vector v) {
         Direction []directions = getDirections(direction, v);
 
         for (Direction dir : directions) {
-            Portal p = new WallPortal(loc, dir.getOpposite(), isLeft);
+            Portal p = new WallPortal(owner, loc, dir.getOpposite(), isLeft);
             if (p.isValid()) return p;
         }
 
         if (v.getY() >= -1) {
             for (Direction dir : directions) {
-                Portal p = new FloorPortal(loc, dir.getOpposite(), isLeft);
+                Portal p = new FloorPortal(owner, loc, dir.getOpposite(), isLeft);
                 if (p.isValid()) return p;
             }
         }
         if (v.getY() <= -1) {
             for (Direction dir : directions) {
-                Portal p = new CeilingPortal(loc, dir.getOpposite(), isLeft);
+                Portal p = new CeilingPortal(owner, loc, dir.getOpposite(), isLeft);
                 if (p.isValid()) return p;
             }
         }

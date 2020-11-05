@@ -148,21 +148,28 @@ public class PortalGun extends JavaPlugin
     this.tp_log = config.getBoolean("teleport_log");
         //Portal.allParticlesAtOnce = config.getBoolean("all_portal_particles");
         Portal.setParticle(Particle.valueOf(config.getString("portal1_particle")), true);
-        Portal.setParticle(Particle.valueOf(config.getString("portal2_particle")), true);
+        Portal.setParticle(Particle.valueOf(config.getString("portal2_particle")), false);
     ROL = config.getBoolean("remove_on_leave");
-        // TODO: public portals
-      //public_portals = !config.getBoolean("use_only_your_portals");
+      public_portals = !config.getBoolean("use_only_your_portals");
     b = Arrays.asList(PortalGun.config.getString("blocks").replace(" ", "").toLowerCase().split(","));
     for(int x = 0; x<b.size(); x++) {
         if(!b.get(x).contains(":")) b.set(x, b.get(x)+":0");
     }
+
+    // TODO: Async
+        this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+            public void run() {
+                for (Portal p: Portal.getPortals()) {
+                    if (p.getPosition().getChunk().isLoaded()) p.playParticle();
+                }
+            }}, 0, PortalGun.instancia.delay);
 
 
       getServer().getPluginManager().registerEvents(new onDead(), this);
       getServer().getPluginManager().registerEvents(new onLeave(), this);
       getServer().getPluginManager().registerEvents(new onMove(), this);
       getServer().getPluginManager().registerEvents(new onTab(), this);
-      getServer().getPluginManager().registerEvents(new onUse(), this);
+        getServer().getPluginManager().registerEvents(new onUse(), this);
   }
 
   public static Location getGroundBlock(String look, Location loc) {
