@@ -19,7 +19,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.Vector;
 
 public class PortalGun extends JavaPlugin
 {
@@ -48,6 +47,20 @@ public class PortalGun extends JavaPlugin
         instancia = this;
 
         FileManager.loadFiles();
+
+        Portal.isEmptyBlock = b->{
+            return (b.isPassable() || b.isLiquid());
+        };
+
+        // TODO: check only-certain-blocks
+        Portal.isValidBlock = b->{
+            /*if (PortalGun.config.getBoolean("only_certain_blocks") && !player.hasPermission("portalgun.overrideblocks") &&
+                    !PortalGun.instancia.b.contains(colliderBlockType.toString().toLowerCase() + ":" + String.valueOf(lastBlock.getDrops().iterator().next().getDurability()))) {
+                player.sendMessage(PortalGun.errorPrefix + Language.PORTAL_BLOCK_DENIED);
+                return;
+            }*/
+            return b.getType().isSolid();
+        };
 
         // TODO: config
       HashMap<String,String> c = new HashMap<String, String>();
@@ -133,7 +146,7 @@ public class PortalGun extends JavaPlugin
     
     max_length = config.getInt("max_portal_length");
     this.tp_log = config.getBoolean("teleport_log");
-        Portal.allParticlesAtOnce = config.getBoolean("all_portal_particles");
+        //Portal.allParticlesAtOnce = config.getBoolean("all_portal_particles");
         Portal.setParticle(Particle.valueOf(config.getString("portal1_particle")), true);
         Portal.setParticle(Particle.valueOf(config.getString("portal2_particle")), true);
     ROL = config.getBoolean("remove_on_leave");

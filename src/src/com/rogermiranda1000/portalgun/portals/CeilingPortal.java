@@ -12,15 +12,20 @@ public class CeilingPortal extends Portal implements Cloneable {
 
     }
 
-    // TODO: Ceiling calculations
     public Location []calculateTeleportLocation() {
-        return new Location[] {this.getPosition()};
+        // TODO: under water? (y -> -1.f)
+        Location l = this.getPosition().add(0.f, -2.f, 0.f);
+
+        return new Location[] {
+                l,
+                this.direction.getOpposite().addOneBlock(l.clone())
+        };
     }
 
     public Location []calculateSupportLocation() {
         return new Location[] {
                 this.getPosition(),
-                this.getPosition().add(0.f, 1.f, 0.f)
+                this.direction.getOpposite().addOneBlock(this.getPosition())
         };
     }
 }

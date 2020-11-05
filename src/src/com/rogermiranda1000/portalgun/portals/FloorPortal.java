@@ -12,15 +12,19 @@ public class FloorPortal extends Portal implements Cloneable {
 
     }
 
-    // TODO: Floor calculations
     public Location []calculateTeleportLocation() {
-        return new Location[] {this.getPosition()};
+        Location l = this.getPosition().add(0.f, 1.f, 0.f);
+
+        return new Location[] {
+                l,
+                this.direction.getOpposite().addOneBlock(l.clone())
+        };
     }
 
     public Location []calculateSupportLocation() {
         return new Location[] {
                 this.getPosition(),
-                this.getPosition().add(0.f, 1.f, 0.f)
+                this.direction.getOpposite().addOneBlock(this.getPosition())
         };
     }
 }

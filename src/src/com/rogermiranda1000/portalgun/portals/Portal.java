@@ -3,24 +3,30 @@ package com.rogermiranda1000.portalgun.portals;
 import com.rogermiranda1000.portalgun.Direction;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.function.Function;
 
 public abstract class Portal {
     private static HashMap<UUID, Portal[]> portals;
     private static HashMap<Location, Portal> portalsLocations;
     private static Particle[] particles;
-    public static boolean allParticlesAtOnce;
+    public static Function<Block, Boolean> isEmptyBlock;
+    public static Function<Block, Boolean> isValidBlock;
 
     protected Portal linked;
     protected final Location position;
     protected final Direction direction; // TODO: direction implicid in Yaw
     protected final boolean isLeft; // used in the particle's color
-    protected final Location []teleportLocations;
-    protected final Location []supportLocations;
+
+    /* ABSTRACT FUNCTIONS */
+    public abstract void playParticle();
+    public abstract Location []calculateTeleportLocation();
+    public abstract Location []calculateSupportLocation();
 
     static {
         Portal.portals = new HashMap<>();
@@ -32,21 +38,11 @@ public abstract class Portal {
         this.position = loc.clone();
         this.direction = dir;
         this.isLeft = isLeft;
-        this.teleportLocations = this.calculateTeleportLocation();
-        this.supportLocations = this.calculateSupportLocation();
         this.linked = null;
     }
 
     public Location getPosition() {
         return this.position.clone();
-    }
-
-    public Location []getTeleportLocations() {
-        return this.teleportLocations.clone();
-    }
-
-    public Location []getSupportLocations() {
-        return this.supportLocations.clone();
     }
 
     /**
@@ -55,8 +51,9 @@ public abstract class Portal {
      */
     public short getLocationIndex(Location loc) {
         short x;
-        for (x = 0; x < this.teleportLocations.length; x++) {
-            if (loc.equals(this.teleportLocations[x])) return x;
+        Location []tp = this.calculateTeleportLocation();
+        for (x = 0; x < tp.length; x++) {
+            if (loc.equals(tp[x])) return x;
         }
         return -1;
     }
@@ -74,11 +71,25 @@ public abstract class Portal {
     }
 
     public boolean collides() {
-        for (Location l : this.teleportLocations) {
+        for (Location l : this.calculateTeleportLocation()) {
             if (Portal.existsPortal(l)) return true;
         }
 
         return false;
+    }
+
+    /**
+     * @return true if the support locations are valid blocks and the teleport locations are empty blocks
+     */
+    public boolean isValid() {
+        for(Location l : this.calculateSupportLocation()) {
+            if (!Portal.isValidBlock.apply(l.getBlock())) return false;
+        }
+        for (Location l : this.calculateTeleportLocation()) {
+            if (!Portal.isEmptyBlock.apply(l.getBlock())) return false;
+        }
+
+        return true;
     }
 
     public Direction getDirection() {
@@ -112,8 +123,7 @@ public abstract class Portal {
             }
         }
 
-        // TODO: x2 teleport locations
-        for (Location l: p.teleportLocations) Portal.portalsLocations.put(l, p);
+        for (Location l: p.calculateTeleportLocation()) Portal.portalsLocations.put(l, p);
         userPortals[pos] = p;
     }
 
@@ -131,7 +141,7 @@ public abstract class Portal {
     public static void removePortal(Portal p) {
         if (p != null) {
             if (p.linked != null) p.linked.setLinked(null);
-            for (Location l: p.teleportLocations) Portal.portalsLocations.remove(l);
+            for (Location l: p.calculateTeleportLocation()) Portal.portalsLocations.remove(l);
         }
     }
 
@@ -177,30 +187,6 @@ public abstract class Portal {
         return sb.toString();
     }
 
-    private static float getYaw(float playerYaw, Direction p1, Direction p2) {
-        if (!Direction.aligned(p1, p2)) playerYaw += (p2.getValue() - p1.getValue());
-        else if (p1 == p2) playerYaw += 180.f;
-
-        return playerYaw % 360;
-    }
-
-    public boolean teleportToDestiny(Entity e, short index) {
-        if (this.linked != null) {
-            if (index < 0 || index >= this.linked.teleportLocations.length) index = 0;
-
-            Location l = this.linked.teleportLocations[index].clone();
-            l.add(0.5f, 0.f, 0.5f); // center
-            l.setPitch(e.getLocation().getPitch());
-            l.setYaw(Portal.getYaw(e.getLocation().getYaw(), this.direction, this.linked.direction)); // Yaw
-
-            // TODO: conserve velocity
-            e.teleport(l);
-            return true;
-        }
-
-        return false;
-    }
-
     protected Particle getParticle() {
         int pos = (this.isLeft ? 0 : 1); // left portal => pos 0
         return Portal.particles[pos];
@@ -211,7 +197,35 @@ public abstract class Portal {
         Portal.particles[pos] = particle;
     }
 
-    public abstract void playParticle();
-    public abstract Location []calculateTeleportLocation();
-    public abstract Location []calculateSupportLocation();
+
+    /* TELEPORT */
+    private static float getYaw(float playerYaw, Direction p1, Direction p2) {
+        if (!Direction.aligned(p1, p2)) playerYaw += (p2.getValue() - p1.getValue());
+        else if (p1 == p2) playerYaw += 180.f;
+
+        return playerYaw % 360;
+    }
+
+    // TODO: Pitch
+    private static float getPitch(float playerPitch, Portal in, Portal out) {
+        return playerPitch;
+    }
+
+    public boolean teleportToDestiny(Entity e, short index) {
+        if (this.linked != null) {
+            Location []tp = this.linked.calculateTeleportLocation();
+            if (index < 0 || index >= tp.length) index = 0;
+
+            Location l = tp[index];
+            l.add(0.5f, 0.f, 0.5f); // center
+            l.setPitch(Portal.getPitch(e.getLocation().getPitch(), this, this.linked));
+            l.setYaw(Portal.getYaw(e.getLocation().getYaw(), this.direction, this.linked.direction)); // Yaw
+
+            // TODO: conserve velocity
+            e.teleport(l);
+            return true;
+        }
+
+        return false;
+    }
 }

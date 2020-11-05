@@ -15,11 +15,7 @@ public class WallPortal extends Portal implements Cloneable {
 
     // TODO: teleport locations
     public Location []calculateTeleportLocation() {
-        Location l = this.getPosition();
-        l.add(0.f, 0.f, this.direction == Direction.N ? 1.f:0.f);
-        l.add(0.f, 0.f, this.direction == Direction.S ? -1.f:0.f);
-        l.add(this.direction == Direction.E ? 1.f:0.f, 0.f, 0.f);
-        l.add(this.direction == Direction.W ? -1.f:0.f, 0.f, 0.f);
+        Location l = this.direction.addOneBlock(this.getPosition());
 
         return new Location[] {
                 l,

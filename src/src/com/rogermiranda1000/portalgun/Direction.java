@@ -1,5 +1,6 @@
 package com.rogermiranda1000.portalgun;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
 public enum Direction {
@@ -66,5 +67,13 @@ public enum Direction {
         }
 
         return r;
+    }
+
+    public Location addOneBlock(Location loc) {
+        loc.add(0.f, 0.f, this == Direction.N ? 1.f:0.f);
+        loc.add(0.f, 0.f, this == Direction.S ? -1.f:0.f);
+        loc.add(this == Direction.E ? 1.f:0.f, 0.f, 0.f);
+        loc.add(this == Direction.W ? -1.f:0.f, 0.f, 0.f);
+        return loc;
     }
 }

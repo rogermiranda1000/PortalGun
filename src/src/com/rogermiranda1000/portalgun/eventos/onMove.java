@@ -16,16 +16,18 @@ public class onMove implements Listener {
     @EventHandler
     public void onMove(PlayerMoveEvent e) {
         Player player = e.getPlayer();
+        if (e.getTo() == null) return;
         Location loc = e.getTo().getBlock().getLocation();
+
         if(player.getInventory().getBoots()!=null && player.getInventory().getBoots().equals(PortalGun.instancia.botas)) player.setFallDistance(0);
 
         Portal portal = Portal.getPortal(loc);
         if (portal == null) return;
 
-        // TODO: velocity direction instead of looking direction
-        if(portal.getPosition().add(0.5f, 0.f, 0.5f).distance(e.getTo()) <= 0.95f)
-        /*if (Direction.getDirection(player.getLocation().getYaw()).equals(portal.getDirection().getOpposite()))*/ {
+        // TODO: velocity direction instead
+        //if(loc.clone().add(0.5f, 0.5f, 0.5f).distance(e.getTo()) <= 0.95f)
+        /*if (Direction.getDirection(player.getLocation().getYaw()).equals(portal.getDirection().getOpposite()))*/ //{
             if(portal.teleportToDestiny(player, portal.getLocationIndex(loc))) player.playSound(player.getLocation(), Sound.ENTITY_SHULKER_TELEPORT, 3.0F, 0.5F);
-        }
+        //}
     }
 }
