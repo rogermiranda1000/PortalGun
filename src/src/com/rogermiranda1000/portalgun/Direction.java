@@ -48,14 +48,10 @@ public enum Direction {
         return d1 == d2 || d1.getOpposite() == d2;
     }
 
-    // TODO: diagonals
     public float getValue() {
-        float r = 0.f;
+        float r = 0.f; // N
 
         switch (this) {
-            case N:
-                r = 0.f;
-                break;
             case E:
                 r = 90.f;
                 break;
@@ -70,7 +66,6 @@ public enum Direction {
         return r;
     }
 
-    // TODO: diagonals
     public Location addOneBlock(Location loc) {
         loc.add(0.f, 0.f, this == Direction.N ? 1.f:0.f);
         loc.add(0.f, 0.f, this == Direction.S ? -1.f:0.f);

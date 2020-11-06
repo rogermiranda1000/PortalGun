@@ -10,6 +10,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import javax.sound.sampled.Port;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -25,7 +26,7 @@ public abstract class Portal {
 
     protected Portal linked;
     protected final Location position;
-    protected final Direction direction; // TODO: direction implicid in Yaw
+    protected final Direction direction;
     protected final boolean isLeft; // used in the particle's color
     private short currentParticle;
     protected final Player owner;
@@ -83,7 +84,7 @@ public abstract class Portal {
         if (loc == null) return;
         // TODO: more than one player, on leaves, crashes?
 
-        if(PortalGun.instancia.public_portals) loc.getWorld().spawnParticle(particle, loc.getX(), loc.getY(), loc.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
+        if(PortalGun.plugin.public_portals) loc.getWorld().spawnParticle(particle, loc.getX(), loc.getY(), loc.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
         else {
             for(Player ply: Bukkit.getOnlinePlayers()) {
                 if(ply.hasPermission("portalgun.overrideotherportals") || ply.equals(owner)) ply.spawnParticle(particle, loc.getX(), loc.getY(), loc.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
@@ -124,7 +125,7 @@ public abstract class Portal {
         return portalsLocations.get(loc);
     }
 
-    public static boolean existsPortal(Location loc) {
+    /*public static boolean existsPortal(Location loc) {
         return portalsLocations.containsKey(loc);
     }
 
@@ -134,6 +135,23 @@ public abstract class Portal {
         }
 
         return false;
+    }*/
+
+    public boolean collidesAndPersists() {
+        for (Location l : this.calculateTeleportLocation()) {
+            Portal p = Portal.getPortal(l);
+            if (p != null && (this.getOwner() != p.getOwner() || this.getIsLeft() != p.getIsLeft())) return true;
+        }
+
+        return false;
+    }
+
+    public Player getOwner() {
+        return this.owner;
+    }
+
+    public boolean getIsLeft() {
+        return this.isLeft;
     }
 
     /**

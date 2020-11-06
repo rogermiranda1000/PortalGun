@@ -9,7 +9,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class onLeave implements Listener {
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {
-        if (!PortalGun.instancia.ROL) return;
+        if (!PortalGun.plugin.ROL) return;
 
         Portal.removePortal(event.getPlayer().getUniqueId());
     }

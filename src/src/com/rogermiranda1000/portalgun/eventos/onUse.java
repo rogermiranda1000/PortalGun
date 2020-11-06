@@ -24,7 +24,7 @@ public class onUse implements Listener {
     public void onPlayerUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
-        if (!ItemManager.hasItemInHand(player, PortalGun.instancia.item)) return;
+        if (!ItemManager.hasItemInHand(player, PortalGun.item, true)) return;
         if(event.getAction().equals(Action.PHYSICAL)) return;
 
         event.setCancelled(true);
@@ -34,7 +34,7 @@ public class onUse implements Listener {
         }
 
         // raytracing
-        BlockIterator iter = new BlockIterator(player, PortalGun.instancia.max_length);
+        BlockIterator iter = new BlockIterator(player, PortalGun.plugin.max_length);
         Block colliderBlock = iter.next();
         while (Portal.isEmptyBlock.apply(colliderBlock) && iter.hasNext()) colliderBlock = iter.next();
 
@@ -42,19 +42,19 @@ public class onUse implements Listener {
                 Direction.getDirection((Entity)player), player.getLocation().getBlock().getLocation().subtract(colliderBlock.getLocation()).toVector());
 
         if (p == null) {
-            player.sendMessage(PortalGun.errorPrefix + Language.PORTAL_DENIED.getText());
+            if (!iter.hasNext()) player.sendMessage(PortalGun.errorPrefix + Language.PORTAL_FAR.getText());
+            else player.sendMessage(PortalGun.errorPrefix + Language.PORTAL_DENIED.getText());
             return;
         }
 
-        // TODO: collides, but same portal to replace?
-        // existing portal in that location?
-        if (p.collides()) {
+        // existing portal in that location? (and not replaced)
+        if (p.collidesAndPersists()) {
             player.sendMessage(PortalGun.errorPrefix + Language.PORTAL_COLLIDING.getText());
             return;
         }
 
         Portal.setPortal(player, p);
-        PortalGun.instancia.getLogger().info( Language.PORTAL_OPENED.getText (
+        PortalGun.plugin.getLogger().info( Language.PORTAL_OPENED.getText (
                 new String[] {"player", player.getName()},
                 new String[] {"pos", colliderBlock.getWorld().getName() + " > " + colliderBlock.getX() + ", " + colliderBlock.getY() + ", " + colliderBlock.getZ()}
         ));
@@ -121,7 +121,11 @@ public class onUse implements Listener {
         else {
             if (z == 0) {
                 // TODO: diagonals
-                if (!dir.diagonal()) return new Direction[] {dir};
+                if (dir.diagonal()) return new Direction[] {Direction.N, Direction.W, Direction.E, Direction.S};
+                // TODO: why? (Direction.getDirection((Entity)player)?)
+                else if (dir == Direction.W) return new Direction[] {Direction.E};
+                else if (dir == Direction.E) return new Direction[] {Direction.W};
+                else return new Direction[] {dir};
             }
             if (z > 0) return new Direction[] {Direction.S};
             else if (z < 0) return new Direction[] {Direction.N};

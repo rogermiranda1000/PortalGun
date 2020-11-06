@@ -16,6 +16,7 @@ public abstract class TopPortal extends Portal {
 
         Vector dir = this.direction.addingVector();
         Vector perpendicular = dir.clone().crossProduct(new Vector(0.f, 1.f, 0.f)).normalize();
+        // TODO: why?
         if (this.direction == Direction.N || this.direction == Direction.W) perpendicular.multiply(-1);
         loc.add(0.f, this.getParticleY(), 0.f);
         loc.add(perpendicular.multiply( 0.45D*(1.1D+Math.cos(angle)) )); // horizontal

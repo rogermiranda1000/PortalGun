@@ -7,6 +7,6 @@ public class Config {
     public static FileConfiguration config;
 
     public static void initConfig() {
-        Config.config = PortalGun.instancia.getConfig();
+        Config.config = PortalGun.plugin.getConfig();
     }
 }

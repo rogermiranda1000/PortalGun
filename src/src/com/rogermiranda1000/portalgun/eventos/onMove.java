@@ -5,7 +5,6 @@ import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
 import com.rogermiranda1000.portalgun.versioncontroller.SoundManager;
 import org.bukkit.Location;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,7 +22,7 @@ public class onMove implements Listener {
         Player player = e.getPlayer();
         Location loc = e.getTo().getBlock().getLocation();
 
-        if(player.getInventory().getBoots()!=null && player.getInventory().getBoots().equals(PortalGun.instancia.botas)) player.setFallDistance(0);
+        if(player.getInventory().getBoots()!=null && player.getInventory().getBoots().equals(PortalGun.botas)) player.setFallDistance(0);
 
         Portal portal = Portal.getPortal(loc);
         if (portal == null) return;
@@ -43,7 +42,6 @@ public class onMove implements Listener {
         }
         //player.setVelocity(playerVelocity);
 
-        // TODO: enderman if not shulker yet
         if(portal.teleportToDestiny(player, portal.getLocationIndex(loc))) player.playSound(player.getLocation(), SoundManager.getTeleportSound(), 3.0F, 0.5F);
 
     }

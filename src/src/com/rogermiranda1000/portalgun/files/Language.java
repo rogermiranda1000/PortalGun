@@ -15,10 +15,12 @@ public enum Language {
     PORTAL_BLOCK_DENIED("portal.block_deny"),
     PORTAL_OPENED("portal.open"),
     PORTAL_COLLIDING("portal.collides"),
+    PORTAL_FAR("portal.far"),
     USER_NO_PERMISSIONS("user.no_permissions"),
     USER_GET("user.get"),
     USER_NO_PORTALS("user.no_portals"),
     USER_REMOVE("user.remove"),
+    OTHER_USER_REMOVE("user.other_remove"),
     USER_DEATH("user.remove_death"),
     USER_REMOVE_ALL("user.remove_all");
 
@@ -58,7 +60,7 @@ public enum Language {
         File languageFile = new File(Language.languagePath,languageName + ".yml");
         try {
             if (!languageFile.exists() && !Language.createLanguageFile(languageName)) {
-                PortalGun.instancia.getLogger().info("Language file '" + languageName + "' does not exists (and cannot be created). Using english file instead.");
+                PortalGun.plugin.getLogger().info("Language file '" + languageName + "' does not exists (and cannot be created). Using english file instead.");
                 Language.loadHashMap("english");
             }
             else {
@@ -121,9 +123,11 @@ public enum Language {
         r.put(Language.PORTAL_OPENED.key, "[player] has opened a portal at [pos].");
         r.put(Language.USER_NO_PORTALS.key, "You don't have any opened portals right now.");
         r.put(Language.PORTAL_COLLIDING.key, "You can't place both portals at the same block!");
-        r.put(Language.USER_REMOVE.key, "You deleted successfully your portals.");
-        r.put(Language.USER_DEATH.key, "Your portals have been deleted due to your death.");
-        r.put(Language.USER_REMOVE_ALL.key, "Deleted all portals.");
+        r.put(Language.PORTAL_FAR.key, "That block is too far to place a portal.");
+        r.put(Language.USER_REMOVE.key, "You have removed successfully your portals.");
+        r.put(Language.OTHER_USER_REMOVE.key, "[player] has removed your portals.");
+        r.put(Language.USER_DEATH.key, "Your portals have been removed due to your death.");
+        r.put(Language.USER_REMOVE_ALL.key, "You have removed all portals.");
         r.put(Language.USER_GET.key, "PortalGun gived!");
         r.put(Language.HELP_GET.key, "Get your PortalGun.");
         r.put(Language.HELP_REMOVE.key, "Delete your active portals.");

@@ -48,10 +48,15 @@ public class ItemManager {
         return getItemFunction.apply(playerInventory);
     }
 
-    public static boolean hasItemInHand(Player p, ItemStack i) {
+    public static boolean hasItemInHand(Player p, ItemStack i, boolean ignoresQuantity) {
         for (ItemStack item : getItemInHand(p)) {
+            if (ignoresQuantity) {
+                item = item.clone();
+                item.setAmount(1);
+            }
             if (item.equals(i)) return true;
         }
+
         return false;
     }
 }
