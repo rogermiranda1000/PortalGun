@@ -1,7 +1,9 @@
 name: PortalGun
 main: com.rogermiranda1000.portalgun.PortalGun
-version: 1.6
+version: 2.0
 author: rogermiranda1000
+description: Plugin inspired in the PortalGun from Portal.
+api-version: 1.13
 commands:
     portalgun:
         description: Get the PortalGun
@@ -19,6 +21,9 @@ permissions:
     portalgun.destroy:
         description: Can destroy portals placing or breaking blocks.
         default: true
+    portalgun.remove.others:
+        description: Remove others' portals
+        default: op
     portalgun.remove.all:
         description: Remove all the portals
         default: op
@@ -26,7 +31,7 @@ permissions:
         description: Override only in certain blocks condition
         default: op
     portalgun.overrideotherportals:
-        description: Override only your portals condition
+        description: Override 'only your portals' condition
         default: op
     portalgun.boots:
         description: Get the Portal Boots

@@ -6,14 +6,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import javax.sound.sampled.Port;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 public abstract class Portal {
@@ -82,7 +80,6 @@ public abstract class Portal {
 
     private static void spawnParticle(Location loc, Particle particle, Player owner) {
         if (loc == null) return;
-        // TODO: more than one player, on leaves, crashes?
 
         if(PortalGun.plugin.public_portals) loc.getWorld().spawnParticle(particle, loc.getX(), loc.getY(), loc.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
         else {
@@ -288,23 +285,31 @@ public abstract class Portal {
     }
 
     // TODO: teleport block deviation
+    public boolean teleportToDestiny(Entity e, Location l) {
+        if (this.linked == null || l == null) return false;
+
+        l = l.clone();
+        l.add(0.5f, 0.f, 0.5f); // center
+        l.setPitch(Portal.getPitch(e.getLocation().getPitch(), this, this.linked)); // Pitch
+        l.setYaw(Portal.getYaw(e.getLocation().getYaw(), this.direction, this.linked.direction)); // Yaw
+
+        e.teleport(l);
+
+        e.setVelocity( this.linked.getApproachVector().multiply( -e.getVelocity().dot(this.getApproachVector()) ) );
+
+        return true;
+    }
+
     public boolean teleportToDestiny(Entity e, short index) {
-        if (this.linked != null) {
-            Location []tp = this.linked.calculateTeleportLocation();
-            if (index < 0 || index >= tp.length) index = 0;
+        return this.teleportToDestiny(e, getDestiny(index));
+    }
 
-            Location l = tp[index];
-            l.add(0.5f, 0.f, 0.5f); // center
-            l.setPitch(Portal.getPitch(e.getLocation().getPitch(), this, this.linked)); // Pitch
-            l.setYaw(Portal.getYaw(e.getLocation().getYaw(), this.direction, this.linked.direction)); // Yaw
+    public Location getDestiny(short index) {
+        if (this.linked == null) return null;
 
-            e.teleport(l);
+        Location []tp = this.linked.calculateTeleportLocation();
+        if (index < 0 || index >= tp.length) index = 0;
 
-            e.setVelocity( this.linked.getApproachVector().multiply( -e.getVelocity().dot(this.getApproachVector()) ) );
-
-            return true;
-        }
-
-        return false;
+        return tp[index];
     }
 }

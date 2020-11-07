@@ -27,6 +27,8 @@ public class onMove implements Listener {
         Portal portal = Portal.getPortal(loc);
         if (portal == null) return;
 
+        if (!PortalGun.plugin.public_portals && portal.getOwner() != player) return;
+
         // TODO: player velocity??
         if (portal instanceof WallPortal) {
             double approachVelocitySquare = delta.dot(portal.getApproachVector());
@@ -43,6 +45,5 @@ public class onMove implements Listener {
         //player.setVelocity(playerVelocity);
 
         if(portal.teleportToDestiny(player, portal.getLocationIndex(loc))) player.playSound(player.getLocation(), SoundManager.getTeleportSound(), 3.0F, 0.5F);
-
     }
 }
