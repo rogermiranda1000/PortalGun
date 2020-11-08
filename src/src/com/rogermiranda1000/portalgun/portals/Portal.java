@@ -2,11 +2,11 @@ package com.rogermiranda1000.portalgun.portals;
 
 import com.rogermiranda1000.portalgun.Direction;
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.files.Config;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -81,7 +81,7 @@ public abstract class Portal {
     private static void spawnParticle(Location loc, Particle particle, Player owner) {
         if (loc == null) return;
 
-        if(PortalGun.plugin.public_portals) loc.getWorld().spawnParticle(particle, loc.getX(), loc.getY(), loc.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
+        if(!Config.ONLY_YOUR_PORTALS.getBoolean()) loc.getWorld().spawnParticle(particle, loc.getX(), loc.getY(), loc.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
         else {
             for(Player ply: Bukkit.getOnlinePlayers()) {
                 if(ply.hasPermission("portalgun.overrideotherportals") || ply.equals(owner)) ply.spawnParticle(particle, loc.getX(), loc.getY(), loc.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
@@ -284,7 +284,7 @@ public abstract class Portal {
         return playerPitch;
     }
 
-    // TODO: teleport block deviation
+    // TODO: teleport not to exact center block
     public boolean teleportToDestiny(Entity e, Location l) {
         if (this.linked == null || l == null) return false;
 

@@ -1,6 +1,7 @@
 package com.rogermiranda1000.portalgun.eventos;
 
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
 import com.rogermiranda1000.portalgun.versioncontroller.SoundManager;
@@ -12,7 +13,6 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
 
 public class onMove implements Listener {
-    // TODO: all entity instead of player
     @EventHandler
     public void onMove(PlayerMoveEvent e) {
         if (e.getTo() == null) return;
@@ -27,7 +27,7 @@ public class onMove implements Listener {
         Portal portal = Portal.getPortal(loc);
         if (portal == null) return;
 
-        if (!PortalGun.plugin.public_portals && portal.getOwner() != player) return;
+        if (Config.ONLY_YOUR_PORTALS.getBoolean() && portal.getOwner() != player) return;
 
         // TODO: player velocity??
         if (portal instanceof WallPortal) {

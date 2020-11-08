@@ -10,16 +10,19 @@ import java.util.function.Function;
 public class BlockManager {
     private final static Function<String,Object> getBlockFunction;
     private final static Function<Block, Object> getObjectFunction;
+    private final static Function<Block, Boolean> isPassableFunction;
 
     static {
         // version < 1.13
         if(VersionController.getVersion()<13) {
+            isPassableFunction = block->!block.getType().isSolid();
+
             getBlockFunction = type->{
-                String s[] = type.split(":");
+                String []s = type.split(":");
                 try {
                     return new ItemStack(Material.valueOf(s[0]), (short)1, s.length == 2 ? Short.valueOf(s[1]) : 0);
                 } catch (IllegalArgumentException IAEx) {
-                    PortalGun.printErrorMessage("The block type '" + s[0] + "' does not exists.");
+                    PortalGun.printErrorMessage("The block '" + s[0] + ":" + (s.length == 2 ? s[1] : "0") + "' does not exists.");
                     return null;
                 }
             };
@@ -28,11 +31,13 @@ public class BlockManager {
         }
         // version >= 1.13
         else {
+            isPassableFunction = Block::isPassable;
+
             getBlockFunction = type->{
                 try {
                     return Material.valueOf(type);
                 } catch (IllegalArgumentException IAEx) {
-                    PortalGun.printErrorMessage("The block type '" + type + "' does not exists.");
+                    PortalGun.printErrorMessage("The block '" + type + "' does not exists.");
                     return null;
                 }
             };
@@ -47,5 +52,9 @@ public class BlockManager {
 
     public static Object getObject(Block b) {
         return BlockManager.getObjectFunction.apply(b);
+    }
+
+    public static boolean isPassable(Block b) {
+        return isPassableFunction.apply(b);
     }
 }

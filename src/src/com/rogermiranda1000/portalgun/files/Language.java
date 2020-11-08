@@ -14,7 +14,6 @@ public enum Language {
     HELP_REMOVE_OTHERS("help.remove_others_portals"),
     HELP_REMOVE_ALL("help.remove_all_portals"),
     PORTAL_DENIED("portal.deny"),
-    PORTAL_BLOCK_DENIED("portal.block_deny"),
     PORTAL_OPENED("portal.open"),
     PORTAL_COLLIDING("portal.collides"),
     PORTAL_FAR("portal.far"),
@@ -88,10 +87,11 @@ public enum Language {
 
     public static void checkAndCreate() {
         if (!Language.languagePath.exists()) {
+            PortalGun.plugin.getLogger().info("Creating language files...");
             Language.languagePath.mkdir();
             Language.createLanguageFile("english");
-            Language.createLanguageFile("español");
-            Language.createLanguageFile("català");
+            Language.createLanguageFile("spanish");
+            Language.createLanguageFile("catalan");
         }
     }
 
@@ -99,9 +99,8 @@ public enum Language {
      * @param language "english", "español", "català"
      * @return true: created; false: no able to create
      */
-    // TODO: español & català
     public static boolean createLanguageFile(String language) {
-        if (!language.equalsIgnoreCase("english") && !language.equalsIgnoreCase("español") && !language.equalsIgnoreCase("català"))
+        if (!language.equalsIgnoreCase("english") && !language.equalsIgnoreCase("spanish") && !language.equalsIgnoreCase("catalan"))
             return false;
 
         final YamlConfiguration lang = new YamlConfiguration();
@@ -110,8 +109,8 @@ public enum Language {
             languageFile.createNewFile();
 
             if (language.equalsIgnoreCase("english")) Language.addValues(lang, Language.getEnglishFile());
-            else if (language.equalsIgnoreCase("español")) Language.addValues(lang, Language.getSpanishFile());
-            else if (language.equalsIgnoreCase("català")) Language.addValues(lang, Language.getCatalanFile());
+            else if (language.equalsIgnoreCase("spanish")) Language.addValues(lang, Language.getSpanishFile());
+            else if (language.equalsIgnoreCase("catalan")) Language.addValues(lang, Language.getCatalanFile());
 
             lang.save(languageFile);
         } catch(Exception e){
@@ -129,7 +128,6 @@ public enum Language {
         HashMap<String, Object> r = new HashMap<>();
 
         r.put(Language.PORTAL_DENIED.key, "You can't open a portal here.");
-        r.put(Language.PORTAL_BLOCK_DENIED.key, "You can't open a portal in that block.");
         r.put(Language.USER_NO_PERMISSIONS.key, "You don't have permissions to do this!");
         r.put(Language.PORTAL_OPENED.key, "[player] has opened a portal at [pos].");
         r.put(Language.USER_NO_PORTALS.key, "You don't have any opened portals right now.");
@@ -159,7 +157,6 @@ public enum Language {
         HashMap<String, Object> r = new HashMap<>();
 
         r.put(Language.PORTAL_DENIED.key, "No puedes abrir un portal aquí.");
-        r.put(Language.PORTAL_BLOCK_DENIED.key, "No puedes abrir un portan en ese bloque.");
         r.put(Language.USER_NO_PERMISSIONS.key, "No tienes permisos para hacer eso.");
         r.put(Language.PORTAL_OPENED.key, "[player] ha abierto un portal en [pos].");
         r.put(Language.USER_NO_PORTALS.key, "No tienes portales abiertos.");
@@ -187,7 +184,6 @@ public enum Language {
         HashMap<String, Object> r = new HashMap<>();
 
         r.put(Language.PORTAL_DENIED.key, "No pots obrir un portal aquí.");
-        r.put(Language.PORTAL_BLOCK_DENIED.key, "No pots obrir un portal en aquest bloc.");
         r.put(Language.USER_NO_PERMISSIONS.key, "No tens permisos per fer això.");
         r.put(Language.PORTAL_OPENED.key, "[player] ha obert un portal en [pos].");
         r.put(Language.USER_NO_PORTALS.key, "No tens portals oberts.");

@@ -1,5 +1,6 @@
 package com.rogermiranda1000.portalgun.eventos;
 
+import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.Language;
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.portals.Portal;
@@ -12,7 +13,7 @@ public class onDead implements Listener {
     @EventHandler
     public void onDead(PlayerDeathEvent e) {
         Player p = (Player)e.getEntity();
-        if(!PortalGun.config.getBoolean("delete_portals_on_death")) return;
+        if(!Config.DELETE_ON_DEATH.getBoolean()) return;
 
         if(Portal.removePortal(p)) p.sendMessage(PortalGun.errorPrefix + Language.USER_DEATH.getText());
     }

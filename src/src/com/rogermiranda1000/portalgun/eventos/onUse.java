@@ -2,6 +2,7 @@ package com.rogermiranda1000.portalgun.eventos;
 
 import com.rogermiranda1000.portalgun.Direction;
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.versioncontroller.ItemManager;
 import com.rogermiranda1000.portalgun.files.Language;
 import com.rogermiranda1000.portalgun.portals.CeilingPortal;
@@ -35,7 +36,7 @@ public class onUse implements Listener {
         }
 
         // raytracing
-        BlockIterator iter = new BlockIterator(player, PortalGun.plugin.max_length);
+        BlockIterator iter = new BlockIterator(player, Config.MAX_LENGHT.getInteger());
         Block colliderBlock = iter.next();
         while (Portal.isEmptyBlock.apply(colliderBlock) && iter.hasNext()) colliderBlock = iter.next();
 

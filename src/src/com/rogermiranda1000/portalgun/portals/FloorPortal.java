@@ -10,7 +10,6 @@ public class FloorPortal extends TopPortal implements Cloneable {
         super(owner, loc, dir, isLeft);
     }
 
-    // TODO: is this the best way?
     protected float getParticleY() {
         return 1.1f;
     }
