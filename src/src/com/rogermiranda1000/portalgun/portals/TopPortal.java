@@ -2,11 +2,11 @@ package com.rogermiranda1000.portalgun.portals;
 
 import com.rogermiranda1000.portalgun.Direction;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.util.Vector;
 
 public abstract class TopPortal extends Portal {
-    protected TopPortal(Player owner, Location loc, Direction dir, boolean isLeft) {
+    protected TopPortal(OfflinePlayer owner, Location loc, Direction dir, boolean isLeft) {
         super(owner, loc, dir, isLeft);
     }
 

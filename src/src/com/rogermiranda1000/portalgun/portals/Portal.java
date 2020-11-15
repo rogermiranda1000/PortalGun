@@ -1,12 +1,13 @@
 package com.rogermiranda1000.portalgun.portals;
 
 import com.rogermiranda1000.portalgun.Direction;
-import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.files.Config;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -27,7 +28,7 @@ public abstract class Portal {
     protected final Direction direction;
     protected final boolean isLeft; // used in the particle's color
     private short currentParticle;
-    protected final Player owner;
+    protected final OfflinePlayer owner;
     private final Location []particleLocations;
 
     /* ABSTRACT FUNCTIONS */
@@ -42,7 +43,7 @@ public abstract class Portal {
         Portal.particles = new Particle[2];
     }
 
-    protected Portal(Player owner, Location loc, Direction dir, boolean isLeft) {
+    protected Portal(OfflinePlayer owner, Location loc, Direction dir, boolean isLeft) {
         this.owner = owner;
         this.position = loc.clone();
         this.direction = dir;
@@ -90,12 +91,14 @@ public abstract class Portal {
     }
 
     public void playParticle() {
-        Portal.spawnParticle(this.particleLocations[this.currentParticle], this.getParticle(), this.owner);
+        Player p = this.owner.getPlayer();
+
+        Portal.spawnParticle(this.particleLocations[this.currentParticle], this.getParticle(), p);
 
         this.currentParticle += Portal.iterations/2;
         this.currentParticle %= Portal.iterations;
 
-        Portal.spawnParticle(this.particleLocations[this.currentParticle], this.getParticle(), this.owner);
+        Portal.spawnParticle(this.particleLocations[this.currentParticle], this.getParticle(), p);
 
         this.currentParticle++;
         this.currentParticle %= Portal.iterations;
@@ -143,8 +146,8 @@ public abstract class Portal {
         return false;
     }
 
-    public Player getOwner() {
-        return this.owner;
+    @Nullable public Player getOwner() {
+        return this.owner.getPlayer();
     }
 
     public boolean getIsLeft() {
@@ -245,6 +248,8 @@ public abstract class Portal {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
+        sb.append(this.owner.getUniqueId());
+        sb.append(';');
         sb.append(this.position.getWorld().getName());
         sb.append(',');
         sb.append(this.position.getX());
@@ -252,10 +257,12 @@ public abstract class Portal {
         sb.append(this.position.getY());
         sb.append(',');
         sb.append(this.position.getZ());
-        sb.append(',');
+        sb.append(';');
         sb.append(this.direction.name());
-        sb.append(',');
-        sb.append(this.getClass().toString());
+        sb.append(';');
+        sb.append(this.isLeft ? 'L' : 'R');
+        sb.append(';');
+        sb.append(this.getClass().getName().substring(this.getClass().getName().lastIndexOf('.') + 1));
 
         return sb.toString();
     }

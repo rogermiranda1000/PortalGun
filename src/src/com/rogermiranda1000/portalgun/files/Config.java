@@ -27,6 +27,7 @@ public enum Config {
     WHITELIST_BLOCKS("portals.whitelist_blocks"),
     WHITELISTED_BLOCKS("portals.whitelisted_blocks"),
     ONLY_YOUR_PORTALS("portals.use_only_yours"),
+    PERSISTANT("portals.save"),
     PARTICLES("portals.particles");
 
     private static FileConfiguration fileConfiguration;
@@ -146,8 +147,8 @@ public enum Config {
         c.put(Config.MAX_LENGHT.key, 80);
         c.put(Config.PARTICLES.key, Arrays.asList("FLAME", "VILLAGER_HAPPY"));
         c.put(Config.REMOVE_ON_LEAVE.key, true);
-        //c.put("keep_portals_on_stop", false); TODO: keep portals on stop
         c.put(Config.DELETE_ON_DEATH.key, false);
+        c.put(Config.PERSISTANT.key, false);
         c.put(Config.ONLY_YOUR_PORTALS.key, false);
         c.put(Config.WHITELIST_BLOCKS.key, false);
         c.put(Config.WHITELISTED_BLOCKS.key, getDefaultBlocks());
