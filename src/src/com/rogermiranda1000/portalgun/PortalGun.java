@@ -45,7 +45,7 @@ public class PortalGun extends JavaPlugin
         // Load portals
         if (Config.PERSISTANT.getBoolean()) {
             getLogger().info("Loading portals...");
-            File file = new File(getDataFolder(), "portal.yml");
+            File file = new File(getDataFolder(), "portals.yml");
             if(file.exists()) {
                 try {
                     BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
@@ -55,7 +55,12 @@ public class PortalGun extends JavaPlugin
                         if(args.length!=5) continue;
                         String[] argsWorld = args[1].split(",");
                         if(argsWorld.length!=4) continue;
-                        Location portalLocation = new Location(Bukkit.getWorld(argsWorld[0]), Double.parseDouble(argsWorld[1]), Double.parseDouble(argsWorld[2]), Double.parseDouble(argsWorld[3]));
+                        World w = Bukkit.getWorld(argsWorld[0]);
+                        if (w == null) {
+                            PortalGun.printErrorMessage("The portal's world '" + argsWorld[0] + "' doesn't exist.");
+                            continue;
+                        }
+                        Location portalLocation = new Location(w, Double.parseDouble(argsWorld[1]), Double.parseDouble(argsWorld[2]), Double.parseDouble(argsWorld[3]));
                         OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(args[0]));
                         Portal p = null;
                         switch (args[4]) {
@@ -76,6 +81,7 @@ public class PortalGun extends JavaPlugin
                     br.close();
                 } catch (Exception e) { e.printStackTrace(); }
             }
+            else getLogger().info("No portals to load.");
         }
 
         botas = new ItemStack(Material.LEATHER_BOOTS);
