@@ -27,7 +27,7 @@ public class onMove implements Listener {
         Portal portal = Portal.getPortal(loc);
         if (portal == null) return;
 
-        if (Config.ONLY_YOUR_PORTALS.getBoolean() && portal.getOwner() != player) return;
+        if (Config.ONLY_YOUR_PORTALS.getBoolean() && !player.equals(portal.getOwner())) return;
 
         // TODO: player velocity??
         if (portal instanceof WallPortal) {

@@ -1,15 +1,12 @@
 package com.rogermiranda1000.portalgun.portals;
 
 import com.rogermiranda1000.portalgun.Direction;
-import com.rogermiranda1000.portalgun.PortalGun;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.util.Vector;
 
 public class WallPortal extends Portal implements Cloneable {
-    public WallPortal(Player owner, Location loc, Direction dir, boolean isLeft) {
+    public WallPortal(OfflinePlayer owner, Location loc, Direction dir, boolean isLeft) {
         super(owner, loc, dir, isLeft);
     }
 

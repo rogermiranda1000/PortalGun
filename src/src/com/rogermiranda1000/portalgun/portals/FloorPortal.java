@@ -2,11 +2,11 @@ package com.rogermiranda1000.portalgun.portals;
 
 import com.rogermiranda1000.portalgun.Direction;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.util.Vector;
 
 public class FloorPortal extends TopPortal implements Cloneable {
-    public FloorPortal(Player owner, Location loc, Direction dir, boolean isLeft) {
+    public FloorPortal(OfflinePlayer owner, Location loc, Direction dir, boolean isLeft) {
         super(owner, loc, dir, isLeft);
     }
 

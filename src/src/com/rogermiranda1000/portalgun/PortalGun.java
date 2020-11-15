@@ -1,11 +1,17 @@
 package com.rogermiranda1000.portalgun;
 
+import java.io.*;
 import java.util.*;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 import com.rogermiranda1000.portalgun.eventos.*;
+import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.FileManager;
+import com.rogermiranda1000.portalgun.portals.CeilingPortal;
+import com.rogermiranda1000.portalgun.portals.FloorPortal;
 import com.rogermiranda1000.portalgun.portals.Portal;
+import com.rogermiranda1000.portalgun.portals.WallPortal;
 import com.rogermiranda1000.portalgun.versioncontroller.VersionController;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
@@ -15,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 public class PortalGun extends JavaPlugin
 {
@@ -26,11 +33,56 @@ public class PortalGun extends JavaPlugin
     private static final int particleDelay = 2;
     private static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
 
+    private BukkitTask particleTask;
+    private BukkitTask teleportTask;
+
     @Override
     public void onEnable() {
         PortalGun.plugin = this;
 
         FileManager.loadFiles();
+
+        // Load portals
+        if (Config.PERSISTANT.getBoolean()) {
+            getLogger().info("Loading portals...");
+            File file = new File(getDataFolder(), "portals.yml");
+            if(file.exists()) {
+                try {
+                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+                    String l;
+                    while ((l=br.readLine())!=null) {
+                        String[] args = l.split(";");
+                        if(args.length!=5) continue;
+                        String[] argsWorld = args[1].split(",");
+                        if(argsWorld.length!=4) continue;
+                        World w = Bukkit.getWorld(argsWorld[0]);
+                        if (w == null) {
+                            PortalGun.printErrorMessage("The portal's world '" + argsWorld[0] + "' doesn't exist.");
+                            continue;
+                        }
+                        Location portalLocation = new Location(w, Double.parseDouble(argsWorld[1]), Double.parseDouble(argsWorld[2]), Double.parseDouble(argsWorld[3]));
+                        OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(args[0]));
+                        Portal p = null;
+                        switch (args[4]) {
+                            case "CeilingPortal":
+                                p = new CeilingPortal(player, portalLocation, Direction.valueOf(args[2]), args[3].equalsIgnoreCase("L"));
+                                break;
+                            case "FloorPortal":
+                                p = new FloorPortal(player, portalLocation, Direction.valueOf(args[2]), args[3].equalsIgnoreCase("L"));
+                                break;
+                            case "WallPortal":
+                                p = new WallPortal(player, portalLocation, Direction.valueOf(args[2]), args[3].equalsIgnoreCase("L"));
+                                break;
+                            default:
+                                PortalGun.printErrorMessage("Invalid portal type (" + args[4] + ")");
+                        }
+                        if (p != null) Portal.setPortal(UUID.fromString(args[0]), p);
+                    }
+                    br.close();
+                } catch (Exception e) { e.printStackTrace(); }
+            }
+            else getLogger().info("No portals to load.");
+        }
 
         botas = new ItemStack(Material.LEATHER_BOOTS);
         LeatherArmorMeta meta2 = (LeatherArmorMeta) botas.getItemMeta();
@@ -42,10 +94,10 @@ public class PortalGun extends JavaPlugin
         botas.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
     
         // Particles
-        this.getServer().getScheduler().runTaskTimerAsynchronously(this, PortalGun::playAllParticles, 0, PortalGun.particleDelay);
+        this.particleTask = this.getServer().getScheduler().runTaskTimerAsynchronously(this, PortalGun::playAllParticles, 0, PortalGun.particleDelay);
         // TODO: configuration "only players teleports"
         // Entities
-        this.getServer().getScheduler().runTaskTimerAsynchronously(this, ()->{
+        this.teleportTask = this.getServer().getScheduler().runTaskTimerAsynchronously(this, ()->{
             PortalGun.updateTeleportedEntities();
             PortalGun.teleportEntities();
         }, 1, PortalGun.particleDelay*3);
@@ -74,7 +126,7 @@ public class PortalGun extends JavaPlugin
     // TODO: don't teleport Item Frames
     private static void teleportEntities() {
         for (World world : Bukkit.getWorlds()) {
-            for (Entity e : getEntities(world).toArray(new Entity[0])) {
+            for (Entity e : getEntities(world)) {
                 if (e instanceof Player) continue;
                 if (PortalGun.teleportedEntities.containsKey(e)) continue;
 
@@ -90,26 +142,29 @@ public class PortalGun extends JavaPlugin
                     if(portal.teleportToDestiny(e, destinyLocation)) PortalGun.teleportedEntities.put(e, destinyLocation);
                 }
                 else {
-                    // Async does not support teleport between worlds
-                    Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> {
-                        if (portal.teleportToDestiny(e, destinyLocation)) PortalGun.teleportedEntities.put(e, destinyLocation);
-                        return null;
-                    });
+                    try {
+                        // Async does not support teleport between worlds
+                        Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> {
+                            if (portal.teleportToDestiny(e, destinyLocation))
+                                PortalGun.teleportedEntities.put(e, destinyLocation);
+                            return null;
+                        });
+                    } catch (CancellationException ex) {}
                 }
             }
         }
     }
 
     private static List<Entity> getEntities(World world){
-        if(Bukkit.isPrimaryThread()){
+        //if(Bukkit.isPrimaryThread()){
             return world.getEntities();
-        }else{
+        /*}else{
             try{
                 return Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, world::getEntities).get();
             }catch(InterruptedException|ExecutionException Ex){
                 return new ArrayList<>(0);
             }
-        }
+        }*/
     }
 
     /**
@@ -122,19 +177,27 @@ public class PortalGun extends JavaPlugin
 
     @Override
     public void onDisable() {
-      // TODO: Guardar portales
-	  /*if (config.getBoolean("keep_portals_on_stop")) {
-		  getLogger().info("Saving portals...");
-          try {
-		        File file = new File(getDataFolder(), "portal.yml");
-		        BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-                for (String n : portales.keySet()) {
-                    bw.write(n + ">" + portales.get(n).Save());
+        this.particleTask.cancel();
+        this.teleportTask.cancel();
+
+        if (Config.PERSISTANT.getBoolean()) {
+            getLogger().info("Saving portals...");
+            File file = new File(getDataFolder(), "portals.yml");
+            BufferedWriter bw = null;
+            try {
+                bw = new BufferedWriter(new FileWriter(file));
+                for (Portal p : Portal.getPortals()) {
+                    bw.write(p.toString());
                     bw.newLine();
                 }
-                bw.flush();
-                bw.close();
-            } catch (IOException e) { e.printStackTrace(); }
-	  }*/
+            }
+            catch (IOException e) { e.printStackTrace(); }
+            finally {
+                if (bw != null) {
+                    try { bw.close(); }
+                    catch (IOException e) { e.printStackTrace(); }
+                }
+            }
+        }
     }
 }
