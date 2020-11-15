@@ -1,6 +1,7 @@
 package com.rogermiranda1000.portalgun;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import com.rogermiranda1000.portalgun.eventos.*;
 import com.rogermiranda1000.portalgun.files.FileManager;
@@ -73,7 +74,7 @@ public class PortalGun extends JavaPlugin
     // TODO: don't teleport Item Frames
     private static void teleportEntities() {
         for (World world : Bukkit.getWorlds()) {
-            for (Entity e : world.getEntities().toArray(new Entity[0])) {
+            for (Entity e : getEntities(world).toArray(new Entity[0])) {
                 if (e instanceof Player) continue;
                 if (PortalGun.teleportedEntities.containsKey(e)) continue;
 
@@ -95,6 +96,18 @@ public class PortalGun extends JavaPlugin
                         return null;
                     });
                 }
+            }
+        }
+    }
+
+    private static List<Entity> getEntities(World world){
+        if(Bukkit.isPrimaryThread()){
+            return world.getEntities();
+        }else{
+            try{
+                return Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, world::getEntities).get();
+            }catch(InterruptedException|ExecutionException Ex){
+                return new ArrayList<>(0);
             }
         }
     }
