@@ -3,13 +3,13 @@ package com.rogermiranda1000.portalgun.eventos;
 import com.rogermiranda1000.portalgun.Direction;
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.files.Config;
-import com.rogermiranda1000.portalgun.versioncontroller.ItemManager;
 import com.rogermiranda1000.portalgun.files.Language;
 import com.rogermiranda1000.portalgun.portals.CeilingPortal;
 import com.rogermiranda1000.portalgun.portals.FloorPortal;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
-import com.rogermiranda1000.portalgun.versioncontroller.SoundManager;
+import com.rogermiranda1000.versioncontroller.SoundManager;
+import com.rogermiranda1000.versioncontroller.VersionController;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -26,7 +26,7 @@ public class onUse implements Listener {
     public void onPlayerUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
-        if (!ItemManager.hasItemInHand(player, PortalGun.item, true)) return;
+        if (!VersionController.get().hasItemInHand(player, PortalGun.item, true)) return;
         if(event.getAction().equals(Action.PHYSICAL)) return;
 
         event.setCancelled(true);
@@ -38,7 +38,7 @@ public class onUse implements Listener {
         // raytracing
         BlockIterator iter = new BlockIterator(player, Config.MAX_LENGHT.getInteger());
         Block colliderBlock = iter.next();
-        while (Portal.isEmptyBlock.apply(colliderBlock) && iter.hasNext()) colliderBlock = iter.next();
+        while (Portal.isEmptyBlock.apply(colliderBlock) && iter.hasNext()) colliderBlock = iter.next(); // TODO: bloacklist blocks
 
         Portal p = getMatchingPortal(player, colliderBlock.getLocation(), event.getAction().equals(Action.LEFT_CLICK_BLOCK) || event.getAction().equals(Action.LEFT_CLICK_AIR),
                 Direction.getDirection((Entity)player), player.getLocation().getBlock().getLocation().subtract(colliderBlock.getLocation()).toVector());

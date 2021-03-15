@@ -4,7 +4,7 @@ import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
-import com.rogermiranda1000.portalgun.versioncontroller.SoundManager;
+import com.rogermiranda1000.versioncontroller.SoundManager;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

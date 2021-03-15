@@ -1,4 +1,4 @@
-package com.rogermiranda1000.portalgun.versioncontroller;
+package com.rogermiranda1000.versioncontroller;
 
 import org.bukkit.Sound;
 

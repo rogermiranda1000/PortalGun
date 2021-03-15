@@ -2,8 +2,7 @@ package com.rogermiranda1000.portalgun.files;
 
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.portals.Portal;
-import com.rogermiranda1000.portalgun.versioncontroller.BlockManager;
-import com.rogermiranda1000.portalgun.versioncontroller.VersionController;
+import com.rogermiranda1000.versioncontroller.VersionController;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -129,14 +128,14 @@ public enum Config {
         ArrayList<Object> allowedBlocks = new ArrayList<>();
 
         for (String txt : Config.fileConfiguration.getStringList(Config.WHITELISTED_BLOCKS.key)) {
-            Object o = BlockManager.getMaterial(txt);
+            Object o = VersionController.get().getMaterial(txt);
             if (o != null) allowedBlocks.add(o);
         }
 
         // TODO: lava restriction?
         // TODO: isPassable?
-        Portal.isEmptyBlock = BlockManager::isPassable;
-        Portal.isValidBlock = b->( !BlockManager.isPassable(b) && (!Config.fileConfiguration.getBoolean(Config.WHITELIST_BLOCKS.key) || allowedBlocks.contains(BlockManager.getObject(b))) );
+        Portal.isEmptyBlock = VersionController.get()::isPassable;
+        Portal.isValidBlock = b->( !VersionController.get().isPassable(b) && (!Config.fileConfiguration.getBoolean(Config.WHITELIST_BLOCKS.key) || allowedBlocks.contains(VersionController.get().getObject(b))) );
     }
 
     private static HashMap<String,Object> getDefaultConfiguration() {

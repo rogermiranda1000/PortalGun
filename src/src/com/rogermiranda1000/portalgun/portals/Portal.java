@@ -2,6 +2,7 @@ package com.rogermiranda1000.portalgun.portals;
 
 import com.rogermiranda1000.portalgun.Direction;
 import com.rogermiranda1000.portalgun.files.Config;
+import com.rogermiranda1000.versioncontroller.VersionController;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -82,10 +83,10 @@ public abstract class Portal {
     private static void spawnParticle(Location loc, Particle particle, Player owner) {
         if (loc == null) return;
 
-        if(!Config.ONLY_YOUR_PORTALS.getBoolean()) loc.getWorld().spawnParticle(particle, loc.getX(), loc.getY(), loc.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
+        if(!Config.ONLY_YOUR_PORTALS.getBoolean()) VersionController.get().playParticle(loc.getWorld(), particle, loc);
         else {
             for(Player ply: Bukkit.getOnlinePlayers()) {
-                if(ply.hasPermission("portalgun.overrideotherportals") || ply.equals(owner)) ply.spawnParticle(particle, loc.getX(), loc.getY(), loc.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
+                if(ply.hasPermission("portalgun.overrideotherportals") || ply.equals(owner)) VersionController.get().playParticle(ply, particle, loc);
             }
         }
     }
