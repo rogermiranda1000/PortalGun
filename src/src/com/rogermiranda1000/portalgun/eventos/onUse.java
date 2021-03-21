@@ -8,7 +8,6 @@ import com.rogermiranda1000.portalgun.portals.CeilingPortal;
 import com.rogermiranda1000.portalgun.portals.FloorPortal;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
-import com.rogermiranda1000.versioncontroller.SoundManager;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -56,7 +55,7 @@ public class onUse implements Listener {
         }
 
         Portal.setPortal(player, p);
-        player.playSound(player.getLocation(), SoundManager.getCreateSound(), 3.0F, 0.5F);
+        player.playSound(player.getLocation(), Config.CREATE_SOUND.getSound(), 3.0F, 0.5F);
         PortalGun.plugin.getLogger().info( Language.PORTAL_OPENED.getText (
                 new String[] {"player", player.getName()},
                 new String[] {"pos", colliderBlock.getWorld().getName() + " > " + colliderBlock.getX() + ", " + colliderBlock.getY() + ", " + colliderBlock.getZ()}

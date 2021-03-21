@@ -5,7 +5,7 @@ import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -27,7 +27,9 @@ public enum Config {
     WHITELISTED_BLOCKS("portals.whitelisted_blocks"),
     ONLY_YOUR_PORTALS("portals.use_only_yours"),
     PERSISTANT("portals.save"),
-    PARTICLES("portals.particles");
+    PARTICLES("portals.particles"),
+    CREATE_SOUND("portals.create_sound"),
+    TELEPORT_SOUND("portals.teleport_sound");
 
     private static FileConfiguration fileConfiguration;
     private static HashMap<Config, Object> savedConfiguration;
@@ -37,7 +39,7 @@ public enum Config {
         this.key = key;
     }
 
-    private Object getObject() {
+    public Object getObject() {
         Object r = Config.savedConfiguration.get(this);
 
         // first time
@@ -55,6 +57,10 @@ public enum Config {
 
     public int getInteger() {
         return (int)this.getObject();
+    }
+
+    public Sound getSound() throws IllegalArgumentException {
+        return Sound.valueOf((String) this.getObject());
     }
 
     public static void loadConfig() {
@@ -93,13 +99,13 @@ public enum Config {
         }
 
         try {
-            Portal.setParticle(Particle.valueOf(particles.get(0)), true);
+            Portal.setParticle(VersionController.get().getParticle(particles.get(0)), true);
         } catch (IllegalArgumentException IAEx) {
             PortalGun.printErrorMessage("Particle '" + particles.get(0) + "' does not exists.");
         }
 
         try {
-            Portal.setParticle(Particle.valueOf(particles.get(1)), false);
+            Portal.setParticle(VersionController.get().getParticle(particles.get(1)), false);
         } catch (IllegalArgumentException IAEx) {
             PortalGun.printErrorMessage("Particle '" + particles.get(1) + "' does not exists.");
         }
@@ -144,15 +150,32 @@ public enum Config {
         c.put(Config.LANGUAGE.key, "english");
         c.put(Config.MATERIAL.key, "BLAZE_ROD");
         c.put(Config.MAX_LENGHT.key, 80);
-        c.put(Config.PARTICLES.key, Arrays.asList("FLAME", "VILLAGER_HAPPY"));
+        c.put(Config.PARTICLES.key, getDefaultParticles());
         c.put(Config.REMOVE_ON_LEAVE.key, true);
         c.put(Config.DELETE_ON_DEATH.key, false);
         c.put(Config.PERSISTANT.key, false);
         c.put(Config.ONLY_YOUR_PORTALS.key, false);
         c.put(Config.WHITELIST_BLOCKS.key, false);
         c.put(Config.WHITELISTED_BLOCKS.key, getDefaultBlocks());
+        c.put(Config.TELEPORT_SOUND.key, (VersionController.getVersion()<9) ? "ENDERMAN_TELEPORT" : "ENTITY_SHULKER_TELEPORT");
+        c.put(Config.CREATE_SOUND.key, (VersionController.getVersion()<9) ? "SLIME_WALK2" : "ENTITY_SLIME_JUMP");
 
         return c;
+    }
+
+    private static ArrayList<String> getDefaultParticles() {
+        ArrayList<String> particles = new ArrayList<>();
+
+        if (VersionController.getVersion()<9) {
+            particles.add("FLAME");
+            particles.add("HAPPY_VILLAGER");
+        }
+        else {
+            particles.add("FLAME");
+            particles.add("VILLAGER_HAPPY");
+        }
+
+        return particles;
     }
 
     private static ArrayList<String> getDefaultBlocks() {

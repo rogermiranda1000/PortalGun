@@ -9,8 +9,9 @@ import org.bukkit.inventory.PlayerInventory;
 public class ItemPost9 extends ItemManager {
     @Override
     public ItemStack[] getItemInHand(PlayerInventory playerInventory) {
-        ItemStack[] r = new ItemStack[1];
-        r[0] = playerInventory.getItemInHand();
+        ItemStack[] r = new ItemStack[2];
+        r[0] = playerInventory.getItemInMainHand();
+        r[1] = playerInventory.getItemInOffHand();
         return r;
     }
 }

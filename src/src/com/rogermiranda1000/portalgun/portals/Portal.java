@@ -6,7 +6,6 @@ import com.rogermiranda1000.versioncontroller.VersionController;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Entity;
@@ -19,7 +18,7 @@ import java.util.function.Function;
 public abstract class Portal {
     private static HashMap<UUID, Portal[]> portals;
     private static HashMap<Location, Portal> portalsLocations;
-    private static Particle[] particles;
+    private static Object[] particles;
     public static Function<Block, Boolean> isEmptyBlock;
     public static Function<Block, Boolean> isValidBlock;
     protected static final int iterations = 20;
@@ -41,7 +40,7 @@ public abstract class Portal {
     static {
         Portal.portals = new HashMap<>();
         Portal.portalsLocations = new HashMap<>();
-        Portal.particles = new Particle[2];
+        Portal.particles = new Object[2];
     }
 
     protected Portal(OfflinePlayer owner, Location loc, Direction dir, boolean isLeft) {
@@ -80,7 +79,7 @@ public abstract class Portal {
         return l;
     }
 
-    private static void spawnParticle(Location loc, Particle particle, Player owner) {
+    private static void spawnParticle(Location loc, Object particle, Player owner) {
         if (loc == null) return;
 
         if(!Config.ONLY_YOUR_PORTALS.getBoolean()) VersionController.get().playParticle(loc.getWorld(), particle, loc);
@@ -268,12 +267,12 @@ public abstract class Portal {
         return sb.toString();
     }
 
-    protected Particle getParticle() {
+    protected Object getParticle() {
         int pos = (this.isLeft ? 0 : 1); // left portal => pos 0
         return Portal.particles[pos];
     }
 
-    public static void setParticle(Particle particle, boolean leftPortal) {
+    public static void setParticle(Object particle, boolean leftPortal) {
         int pos = (leftPortal ? 0 : 1); // left portal => pos 0
         Portal.particles[pos] = particle;
     }

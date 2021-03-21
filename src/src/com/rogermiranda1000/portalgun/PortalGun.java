@@ -105,7 +105,7 @@ public class PortalGun extends JavaPlugin
         getServer().getPluginManager().registerEvents(new onDead(), this);
         getServer().getPluginManager().registerEvents(new onLeave(), this);
         getServer().getPluginManager().registerEvents(new onMove(), this);
-        getServer().getPluginManager().registerEvents(new onTab(), this);
+        if (VersionController.getVersion()>=10) getServer().getPluginManager().registerEvents(new onTab(), this);
         getServer().getPluginManager().registerEvents(new onUse(), this);
 
         // Commands
