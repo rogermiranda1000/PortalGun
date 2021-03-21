@@ -3,7 +3,7 @@ main: com.rogermiranda1000.portalgun.PortalGun
 version: 2.2
 author: rogermiranda1000
 description: Plugin inspired in the PortalGun from Portal.
-api-version: 1.16
+api-version: 1.13
 commands:
     portalgun:
         description: Get the PortalGun
