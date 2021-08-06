@@ -3,6 +3,7 @@ package com.rogermiranda1000.portalgun;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 
 import com.rogermiranda1000.portalgun.eventos.*;
 import com.rogermiranda1000.portalgun.files.Config;
@@ -155,15 +156,17 @@ public class PortalGun extends JavaPlugin
     }
 
     private static List<Entity> getEntities(World world){
-        //if(Bukkit.isPrimaryThread()){
+        if (Bukkit.isPrimaryThread()) {
             return world.getEntities();
-        /*}else{
-            try{
+        }
+        else{
+            try {
                 return Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, world::getEntities).get();
-            }catch(InterruptedException|ExecutionException Ex){
+            }
+            catch(Exception ignore) {
                 return new ArrayList<>(0);
             }
-        }*/
+        }
     }
 
     /**
