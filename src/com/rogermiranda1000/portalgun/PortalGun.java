@@ -3,7 +3,6 @@ package com.rogermiranda1000.portalgun;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 
 import com.rogermiranda1000.portalgun.eventos.*;
 import com.rogermiranda1000.portalgun.files.Config;
