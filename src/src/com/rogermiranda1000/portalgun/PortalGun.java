@@ -88,7 +88,7 @@ public class PortalGun extends JavaPlugin
         LeatherArmorMeta meta2 = (LeatherArmorMeta) botas.getItemMeta();
         meta2.setDisplayName(ChatColor.GREEN.toString() + "Portal Boots");
         // TODO: unbreakable alternative
-        if (VersionController.getVersion() > 10) meta2.setUnbreakable(true);
+        if (VersionController.version > 10) meta2.setUnbreakable(true);
         meta2.setColor(Color.WHITE);
         botas.setItemMeta(meta2);
         botas.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
@@ -106,7 +106,7 @@ public class PortalGun extends JavaPlugin
         getServer().getPluginManager().registerEvents(new onDead(), this);
         getServer().getPluginManager().registerEvents(new onLeave(), this);
         getServer().getPluginManager().registerEvents(new onMove(), this);
-        if (VersionController.getVersion()>=10) getServer().getPluginManager().registerEvents(new onTab(), this);
+        if (VersionController.version>=10) getServer().getPluginManager().registerEvents(new onTab(), this);
         getServer().getPluginManager().registerEvents(new onUse(), this);
 
         // Commands

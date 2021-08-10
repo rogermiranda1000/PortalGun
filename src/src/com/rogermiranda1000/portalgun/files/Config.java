@@ -157,8 +157,8 @@ public enum Config {
         c.put(Config.ONLY_YOUR_PORTALS.key, false);
         c.put(Config.WHITELIST_BLOCKS.key, false);
         c.put(Config.WHITELISTED_BLOCKS.key, getDefaultBlocks());
-        c.put(Config.TELEPORT_SOUND.key, (VersionController.getVersion()<9) ? "ENDERMAN_TELEPORT" : "ENTITY_SHULKER_TELEPORT");
-        c.put(Config.CREATE_SOUND.key, (VersionController.getVersion()<9) ? "SLIME_WALK2" : "ENTITY_SLIME_JUMP");
+        c.put(Config.TELEPORT_SOUND.key, (VersionController.version<9) ? "ENDERMAN_TELEPORT" : "ENTITY_SHULKER_TELEPORT");
+        c.put(Config.CREATE_SOUND.key, (VersionController.version<9) ? "SLIME_WALK2" : "ENTITY_SLIME_JUMP");
 
         return c;
     }
@@ -166,7 +166,7 @@ public enum Config {
     private static ArrayList<String> getDefaultParticles() {
         ArrayList<String> particles = new ArrayList<>();
 
-        if (VersionController.getVersion()<9) {
+        if (VersionController.version<9) {
             particles.add("FLAME");
             particles.add("HAPPY_VILLAGER");
         }
@@ -181,7 +181,7 @@ public enum Config {
     private static ArrayList<String> getDefaultBlocks() {
         ArrayList<String> blocks = new ArrayList<>();
 
-        if (VersionController.getVersion()<13) {
+        if (VersionController.version<13) {
             blocks.add("WOOL:0");
             blocks.add("QUARTZ_BLOCK:0");
             blocks.add("QUARTZ_BLOCK:1");

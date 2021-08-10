@@ -24,7 +24,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public class VersionController extends ItemManager implements BlockManager, ParticleManager {
     private static VersionController versionController = null;
-    private static int version = VersionController.getVersion();
+    public static final int version = VersionController.getVersion();
+    public static final boolean isPaper = VersionController.getMCPaper();
 
     private static final BlockManager blockManager = (VersionController.version<13) ? new BlockPre13() : new BlockPost13();
     private static final ItemManager itemManager = (VersionController.version<9) ? new ItemPre9() : new ItemPost9();
@@ -34,8 +35,22 @@ public class VersionController extends ItemManager implements BlockManager, Part
      * Get the current minecraft version
      * @return version (1.XX)
      */
-    public static int getVersion() {
+    private static int getVersion() {
         return Integer.parseInt(Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1]);
+    }
+
+    /**
+     * Get if Paper is running (or, by cons, Spigot)
+     * https://www.spigotmc.org/threads/how-do-i-detect-if-a-server-is-running-paper.499064/
+     * @author Gadse
+     * @return Paper (true), Spigot (false)
+     */
+    private static boolean getMCPaper() {
+        try {
+            Class.forName("com.destroystokyo.paper.ParticleBuilder"); // a package from paper
+            return true;
+        } catch (ClassNotFoundException ignored) { }
+        return false;
     }
 
     public static VersionController get() {
