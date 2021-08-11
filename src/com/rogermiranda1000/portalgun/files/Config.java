@@ -150,29 +150,49 @@ public enum Config {
         c.put(Config.LANGUAGE.key, "english");
         c.put(Config.MATERIAL.key, "BLAZE_ROD");
         c.put(Config.MAX_LENGHT.key, 80);
-        c.put(Config.PARTICLES.key, getDefaultParticles());
+        c.put(Config.PARTICLES.key, Config.getDefaultParticles());
         c.put(Config.REMOVE_ON_LEAVE.key, true);
         c.put(Config.DELETE_ON_DEATH.key, false);
         c.put(Config.PERSISTANT.key, false);
         c.put(Config.ONLY_YOUR_PORTALS.key, false);
         c.put(Config.WHITELIST_BLOCKS.key, false);
-        c.put(Config.WHITELISTED_BLOCKS.key, getDefaultBlocks());
-        c.put(Config.TELEPORT_SOUND.key, (VersionController.getVersion()<9) ? "ENDERMAN_TELEPORT" : "ENTITY_SHULKER_TELEPORT");
-        c.put(Config.CREATE_SOUND.key, (VersionController.getVersion()<9) ? "SLIME_WALK2" : "ENTITY_SLIME_JUMP");
+        c.put(Config.WHITELISTED_BLOCKS.key, Config.getDefaultBlocks());
+        c.put(Config.TELEPORT_SOUND.key, Config.getDefaultTeleportSound());
+        c.put(Config.CREATE_SOUND.key, Config.getDefaultCreateSound());
 
         return c;
+    }
+
+    private static String getDefaultTeleportSound() {
+        if (VersionController.isPaper) return "ENTITY_SHULKER_TELEPORT"; // TODO check version on paper too
+
+        if (VersionController.version<9) return "ENDERMAN_TELEPORT";
+        else return "ENTITY_SHULKER_TELEPORT";
+    }
+
+    private static String getDefaultCreateSound() {
+        if (VersionController.isPaper) return "ENTITY_SLIME_JUMP"; // TODO check version on paper too
+
+        if (VersionController.version<9) return "SLIME_WALK2";
+        else return "ENTITY_SLIME_JUMP";
     }
 
     private static ArrayList<String> getDefaultParticles() {
         ArrayList<String> particles = new ArrayList<>();
 
-        if (VersionController.getVersion()<9) {
-            particles.add("FLAME");
-            particles.add("HAPPY_VILLAGER");
-        }
-        else {
+        if (VersionController.isPaper) {
+            // TODO check version on paper too
             particles.add("FLAME");
             particles.add("VILLAGER_HAPPY");
+        }
+        else {
+            if (VersionController.version < 9) {
+                particles.add("FLAME");
+                particles.add("HAPPY_VILLAGER");
+            } else {
+                particles.add("FLAME");
+                particles.add("VILLAGER_HAPPY");
+            }
         }
 
         return particles;
@@ -181,7 +201,7 @@ public enum Config {
     private static ArrayList<String> getDefaultBlocks() {
         ArrayList<String> blocks = new ArrayList<>();
 
-        if (VersionController.getVersion()<13) {
+        if (VersionController.version<13) {
             blocks.add("WOOL:0");
             blocks.add("QUARTZ_BLOCK:0");
             blocks.add("QUARTZ_BLOCK:1");

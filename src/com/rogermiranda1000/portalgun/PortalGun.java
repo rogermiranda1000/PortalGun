@@ -3,7 +3,6 @@ package com.rogermiranda1000.portalgun;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 
 import com.rogermiranda1000.portalgun.eventos.*;
 import com.rogermiranda1000.portalgun.files.Config;
@@ -22,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 public class PortalGun extends JavaPlugin
 {
@@ -88,7 +88,7 @@ public class PortalGun extends JavaPlugin
         LeatherArmorMeta meta2 = (LeatherArmorMeta) botas.getItemMeta();
         meta2.setDisplayName(ChatColor.GREEN.toString() + "Portal Boots");
         // TODO: unbreakable alternative
-        if (VersionController.getVersion() > 10) meta2.setUnbreakable(true);
+        if (VersionController.version > 10) meta2.setUnbreakable(true);
         meta2.setColor(Color.WHITE);
         botas.setItemMeta(meta2);
         botas.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
@@ -106,7 +106,7 @@ public class PortalGun extends JavaPlugin
         getServer().getPluginManager().registerEvents(new onDead(), this);
         getServer().getPluginManager().registerEvents(new onLeave(), this);
         getServer().getPluginManager().registerEvents(new onMove(), this);
-        if (VersionController.getVersion()>=10) getServer().getPluginManager().registerEvents(new onTab(), this);
+        if (VersionController.version>=10) getServer().getPluginManager().registerEvents(new onTab(), this);
         getServer().getPluginManager().registerEvents(new onUse(), this);
 
         // Commands
@@ -139,14 +139,13 @@ public class PortalGun extends JavaPlugin
                 if (destinyLocation == null) continue;
 
                 if (destinyLocation.getWorld().equals(entityBlockLocation.getWorld())) {
-                    if(portal.teleportToDestiny(e, destinyLocation)) PortalGun.teleportedEntities.put(e, destinyLocation);
+                    if(portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) PortalGun.teleportedEntities.put(e, destinyLocation);
                 }
                 else {
                     try {
                         // Async does not support teleport between worlds
                         Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> {
-                            if (portal.teleportToDestiny(e, destinyLocation))
-                                PortalGun.teleportedEntities.put(e, destinyLocation);
+                            if (portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) PortalGun.teleportedEntities.put(e, destinyLocation);
                             return null;
                         });
                     } catch (CancellationException ex) {}
