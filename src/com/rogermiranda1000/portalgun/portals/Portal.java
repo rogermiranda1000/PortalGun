@@ -292,7 +292,7 @@ public abstract class Portal {
     }
 
     // TODO: teleport not to exact center block
-    public boolean teleportToDestiny(Entity e, Location l) {
+    public boolean teleportToDestiny(Entity e, Vector velocity, Location l) {
         if (this.linked == null || l == null) return false;
 
         l = l.clone();
@@ -302,13 +302,13 @@ public abstract class Portal {
 
         e.teleport(l);
 
-        e.setVelocity( this.linked.getApproachVector().multiply( -e.getVelocity().dot(this.getApproachVector()) ) );
+        e.setVelocity( this.linked.getApproachVector().multiply( -velocity.dot(this.getApproachVector()) ) );
 
         return true;
     }
 
-    public boolean teleportToDestiny(Entity e, short index) {
-        return this.teleportToDestiny(e, getDestiny(index));
+    public boolean teleportToDestiny(Entity e, Vector velocity, short index) {
+        return this.teleportToDestiny(e, velocity, getDestiny(index));
     }
 
     public Location getDestiny(short index) {

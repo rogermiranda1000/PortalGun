@@ -21,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 public class PortalGun extends JavaPlugin
 {
@@ -138,14 +139,13 @@ public class PortalGun extends JavaPlugin
                 if (destinyLocation == null) continue;
 
                 if (destinyLocation.getWorld().equals(entityBlockLocation.getWorld())) {
-                    if(portal.teleportToDestiny(e, destinyLocation)) PortalGun.teleportedEntities.put(e, destinyLocation);
+                    if(portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) PortalGun.teleportedEntities.put(e, destinyLocation);
                 }
                 else {
                     try {
                         // Async does not support teleport between worlds
                         Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> {
-                            if (portal.teleportToDestiny(e, destinyLocation))
-                                PortalGun.teleportedEntities.put(e, destinyLocation);
+                            if (portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) PortalGun.teleportedEntities.put(e, destinyLocation);
                             return null;
                         });
                     } catch (CancellationException ex) {}
