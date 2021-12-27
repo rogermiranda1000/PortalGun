@@ -19,7 +19,8 @@ import java.util.*;
 // TODO: config
 public enum Config {
     LANGUAGE("language"),
-    MATERIAL("portalgun_material"),
+    MATERIAL("portalgun.material"),
+    CUSTOM_MODEL_DATA("portalgun.custom_model_data"),
     DELETE_ON_DEATH("portals.remove_on_death"),
     REMOVE_ON_LEAVE("portals.remove_on_leave"),
     MAX_LENGHT("portals.placement_length"),
@@ -66,7 +67,7 @@ public enum Config {
     public static void loadConfig() {
         Config.loadValidBlocks();
 
-        Config.loadPortalgunMaterial(Config.fileConfiguration.getString(MATERIAL.key));
+        Config.loadPortalgunMaterial(Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key));
 
         Language.loadHashMap(Config.fileConfiguration.getString(LANGUAGE.key));
 
@@ -111,7 +112,12 @@ public enum Config {
         }
     }
 
-    private static void loadPortalgunMaterial(@Nullable String material) {
+    /**
+     * It creates the PortalGun
+     * @param material PortalGun's material
+     * @param customModelData PortalGun's CustomModelData. NULL or -1 if any
+     */
+    private static void loadPortalgunMaterial(@Nullable String material, @Nullable Integer customModelData) {
         if (material == null) {
             PortalGun.printErrorMessage(MATERIAL.key + " is not setted in config file!");
             return;
@@ -126,6 +132,7 @@ public enum Config {
         PortalGun.item = new ItemStack(portalgunMaterial);
         ItemMeta meta = PortalGun.item.getItemMeta();
         meta.setDisplayName(ChatColor.GOLD.toString() + ChatColor.BOLD.toString() + "PortalGun");
+        if (customModelData != null && customModelData != -1) meta.setCustomModelData(customModelData);
         PortalGun.item.setItemMeta(meta);
         PortalGun.item.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
     }
@@ -149,6 +156,7 @@ public enum Config {
 
         c.put(Config.LANGUAGE.key, "english");
         c.put(Config.MATERIAL.key, "BLAZE_ROD");
+        if (VersionController.version >= 14) c.put(Config.CUSTOM_MODEL_DATA.key, -1);
         c.put(Config.MAX_LENGHT.key, 80);
         c.put(Config.PARTICLES.key, Config.getDefaultParticles());
         c.put(Config.REMOVE_ON_LEAVE.key, true);

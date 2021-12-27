@@ -2,6 +2,7 @@ package com.rogermiranda1000.versioncontroller.blocks;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,5 +30,20 @@ public class BlockPost13 implements BlockManager {
     @Override
     public boolean isPassable(@NotNull Block block) {
         return block.isPassable();
+    }
+
+    @Override
+    public String getName(@NotNull Object block) {
+        return ((Material)block).name();
+    }
+
+    @Override
+    public void setType(@NotNull Block block, Object type) {
+        block.setType((Material) type);
+    }
+
+    @Override
+    public ItemStack getItemStack(Object type) {
+        return new ItemStack((Material) type);
     }
 }

@@ -32,4 +32,28 @@ public class BlockPre13 implements BlockManager {
     public boolean isPassable(@NotNull Block block) {
         return !block.getType().isSolid();
     }
+
+    @Override
+    public String getName(@NotNull Object block) {
+        String material = ((ItemStack)block).getType().name();
+        byte subId = ((ItemStack)block).getData().getData();
+
+        if (subId > 0) return material + ":" + String.valueOf(subId);
+        else return material;
+    }
+
+    @Override
+    public void setType(@NotNull Block block, Object type) {
+        try {
+            String[] typeInfo = this.getName(type).split(":");
+            block.setType(Material.valueOf(typeInfo[0]));
+            // TODO sub-id
+            //BlockPre13.setTypeMethod.invoke(block, Integer.parseInt(typeInfo[0]), typeInfo.length == 2 ? Byte.parseByte(typeInfo[1]) : 0, true);
+        } catch (IllegalArgumentException ignored) { }
+    }
+
+    @Override
+    public ItemStack getItemStack(Object type) {
+        return (type == null ? null : new ItemStack((ItemStack) type));
+    }
 }
