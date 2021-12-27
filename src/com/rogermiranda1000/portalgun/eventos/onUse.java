@@ -25,7 +25,7 @@ public class onUse implements Listener {
     public void onPlayerUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
-        if (!VersionController.get().hasItemInHand(player, PortalGun.item, true)) return;
+        if (!VersionController.get().hasItemInHand(player, PortalGun.item)) return;
         if(event.getAction().equals(Action.PHYSICAL)) return;
 
         event.setCancelled(true);
