@@ -67,7 +67,7 @@ public enum Config {
     public static void loadConfig() {
         Config.loadValidBlocks();
 
-        Config.loadPortalgunMaterial(Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key));
+        Config.loadPortalgunMaterial(Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null);
 
         Language.loadHashMap(Config.fileConfiguration.getString(LANGUAGE.key));
 
