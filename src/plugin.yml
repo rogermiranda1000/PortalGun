@@ -1,6 +1,6 @@
 name: PortalGun
 main: com.rogermiranda1000.portalgun.PortalGun
-version: 2.2.4
+version: 2.2.5
 author: rogermiranda1000
 description: Plugin inspired in the PortalGun from Portal.
 api-version: 1.13
