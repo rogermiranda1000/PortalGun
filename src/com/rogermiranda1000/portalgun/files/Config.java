@@ -4,6 +4,7 @@ import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
+import com.rogermiranda1000.versioncontroller.blocks.BlockType;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -96,20 +97,20 @@ public enum Config {
     private static void loadPortalParticles() {
         List<String> particles = Config.fileConfiguration.getStringList(Config.PARTICLES.key);
         if (particles.size() != 2) {
-            PortalGun.printErrorMessage(Config.PARTICLES.key + " must have only 2 particles!");
+            PortalGun.plugin.printConsoleErrorMessage(Config.PARTICLES.key + " must have only 2 particles!");
             return;
         }
 
         try {
             Portal.setParticle(VersionController.get().getParticle(particles.get(0)), true);
         } catch (IllegalArgumentException IAEx) {
-            PortalGun.printErrorMessage("Particle '" + particles.get(0) + "' does not exists.");
+            PortalGun.plugin.printConsoleErrorMessage("Particle '" + particles.get(0) + "' does not exists.");
         }
 
         try {
             Portal.setParticle(VersionController.get().getParticle(particles.get(1)), false);
         } catch (IllegalArgumentException IAEx) {
-            PortalGun.printErrorMessage("Particle '" + particles.get(1) + "' does not exists.");
+            PortalGun.plugin.printConsoleErrorMessage("Particle '" + particles.get(1) + "' does not exists.");
         }
     }
 
@@ -120,13 +121,13 @@ public enum Config {
      */
     private static void loadPortalgunMaterial(@Nullable String material, @Nullable Integer customModelData) {
         if (material == null) {
-            PortalGun.printErrorMessage(MATERIAL.key + " is not setted in config file!");
+            PortalGun.plugin.printConsoleErrorMessage(MATERIAL.key + " is not setted in config file!");
             return;
         }
 
         Material portalgunMaterial = Material.getMaterial(material);
         if (portalgunMaterial == null) {
-            PortalGun.printErrorMessage("PortalGun's item (" + material + ") does not exists.");
+            PortalGun.plugin.printConsoleErrorMessage("PortalGun's item (" + material + ") does not exists.");
             return;
         }
 
@@ -139,10 +140,10 @@ public enum Config {
     }
 
     private static void loadValidBlocks() {
-        ArrayList<Object> allowedBlocks = new ArrayList<>();
+        ArrayList<BlockType> allowedBlocks = new ArrayList<>();
 
         for (String txt : Config.fileConfiguration.getStringList(Config.WHITELISTED_BLOCKS.key)) {
-            Object o = VersionController.get().getMaterial(txt);
+            BlockType o = VersionController.get().getMaterial(txt);
             if (o != null) allowedBlocks.add(o);
         }
 

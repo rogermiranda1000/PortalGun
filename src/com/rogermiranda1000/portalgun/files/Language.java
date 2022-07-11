@@ -65,7 +65,7 @@ public enum Language {
         File languageFile = new File(Language.languagePath,languageName + ".yml");
         try {
             if (!languageFile.exists() && !Language.createLanguageFile(languageName)) {
-                PortalGun.printErrorMessage("Language file '" + languageName + "' does not exists (and cannot be created). Using english file instead.");
+                PortalGun.plugin.printConsoleErrorMessage("Language file '" + languageName + "' does not exists (and cannot be created). Using english file instead.");
                 Language.loadHashMap("english");
             }
             else {
@@ -77,7 +77,7 @@ public enum Language {
                 for(Language l : Language.values()) {
                     translation = lang.getString(l.key);
                     Language.translations.put(l, translation);
-                    if (translation == null) PortalGun.printErrorMessage(l.key + " not defined in language file.");
+                    if (translation == null) PortalGun.plugin.printConsoleErrorMessage(l.key + " not defined in language file.");
                 }
             }
         } catch (Exception e) {

@@ -20,10 +20,8 @@ import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 public class PortalGun extends RogerPlugin {
@@ -69,7 +67,7 @@ public class PortalGun extends RogerPlugin {
                         if(argsWorld.length!=4) continue;
                         World w = Bukkit.getWorld(argsWorld[0]);
                         if (w == null) {
-                            PortalGun.printErrorMessage("The portal's world '" + argsWorld[0] + "' doesn't exist.");
+                            this.printConsoleErrorMessage("The portal's world '" + argsWorld[0] + "' doesn't exist.");
                             continue;
                         }
                         Location portalLocation = new Location(w, Double.parseDouble(argsWorld[1]), Double.parseDouble(argsWorld[2]), Double.parseDouble(argsWorld[3]));
@@ -86,7 +84,7 @@ public class PortalGun extends RogerPlugin {
                                 p = new WallPortal(player, portalLocation, Direction.valueOf(args[2]), args[3].equalsIgnoreCase("L"));
                                 break;
                             default:
-                                PortalGun.printErrorMessage("Invalid portal type (" + args[4] + ")");
+                                this.printConsoleErrorMessage("Invalid portal type (" + args[4] + ")");
                         }
                         if (p != null) Portal.setPortal(UUID.fromString(args[0]), p);
                     }
@@ -119,10 +117,6 @@ public class PortalGun extends RogerPlugin {
 
         // Commands
         this.getCommand("portalgun").setExecutor(new onCommand()); // TODO move to RogerPlugin objeect
-    }
-
-    public static void printErrorMessage(String txt) {
-        Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED.toString() + "[PortalGun] " + txt);
     }
 
     private static void playAllParticles() {
