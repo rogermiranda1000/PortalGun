@@ -23,16 +23,16 @@ public class onCommand implements CommandExecutor {
         // Remove portals
         if (args.length >= 1 && args[0].equalsIgnoreCase("remove")) {
             if (player != null && !player.hasPermission("portalgun.remove")) {
-                player.sendMessage(PortalGun.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
+                player.sendMessage(PortalGun.plugin.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
                 return true;
             }
 
             if (args.length == 1) {
                 if (player == null) {
-                    sender.sendMessage(PortalGun.errorPrefix + "You can't use this command on console. Use '/portalgun remove [player]' or '/portalgun remove all'.");
+                    sender.sendMessage(PortalGun.plugin.errorPrefix + "You can't use this command on console. Use '/portalgun remove [player]' or '/portalgun remove all'.");
                 } else {
-                    if (Portal.removePortal(player)) player.sendMessage(PortalGun.clearPrefix + Language.USER_REMOVE.getText());
-                    else player.sendMessage(PortalGun.errorPrefix + Language.USER_NO_PORTALS.getText());
+                    if (Portal.removePortal(player)) player.sendMessage(PortalGun.plugin.clearPrefix + Language.USER_REMOVE.getText());
+                    else player.sendMessage(PortalGun.plugin.errorPrefix + Language.USER_NO_PORTALS.getText());
                 }
 
                 return true;
@@ -42,47 +42,47 @@ public class onCommand implements CommandExecutor {
                 // remove all
                 if (args[1].equalsIgnoreCase("all")) {
                     if (player != null && !player.hasPermission("portalgun.remove.all")) {
-                        player.sendMessage(PortalGun.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
+                        player.sendMessage(PortalGun.plugin.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
                         return true;
                     }
 
                     // TODO: warn players (Language.OTHER_USER_REMOVE.getText({"player", player.getName()}))
                     Portal.removeAllPortals();
-                    sender.sendMessage(PortalGun.clearPrefix + Language.USER_REMOVE_ALL.getText());
+                    sender.sendMessage(PortalGun.plugin.clearPrefix + Language.USER_REMOVE_ALL.getText());
 
                     return true;
                 }
 
                 // remove other player's portals
                 if (player != null && !player.hasPermission("portalgun.remove.others")) {
-                    player.sendMessage(PortalGun.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
+                    player.sendMessage(PortalGun.plugin.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
                     return true;
                 }
                 removeOthers(sender, args[1]);
                 return true;
             }
 
-            sender.sendMessage(PortalGun.errorPrefix + "Use '/portalgun remove [player]' or '/portalgun remove all'.");
+            sender.sendMessage(PortalGun.plugin.errorPrefix + "Use '/portalgun remove [player]' or '/portalgun remove all'.");
             return true;
         }
 
 
 
         if (player == null) {
-            sender.sendMessage(PortalGun.errorPrefix + "You can only use the '/portalgun remove' command in console.");
+            sender.sendMessage(PortalGun.plugin.errorPrefix + "You can only use the '/portalgun remove' command in console.");
             return true;
         }
 
         // Get the PortalGun
         if (args.length == 0) {
             if (!player.hasPermission("portalgun.portalgun")) {
-                player.sendMessage(PortalGun.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
+                player.sendMessage(PortalGun.plugin.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
                 return true;
             }
 
             // TODO: give portal gun to others
             player.getInventory().addItem(PortalGun.item);
-            player.sendMessage(PortalGun.clearPrefix + ChatColor.GREEN + Language.USER_GET_GUN.getText());
+            player.sendMessage(PortalGun.plugin.clearPrefix + ChatColor.GREEN + Language.USER_GET_GUN.getText());
 
             return true;
         }
@@ -90,19 +90,19 @@ public class onCommand implements CommandExecutor {
         // Get the PortalBoots
         if (args[0].equalsIgnoreCase("boots")) {
             if(!player.hasPermission("portalgun.boots")) {
-                player.sendMessage(PortalGun.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
+                player.sendMessage(PortalGun.plugin.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
                 return true;
             }
 
             // TODO: give portal boots to others
             player.getInventory().addItem(PortalGun.botas);
-            player.sendMessage(PortalGun.clearPrefix + ChatColor.GREEN + Language.USER_GET_BOOTS.getText());
+            player.sendMessage(PortalGun.plugin.clearPrefix + ChatColor.GREEN + Language.USER_GET_BOOTS.getText());
 
             return true;
         }
 
         // Help command
-        player.sendMessage(PortalGun.clearPrefix);
+        player.sendMessage(PortalGun.plugin.clearPrefix);
         player.sendMessage(ChatColor.GOLD + "  /portalgun " + ChatColor.GREEN + "- " + Language.HELP_GET_GUN.getText());
         player.sendMessage(ChatColor.GOLD + "  /portalgun boots " + ChatColor.GREEN + "- " + Language.HELP_GET_BOOTS.getText());
         player.sendMessage(ChatColor.GOLD + "  /portalgun remove " + ChatColor.GREEN + "- " + Language.HELP_REMOVE.getText());
@@ -119,15 +119,15 @@ public class onCommand implements CommandExecutor {
         Player jugadorEliminar = Bukkit.getPlayer(playerName);
         // player not found?
         if (jugadorEliminar == null || !playerName.equalsIgnoreCase(jugadorEliminar.getName())) {
-            sender.sendMessage(PortalGun.errorPrefix + Language.USER_NOT_FOUND.getText(replacePlayer));
+            sender.sendMessage(PortalGun.plugin.errorPrefix + Language.USER_NOT_FOUND.getText(replacePlayer));
             return;
         }
 
         // player without portals?
         if (Portal.removePortal(jugadorEliminar)) {
-            if (jugadorEliminar.isOnline()) jugadorEliminar.sendMessage(PortalGun.clearPrefix + Language.OTHER_USER_REMOVE.getText(new String[]{"player", sender.getName()}));
-            sender.sendMessage(PortalGun.clearPrefix + Language.USER_REMOVE_OTHERS.getText(replacePlayer));
+            if (jugadorEliminar.isOnline()) jugadorEliminar.sendMessage(PortalGun.plugin.clearPrefix + Language.OTHER_USER_REMOVE.getText(new String[]{"player", sender.getName()}));
+            sender.sendMessage(PortalGun.plugin.clearPrefix + Language.USER_REMOVE_OTHERS.getText(replacePlayer));
         }
-        else sender.sendMessage(PortalGun.errorPrefix + Language.OTHER_USER_NO_PORTALS.getText(replacePlayer));
+        else sender.sendMessage(PortalGun.plugin.errorPrefix + Language.OTHER_USER_NO_PORTALS.getText(replacePlayer));
     }
 }

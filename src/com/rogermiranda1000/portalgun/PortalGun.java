@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.CancellationException;
 
+import com.rogermiranda1000.helper.CustomCommand;
+import com.rogermiranda1000.helper.RogerPlugin;
 import com.rogermiranda1000.portalgun.eventos.*;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.FileManager;
@@ -11,32 +13,43 @@ import com.rogermiranda1000.portalgun.portals.CeilingPortal;
 import com.rogermiranda1000.portalgun.portals.FloorPortal;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
+import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
-public class PortalGun extends JavaPlugin
-{
+public class PortalGun extends RogerPlugin {
     public static PortalGun plugin;
 
     public static ItemStack item;
     public static ItemStack botas;
-    public static final String clearPrefix=ChatColor.GOLD.toString() + ChatColor.BOLD.toString() + "[PortalGun] " + ChatColor.GREEN.toString(), errorPrefix=clearPrefix+ChatColor.RED;
     private static final int particleDelay = 2;
     private static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
 
     private BukkitTask particleTask;
     private BukkitTask teleportTask;
 
+    public PortalGun() {
+        super(new CustomCommand[]{}, new onDead(), new onLeave(), new onMove(), new onUse());
+    }
+
+    @Override
+    public String getPluginID() {
+        return "44746";
+    }
+
     @Override
     public void onEnable() {
+        super.onEnable();
+
         PortalGun.plugin = this;
 
         FileManager.loadFiles();
@@ -87,7 +100,7 @@ public class PortalGun extends JavaPlugin
         LeatherArmorMeta meta2 = (LeatherArmorMeta) botas.getItemMeta();
         meta2.setDisplayName(ChatColor.GREEN.toString() + "Portal Boots");
         // TODO: unbreakable alternative
-        if (VersionController.version > 10) meta2.setUnbreakable(true);
+        if (VersionController.version.compareTo(Version.MC_1_10) > 0) meta2.setUnbreakable(true);
         meta2.setColor(Color.WHITE);
         botas.setItemMeta(meta2);
         botas.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
@@ -101,15 +114,11 @@ public class PortalGun extends JavaPlugin
             PortalGun.teleportEntities();
         }, 1, PortalGun.particleDelay*3);
 
-        // Events
-        getServer().getPluginManager().registerEvents(new onDead(), this);
-        getServer().getPluginManager().registerEvents(new onLeave(), this);
-        getServer().getPluginManager().registerEvents(new onMove(), this);
-        if (VersionController.version>=10) getServer().getPluginManager().registerEvents(new onTab(), this);
-        getServer().getPluginManager().registerEvents(new onUse(), this);
+        // version-conditioned event
+        if (VersionController.version.compareTo(Version.MC_1_10) >= 0) getServer().getPluginManager().registerEvents(new onTab(), this);
 
         // Commands
-        this.getCommand("portalgun").setExecutor(new onCommand());
+        this.getCommand("portalgun").setExecutor(new onCommand()); // TODO move to RogerPlugin objeect
     }
 
     public static void printErrorMessage(String txt) {

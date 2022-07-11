@@ -30,7 +30,7 @@ public class onUse implements Listener {
 
         event.setCancelled(true);
         if (!player.hasPermission("portalgun.open")) {
-            player.sendMessage(PortalGun.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
+            player.sendMessage(PortalGun.plugin.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
             return;
         }
 
@@ -43,14 +43,14 @@ public class onUse implements Listener {
                 Direction.getDirection((Entity)player), player.getLocation().getBlock().getLocation().subtract(colliderBlock.getLocation()).toVector());
 
         if (p == null) {
-            if (!iter.hasNext()) player.sendMessage(PortalGun.errorPrefix + Language.PORTAL_FAR.getText());
-            else player.sendMessage(PortalGun.errorPrefix + Language.PORTAL_DENIED.getText());
+            if (!iter.hasNext()) player.sendMessage(PortalGun.plugin.errorPrefix + Language.PORTAL_FAR.getText());
+            else player.sendMessage(PortalGun.plugin.errorPrefix + Language.PORTAL_DENIED.getText());
             return;
         }
 
         // existing portal in that location? (and not replaced)
         if (p.collidesAndPersists()) {
-            player.sendMessage(PortalGun.errorPrefix + Language.PORTAL_COLLIDING.getText());
+            player.sendMessage(PortalGun.plugin.errorPrefix + Language.PORTAL_COLLIDING.getText());
             return;
         }
 

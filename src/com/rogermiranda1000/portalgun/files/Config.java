@@ -2,6 +2,7 @@ package com.rogermiranda1000.portalgun.files;
 
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.portals.Portal;
+import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
@@ -156,7 +157,7 @@ public enum Config {
 
         c.put(Config.LANGUAGE.key, "english");
         c.put(Config.MATERIAL.key, "BLAZE_ROD");
-        if (VersionController.version >= 14) c.put(Config.CUSTOM_MODEL_DATA.key, -1);
+        if (VersionController.version.compareTo(Version.MC_1_14) >= 0) c.put(Config.CUSTOM_MODEL_DATA.key, -1);
         c.put(Config.MAX_LENGHT.key, 80);
         c.put(Config.PARTICLES.key, Config.getDefaultParticles());
         c.put(Config.REMOVE_ON_LEAVE.key, true);
@@ -174,14 +175,14 @@ public enum Config {
     private static String getDefaultTeleportSound() {
         if (VersionController.isPaper) return "ENTITY_SHULKER_TELEPORT"; // TODO check version on paper too
 
-        if (VersionController.version<9) return "ENDERMAN_TELEPORT";
+        if (VersionController.version.compareTo(Version.MC_1_9) < 0) return "ENDERMAN_TELEPORT";
         else return "ENTITY_SHULKER_TELEPORT";
     }
 
     private static String getDefaultCreateSound() {
         if (VersionController.isPaper) return "ENTITY_SLIME_JUMP"; // TODO check version on paper too
 
-        if (VersionController.version<9) return "SLIME_WALK2";
+        if (VersionController.version.compareTo(Version.MC_1_9) < 0) return "SLIME_WALK2";
         else return "ENTITY_SLIME_JUMP";
     }
 
@@ -194,7 +195,7 @@ public enum Config {
             particles.add("VILLAGER_HAPPY");
         }
         else {
-            if (VersionController.version < 9) {
+            if (VersionController.version.compareTo(Version.MC_1_9) < 0) {
                 particles.add("FLAME");
                 particles.add("HAPPY_VILLAGER");
             } else {
@@ -209,7 +210,7 @@ public enum Config {
     private static ArrayList<String> getDefaultBlocks() {
         ArrayList<String> blocks = new ArrayList<>();
 
-        if (VersionController.version<13) {
+        if (VersionController.version.compareTo(Version.MC_1_13) < 0) {
             blocks.add("WOOL:0");
             blocks.add("QUARTZ_BLOCK:0");
             blocks.add("QUARTZ_BLOCK:1");
