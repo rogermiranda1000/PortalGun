@@ -93,7 +93,6 @@ public enum Config {
         }
     }
 
-    // TODO: 1.8 Effect (instead of Particle)
     private static void loadPortalParticles() {
         List<String> particles = Config.fileConfiguration.getStringList(Config.PARTICLES.key);
         if (particles.size() != 2) {

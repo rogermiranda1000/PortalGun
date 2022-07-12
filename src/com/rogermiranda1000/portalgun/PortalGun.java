@@ -6,7 +6,7 @@ import java.util.concurrent.CancellationException;
 
 import com.rogermiranda1000.helper.CustomCommand;
 import com.rogermiranda1000.helper.RogerPlugin;
-import com.rogermiranda1000.portalgun.eventos.*;
+import com.rogermiranda1000.portalgun.events.*;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.FileManager;
 import com.rogermiranda1000.portalgun.portals.CeilingPortal;
