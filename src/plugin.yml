@@ -21,6 +21,9 @@ permissions:
     portalgun.destroy:
         description: Can destroy portals placing or breaking blocks.
         default: true
+    portalgun.restarter:
+        description: Get the restarter block
+        default: op
     portalgun.remove.others:
         description: Remove others' portals
         default: op

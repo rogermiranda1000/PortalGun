@@ -46,9 +46,9 @@ public class PortalGun extends RogerPlugin {
 
     @Override
     public void onEnable() {
-        super.onEnable();
-
         PortalGun.plugin = this;
+
+        super.onEnable();
 
         FileManager.loadFiles();
 
@@ -180,6 +180,8 @@ public class PortalGun extends RogerPlugin {
 
     @Override
     public void onDisable() {
+        super.onDisable();
+
         this.particleTask.cancel();
         this.teleportTask.cancel();
 
