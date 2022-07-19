@@ -30,7 +30,7 @@ public class ResetBlocks extends CustomBlock<Ignored> {
         return r;
     }
 
-    private ResetBlocks(RogerPlugin plugin) {
+    public ResetBlocks(RogerPlugin plugin) {
         super(plugin, ResetBlocks.id, e -> (e.getClass().isAssignableFrom(BlockEvent.class) && VersionController.get().getObject(((BlockEvent)e).getBlock()).equals(ResetBlocks.resetBlockType)
                 && (!e.getClass().isAssignableFrom(BlockPlaceEvent.class) || VersionController.get().sameItem(((BlockPlaceEvent)e).getItemInHand(), ResetBlocks.resetBlockItem))), false, true, new Ignored.StoreIgnored());
     }
@@ -49,5 +49,15 @@ public class ResetBlocks extends CustomBlock<Ignored> {
         // TODO check if new region can be created
         System.out.println(blockBreakEvent.getBlock().getLocation().toString());
         return false;
+    }
+
+    private static ResetBlocks instance = null;
+    public static ResetBlocks setInstance(ResetBlocks instance) {
+        ResetBlocks.instance = instance;
+        return instance;
+    }
+
+    public static ResetBlocks getInstance() {
+        return ResetBlocks.instance;
     }
 }

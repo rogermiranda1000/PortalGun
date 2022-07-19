@@ -37,6 +37,8 @@ public class PortalGun extends RogerPlugin {
 
     public PortalGun() {
         super(new CustomCommand[]{}, new onDead(), new onLeave(), new onMove(), new onUse());
+
+        this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
     }
 
     @Override
