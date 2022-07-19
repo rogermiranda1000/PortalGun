@@ -31,8 +31,8 @@ public class ResetBlocks extends CustomBlock<Ignored> {
     }
 
     public ResetBlocks(RogerPlugin plugin) {
-        super(plugin, ResetBlocks.id, e -> (e.getClass().isAssignableFrom(BlockEvent.class) && VersionController.get().getObject(((BlockEvent)e).getBlock()).equals(ResetBlocks.resetBlockType)
-                && (!e.getClass().isAssignableFrom(BlockPlaceEvent.class) || VersionController.get().sameItem(((BlockPlaceEvent)e).getItemInHand(), ResetBlocks.resetBlockItem))), false, true, new Ignored.StoreIgnored());
+        super(plugin, ResetBlocks.id, e -> (BlockEvent.class.isAssignableFrom(e.getClass()) && VersionController.get().getObject(((BlockEvent)e).getBlock()).equals(ResetBlocks.resetBlockType)
+                && (!BlockPlaceEvent.class.isAssignableFrom(e.getClass()) || VersionController.get().sameItem(((BlockPlaceEvent)e).getItemInHand(), ResetBlocks.resetBlockItem))), false, true, new Ignored.StoreIgnored());
     }
 
     @Override
