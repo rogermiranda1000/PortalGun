@@ -6,6 +6,7 @@ import com.rogermiranda1000.helper.blocks.Ignored;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.blocks.BlockType;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -40,6 +41,8 @@ public class ResetBlocks extends CustomBlock<Ignored> {
         // TODO get upper block (if any)
         // TODO check if perturbed previous block
         System.out.println(blockPlaceEvent.getBlock().getLocation().toString());
+        Location loc = blockPlaceEvent.getBlock().getLocation();
+        this.getBlocksLackingCoordinate(loc.getWorld(), loc.getBlockX(), null, loc.getBlockZ(), r -> System.out.println("- " + r.getValue()));
         return Ignored.get();
     }
 
