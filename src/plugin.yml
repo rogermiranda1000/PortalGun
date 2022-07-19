@@ -4,6 +4,7 @@ version: 2.3
 author: rogermiranda1000
 description: Plugin inspired in the PortalGun from Portal.
 api-version: 1.13
+softdepend: [Gson-for-1-7-10]
 commands:
     portalgun:
         description: Get the PortalGun
