@@ -15,42 +15,33 @@ public class ResetBlock {
 
     protected ResetBlock(Location position) {
         this.position = position;
-        this.searchOnTop(false);
+        this.searchOnTop();
     }
 
     /**
      * Called before the block is going to be deleted
      */
     public void removed() {
-        if (this.top != null) this.top.setBottom(null); // if there's another block, 'unlink' will set the new bottom
-        if (this.bottom != null) this.bottom.unlink();
-    }
-
-    /**
-     * The block linked won't be anymore
-     */
-    public void unlink() {
-        this.searchOnTop(true);
+        if (this.top != null) this.top.setBottom(this.bottom); // if there's another block, 'unlink' will set the new bottom
+        if (this.bottom != null) this.bottom.setTop(this.top);
     }
 
     /**
      * Changes the current top and bottom
-     * @param ignoreCurrent If the current top will be removed
      */
-    public void searchOnTop(boolean ignoreCurrent) {
+    public void searchOnTop() {
         final AtomicReference<ResetBlock> newTop = new AtomicReference<>(null);
         final AtomicInteger closest = new AtomicInteger(Integer.MAX_VALUE);
-
         ResetBlocks.getInstance().getBlocksLackingCoordinate(this.position.getWorld(), this.position.getBlockX(), null, this.position.getBlockZ(), e -> {
             int height = e.getValue().getBlockY();
-            if ((!ignoreCurrent || e.getKey() != top) && height > position.getBlockY() && height < closest.get()) {
+            if (height > this.position.getBlockY() && height < closest.get()) {
                 closest.set(height);
                 newTop.set(e.getKey());
             }
         });
-
         this.setTop(newTop.get());
-        final AtomicReference<ResetBlock> newBottom = new AtomicReference<>();
+
+        final AtomicReference<ResetBlock> newBottom = new AtomicReference<>(null);
         if (this.top != null) {
             newBottom.set(this.top.bottom);
             this.top.setBottom(this);
@@ -59,7 +50,7 @@ public class ResetBlock {
             closest.set(Integer.MIN_VALUE);
             ResetBlocks.getInstance().getBlocksLackingCoordinate(this.position.getWorld(), this.position.getBlockX(), null, this.position.getBlockZ(), e -> {
                 int height = e.getValue().getBlockY();
-                if (height < position.getBlockY() && height > closest.get()) {
+                if (height < this.position.getBlockY() && height > closest.get()) {
                     closest.set(height);
                     newBottom.set(e.getKey());
                 }
