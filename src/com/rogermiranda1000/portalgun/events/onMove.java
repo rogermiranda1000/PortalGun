@@ -1,6 +1,7 @@
-package com.rogermiranda1000.portalgun.eventos;
+package com.rogermiranda1000.portalgun.events;
 
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
@@ -23,6 +24,10 @@ public class onMove implements Listener {
         Location loc = e.getTo().getBlock().getLocation();
 
         if(player.getInventory().getBoots()!=null && player.getInventory().getBoots().equals(PortalGun.botas)) player.setFallDistance(0);
+        if (ResetBlocks.getInstance().insideResetBlock(loc)) {
+            Portal.removePortal(player);
+            // TODO play sound
+        }
 
         Portal portal = Portal.getPortal(loc);
         if (portal == null) return;

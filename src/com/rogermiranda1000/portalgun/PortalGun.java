@@ -6,7 +6,8 @@ import java.util.concurrent.CancellationException;
 
 import com.rogermiranda1000.helper.CustomCommand;
 import com.rogermiranda1000.helper.RogerPlugin;
-import com.rogermiranda1000.portalgun.eventos.*;
+import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
+import com.rogermiranda1000.portalgun.events.*;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.FileManager;
 import com.rogermiranda1000.portalgun.portals.CeilingPortal;
@@ -37,6 +38,8 @@ public class PortalGun extends RogerPlugin {
 
     public PortalGun() {
         super(new CustomCommand[]{}, new onDead(), new onLeave(), new onMove(), new onUse());
+
+        this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
     }
 
     @Override
@@ -46,9 +49,10 @@ public class PortalGun extends RogerPlugin {
 
     @Override
     public void onEnable() {
-        super.onEnable();
-
         PortalGun.plugin = this;
+
+        super.onEnable();
+        ResetBlocks.getInstance().updateAllBlocks(); // @pre super.onEnable()
 
         FileManager.loadFiles();
 
@@ -123,6 +127,8 @@ public class PortalGun extends RogerPlugin {
         for (Portal p: Portal.getPortals()) {
             if (p.getPosition().getChunk().isLoaded()) p.playParticle();
         }
+
+        ResetBlocks.getInstance().playAllParticles();
     }
 
     // TODO: don't teleport Item Frames
@@ -180,6 +186,8 @@ public class PortalGun extends RogerPlugin {
 
     @Override
     public void onDisable() {
+        super.onDisable();
+
         this.particleTask.cancel();
         this.teleportTask.cancel();
 

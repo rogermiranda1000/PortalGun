@@ -1,6 +1,7 @@
-package com.rogermiranda1000.portalgun.eventos;
+package com.rogermiranda1000.portalgun.events;
 
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.files.Language;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import net.md_5.bungee.api.ChatColor;
@@ -101,10 +102,24 @@ public class onCommand implements CommandExecutor {
             return true;
         }
 
+        // Get the restarter
+        if (args[0].equalsIgnoreCase("restarter")) {
+            if(!player.hasPermission("portalgun.restarter")) {
+                player.sendMessage(PortalGun.plugin.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
+                return true;
+            }
+
+            player.getInventory().addItem(ResetBlocks.resetBlockItem);
+            player.sendMessage(PortalGun.plugin.clearPrefix + ChatColor.GREEN + Language.USER_GET_RESTARTER.getText());
+
+            return true;
+        }
+
         // Help command
         player.sendMessage(PortalGun.plugin.clearPrefix);
         player.sendMessage(ChatColor.GOLD + "  /portalgun " + ChatColor.GREEN + "- " + Language.HELP_GET_GUN.getText());
         player.sendMessage(ChatColor.GOLD + "  /portalgun boots " + ChatColor.GREEN + "- " + Language.HELP_GET_BOOTS.getText());
+        player.sendMessage(ChatColor.GOLD + "  /portalgun restarter " + ChatColor.GREEN + "- " + Language.HELP_GET_RESTARTER.getText());
         player.sendMessage(ChatColor.GOLD + "  /portalgun remove " + ChatColor.GREEN + "- " + Language.HELP_REMOVE.getText());
         player.sendMessage(ChatColor.GOLD + "  /portalgun remove [user] " + ChatColor.GREEN + "- " + Language.HELP_REMOVE_OTHERS.getText());
         player.sendMessage(ChatColor.GOLD + "  /portalgun remove all " + ChatColor.GREEN + "- " + Language.HELP_REMOVE_ALL.getText());
