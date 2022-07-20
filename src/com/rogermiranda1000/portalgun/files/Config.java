@@ -207,7 +207,7 @@ public enum Config {
     }
 
     private static String getDefaultRestarterParticle() {
-        return "CRIT"; // TODO 1.19?
+        return (VersionController.version.compareTo(Version.MC_1_13) < 0) ? "CRIT" : "NAUTILUS";
     }
 
     private static ArrayList<String> getDefaultParticles() {
