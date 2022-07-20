@@ -79,8 +79,15 @@ public enum Language {
                 Language.translations = new HashMap<>();
                 for(Language l : Language.values()) {
                     translation = lang.getString(l.key);
+                    if (translation == null) {
+                        PortalGun.plugin.printConsoleWarningMessage(l.key + " not defined in language file, picking the default one...");
+                        translation = (String) Language.getEnglishFile().get(l.key);
+
+                        // save existing file
+                        lang.set(l.key, translation);
+                        lang.save(languageFile);
+                    }
                     Language.translations.put(l, translation);
-                    if (translation == null) PortalGun.plugin.printConsoleErrorMessage(l.key + " not defined in language file."); // TODO auto-fill
                 }
             }
         } catch (Exception e) {
