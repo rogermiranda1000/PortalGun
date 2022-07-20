@@ -14,6 +14,7 @@ public enum Language {
     HELP_REMOVE("help.remove_portals"),
     HELP_REMOVE_OTHERS("help.remove_others_portals"),
     HELP_REMOVE_ALL("help.remove_all_portals"),
+    HELP_UNKNOWN("help.unknown_command"),
     PORTAL_DENIED("portal.deny"),
     PORTAL_OPENED("portal.open"),
     PORTAL_COLLIDING("portal.collides"),
@@ -78,8 +79,15 @@ public enum Language {
                 Language.translations = new HashMap<>();
                 for(Language l : Language.values()) {
                     translation = lang.getString(l.key);
+                    if (translation == null) {
+                        PortalGun.plugin.printConsoleWarningMessage(l.key + " not defined in language file, picking the default one...");
+                        translation = (String) Language.getEnglishFile().get(l.key);
+
+                        // save existing file
+                        lang.set(l.key, translation);
+                        lang.save(languageFile);
+                    }
                     Language.translations.put(l, translation);
-                    if (translation == null) PortalGun.plugin.printConsoleErrorMessage(l.key + " not defined in language file."); // TODO auto-fill
                 }
             }
         } catch (Exception e) {
@@ -151,7 +159,7 @@ public enum Language {
         r.put(Language.HELP_REMOVE_OTHERS.key, "Delete others' active portals.");
         r.put(Language.HELP_REMOVE_ALL.key, "Delete all the active portals.");
         r.put(Language.USER_NOT_FOUND.key, "[player] not found.");
-
+        r.put(Language.HELP_UNKNOWN.key, "Unknown command.");
 
 
         return r;
@@ -182,6 +190,7 @@ public enum Language {
         r.put(Language.USER_NOT_FOUND.key, "El usuario [player] no se ha encontrado.");
         r.put(Language.USER_REMOVE_OTHERS.key, "Has eliminado los portales de [player].");
         r.put(Language.OTHER_USER_NO_PORTALS.key, "[player] no tiene portales abiertos.");
+        r.put(Language.HELP_UNKNOWN.key, "Comando desconocido.");
 
         return r;
     }
@@ -211,6 +220,7 @@ public enum Language {
         r.put(Language.USER_NOT_FOUND.key, "L'usuari [player] no s'ha trobat.");
         r.put(Language.USER_REMOVE_OTHERS.key, "Has eliminat els portals de [player].");
         r.put(Language.OTHER_USER_NO_PORTALS.key, "[player] no té portals oberts.");
+        r.put(Language.HELP_UNKNOWN.key, "Comanda desconeguda.");
 
         return r;
     }

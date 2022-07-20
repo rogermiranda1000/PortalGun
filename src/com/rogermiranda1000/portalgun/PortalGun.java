@@ -10,6 +10,7 @@ import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.events.*;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.FileManager;
+import com.rogermiranda1000.portalgun.files.Language;
 import com.rogermiranda1000.portalgun.portals.CeilingPortal;
 import com.rogermiranda1000.portalgun.portals.FloorPortal;
 import com.rogermiranda1000.portalgun.portals.Portal;
@@ -18,12 +19,15 @@ import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 
 public class PortalGun extends RogerPlugin {
     public static PortalGun plugin;
@@ -37,7 +41,7 @@ public class PortalGun extends RogerPlugin {
     private BukkitTask teleportTask;
 
     public PortalGun() {
-        super(new CustomCommand[]{}, new onDead(), new onLeave(), new onMove(), new onUse());
+        super(new onDead(), new onLeave(), new onMove(), new onUse());
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
     }
@@ -51,10 +55,11 @@ public class PortalGun extends RogerPlugin {
     public void onEnable() {
         PortalGun.plugin = this;
 
+        FileManager.loadFiles();
+
+        super.setCommands(PortalGunCommands.commands); // @pre before super.onEnable() & after loading languages
         super.onEnable();
         ResetBlocks.getInstance().updateAllBlocks(); // @pre super.onEnable()
-
-        FileManager.loadFiles();
 
         // Load portals
         if (Config.PERSISTANT.getBoolean()) {
@@ -115,12 +120,6 @@ public class PortalGun extends RogerPlugin {
             PortalGun.updateTeleportedEntities();
             PortalGun.teleportEntities();
         }, 1, PortalGun.particleDelay*3);
-
-        // version-conditioned event
-        if (VersionController.version.compareTo(Version.MC_1_10) >= 0) getServer().getPluginManager().registerEvents(new onTab(), this);
-
-        // Commands
-        this.getCommand("portalgun").setExecutor(new onCommand()); // TODO move to RogerPlugin objeect
     }
 
     private static void playAllParticles() {
@@ -210,5 +209,36 @@ public class PortalGun extends RogerPlugin {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
+        for (CustomCommand command : PortalGunCommands.commands) {
+            switch (command.search((sender instanceof Player) ? (Player) sender : null, cmd.getName(), args)) {
+                case NO_MATCH:
+                    continue;
+
+                case NO_PERMISSIONS:
+                    sender.sendMessage(this.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
+                    break;
+                case MATCH:
+                    command.notifier.onCommand(sender, args);
+                    break;
+                case NO_PLAYER:
+                    sender.sendMessage("Don't use this command in console.");
+                    break;
+                case INVALID_LENGTH:
+                    sender.sendMessage(this.errorPrefix +"Unknown command. Use " + ChatColor.GOLD + "/mineit ?");
+                    break;
+                default:
+                    this.printConsoleErrorMessage("Unknown response to command");
+                    return false;
+            }
+            return true;
+        }
+
+        sender.sendMessage(this.errorPrefix + Language.HELP_UNKNOWN.getText());
+        PortalGunCommands.commands[0].notifier.onCommand(sender, new String[]{}); // '?' command
+        return true;
     }
 }
