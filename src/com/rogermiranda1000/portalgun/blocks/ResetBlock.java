@@ -92,7 +92,7 @@ public class ResetBlock {
         int height = this.getZoneHeight();
         if (height == 0 || ResetBlock.particle == null) return;
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 2*height; i++) {
             double x = this.position.getBlockX() + generator.nextFloat(),
                     y = ResetBlock.getRandomBetweenNumbers(generator, this.position.getBlockY()+1, this.position.getBlockY()+1+height),
                     z = this.position.getBlockZ() + generator.nextFloat();
