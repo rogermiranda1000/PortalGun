@@ -126,6 +126,8 @@ public class PortalGun extends RogerPlugin {
         for (Portal p: Portal.getPortals()) {
             if (p.getPosition().getChunk().isLoaded()) p.playParticle();
         }
+
+        ResetBlocks.getInstance().playAllParticles();
     }
 
     // TODO: don't teleport Item Frames

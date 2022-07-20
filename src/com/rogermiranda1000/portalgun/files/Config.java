@@ -1,6 +1,7 @@
 package com.rogermiranda1000.portalgun.files;
 
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.blocks.ResetBlock;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
@@ -32,7 +33,8 @@ public enum Config {
     PERSISTANT("portals.save"),
     PARTICLES("portals.particles"),
     CREATE_SOUND("portals.create_sound"),
-    TELEPORT_SOUND("portals.teleport_sound");
+    TELEPORT_SOUND("portals.teleport_sound"),
+    RESTARTER_PARTICLES("restarter.particles");
 
     private static FileConfiguration fileConfiguration;
     private static HashMap<Config, Object> savedConfiguration;
@@ -74,6 +76,7 @@ public enum Config {
         Language.loadHashMap(Config.fileConfiguration.getString(LANGUAGE.key));
 
         loadPortalParticles();
+        loadRestarterParticles();
     }
 
     public static void checkAndCreate() {
@@ -110,6 +113,22 @@ public enum Config {
             Portal.setParticle(VersionController.get().getParticle(particles.get(1)), false);
         } catch (IllegalArgumentException IAEx) {
             PortalGun.plugin.printConsoleErrorMessage("Particle '" + particles.get(1) + "' does not exists.");
+        }
+    }
+
+    private static void loadRestarterParticles() {
+        String particle = Config.fileConfiguration.getString(Config.RESTARTER_PARTICLES.key);
+        if (particle == null) {
+            // < v.2.3
+            particle = Config.getDefaultRestarterParticle();
+            Config.fileConfiguration.set(Config.RESTARTER_PARTICLES.key, particle);
+            PortalGun.plugin.saveConfig();
+        }
+
+        try {
+            ResetBlock.setParticle(VersionController.get().getParticle(particle));
+        } catch (IllegalArgumentException IAEx) {
+            PortalGun.plugin.printConsoleErrorMessage("Particle '" + particle + "' does not exists.");
         }
     }
 
@@ -168,6 +187,7 @@ public enum Config {
         c.put(Config.WHITELISTED_BLOCKS.key, Config.getDefaultBlocks());
         c.put(Config.TELEPORT_SOUND.key, Config.getDefaultTeleportSound());
         c.put(Config.CREATE_SOUND.key, Config.getDefaultCreateSound());
+        c.put(Config.RESTARTER_PARTICLES.key, Config.getDefaultRestarterParticle());
 
         return c;
     }
@@ -184,6 +204,10 @@ public enum Config {
 
         if (VersionController.version.compareTo(Version.MC_1_9) < 0) return "SLIME_WALK2";
         else return "ENTITY_SLIME_JUMP";
+    }
+
+    private static String getDefaultRestarterParticle() {
+        return "CRIT"; // TODO 1.19?
     }
 
     private static ArrayList<String> getDefaultParticles() {

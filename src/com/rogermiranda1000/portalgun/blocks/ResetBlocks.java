@@ -6,6 +6,7 @@ import com.rogermiranda1000.helper.blocks.CustomBlock;
 import com.rogermiranda1000.helper.blocks.file.BasicLocation;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.blocks.BlockType;
+import com.rogermiranda1000.versioncontroller.particles.ParticleEntity;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Random;
 import java.util.function.Function;
 
 public class ResetBlocks extends CustomBlock<ResetBlock> {
@@ -64,6 +66,13 @@ public class ResetBlocks extends CustomBlock<ResetBlock> {
     public boolean onCustomBlockBreak(BlockBreakEvent blockBreakEvent, ResetBlock block) {
         block.removed();
         return false;
+    }
+
+    private static final Random generator = new Random();
+    public void playAllParticles() {
+        this.getAllBlocks(e -> {
+            if (e.getValue().getChunk().isLoaded()) e.getKey().playParticles(ResetBlocks.generator);
+        });
     }
 
     private static ResetBlocks instance = null;
