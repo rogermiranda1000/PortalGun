@@ -15,7 +15,6 @@ public class ResetBlock {
 
     protected ResetBlock(Location position) {
         this.position = position;
-        this.searchOnTop();
     }
 
     /**
@@ -29,7 +28,7 @@ public class ResetBlock {
     /**
      * Changes the current top and bottom
      */
-    public void searchOnTop() {
+    public void update() {
         final AtomicReference<ResetBlock> newTop = new AtomicReference<>(null);
         final AtomicInteger closest = new AtomicInteger(Integer.MAX_VALUE);
         ResetBlocks.getInstance().getBlocksLackingCoordinate(this.position.getWorld(), this.position.getBlockX(), null, this.position.getBlockZ(), e -> {
@@ -102,5 +101,14 @@ public class ResetBlock {
 
     public Location getPosition() {
         return this.position;
+    }
+
+    @Override
+    public String toString() {
+        return "ResetBlock{" +
+                "position=" + position.toString() +
+                ", top=" + ((top == null) ? "null" : top.position.toString()) +
+                ", bottom=" + ((bottom == null) ? "null" : bottom.position.toString()) +
+                '}';
     }
 }

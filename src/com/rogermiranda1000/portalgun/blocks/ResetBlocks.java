@@ -59,13 +59,19 @@ public class ResetBlocks extends CustomBlock<ResetBlock> {
 
     @Override
     public @NotNull ResetBlock onCustomBlockPlace(BlockPlaceEvent blockPlaceEvent) {
-        return new ResetBlock(blockPlaceEvent.getBlock().getLocation());
+        ResetBlock r = new ResetBlock(blockPlaceEvent.getBlock().getLocation());
+        r.update();
+        return r;
     }
 
     @Override
     public boolean onCustomBlockBreak(BlockBreakEvent blockBreakEvent, ResetBlock block) {
         block.removed();
         return false;
+    }
+
+    public void updateAllBlocks() {
+        this.getAllBlocks(e -> e.getKey().update());
     }
 
     private static final Random generator = new Random();

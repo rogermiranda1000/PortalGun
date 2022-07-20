@@ -52,6 +52,7 @@ public class PortalGun extends RogerPlugin {
         PortalGun.plugin = this;
 
         super.onEnable();
+        ResetBlocks.getInstance().updateAllBlocks(); // @pre super.onEnable()
 
         FileManager.loadFiles();
 
