@@ -57,20 +57,12 @@ public class ResetBlocks extends CustomBlock<ResetBlock> {
 
     @Override
     public @NotNull ResetBlock onCustomBlockPlace(BlockPlaceEvent blockPlaceEvent) {
-        // TODO get upper block (if any)
-        // TODO check if perturbed previous block
-        System.out.println(blockPlaceEvent.getBlock().getLocation().toString());
-        Location loc = blockPlaceEvent.getBlock().getLocation();
-        this.getBlocksLackingCoordinate(loc.getWorld(), loc.getBlockX(), null, loc.getBlockZ(), r -> System.out.println("- " + r.getValue()));
-        return new ResetBlock(loc);
+        return new ResetBlock(blockPlaceEvent.getBlock().getLocation());
     }
 
     @Override
     public boolean onCustomBlockBreak(BlockBreakEvent blockBreakEvent, ResetBlock block) {
-        // TODO unlink bottom block
-        // TODO check if new region can be created
-        System.out.println(blockBreakEvent.getBlock().getLocation().toString());
-        System.out.println(block.getPosition().toString());
+        block.removed();
         return false;
     }
 
