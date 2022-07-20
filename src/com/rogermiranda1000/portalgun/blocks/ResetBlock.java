@@ -8,13 +8,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ResetBlock {
+    /**
+     * x/z tolerance around position
+     */
+    private static final float REGION_TOLERANCE = 0.6f;
+
     private static ParticleEntity particle;
 
     private final Location position;
     private ResetBlock top, bottom;
 
     protected ResetBlock(Location position) {
-        this.position = position;
+        this.position = new Location(position.getWorld(), position.getBlockX()+0.5f, position.getBlockY(), position.getBlockZ()+0.5f);
     }
 
     /**
@@ -58,6 +63,16 @@ public class ResetBlock {
 
         this.setBottom(newBottom.get());
         if (this.bottom != null) this.bottom.setTop(this);
+    }
+
+    public boolean insideRegion(Location loc) {
+        int height = this.getZoneHeight();
+        if (height == 0) return false;
+
+        if (!loc.getWorld().equals(this.position.getWorld())) return false;
+        return  (Math.abs(this.position.getX() - loc.getX()) <= ResetBlock.REGION_TOLERANCE
+                && Math.abs(this.position.getZ() - loc.getZ()) <= ResetBlock.REGION_TOLERANCE
+                && loc.getY() >= this.position.getBlockY()+1 && loc.getY()-(this.position.getBlockY()+1) < height);
     }
 
     private void setTop(ResetBlock top) {

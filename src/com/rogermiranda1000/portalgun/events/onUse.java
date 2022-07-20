@@ -2,6 +2,7 @@ package com.rogermiranda1000.portalgun.events;
 
 import com.rogermiranda1000.portalgun.Direction;
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.Language;
 import com.rogermiranda1000.portalgun.portals.CeilingPortal;
@@ -37,7 +38,13 @@ public class onUse implements Listener {
         // raytracing
         BlockIterator iter = new BlockIterator(player, Config.MAX_LENGHT.getInteger());
         Block colliderBlock = iter.next();
-        while (Portal.isEmptyBlock.apply(colliderBlock) && iter.hasNext()) colliderBlock = iter.next(); // TODO: bloacklist blocks
+        while (Portal.isEmptyBlock.apply(colliderBlock) && !ResetBlocks.getInstance().insideResetBlock(colliderBlock.getLocation()) && iter.hasNext()) colliderBlock = iter.next(); // TODO: bloacklist blocks
+
+        if (ResetBlocks.getInstance().insideResetBlock(colliderBlock.getLocation())) {
+            player.playSound(player.getLocation(), Config.CREATE_SOUND.getSound(), 3.0F, 0.5F);
+            // TODO fail animation
+            return;
+        }
 
         Portal p = getMatchingPortal(player, colliderBlock.getLocation(), event.getAction().equals(Action.LEFT_CLICK_BLOCK) || event.getAction().equals(Action.LEFT_CLICK_AIR),
                 Direction.getDirection((Entity)player), player.getLocation().getBlock().getLocation().subtract(colliderBlock.getLocation()).toVector());

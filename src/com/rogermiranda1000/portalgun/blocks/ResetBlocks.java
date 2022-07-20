@@ -6,7 +6,6 @@ import com.rogermiranda1000.helper.blocks.CustomBlock;
 import com.rogermiranda1000.helper.blocks.file.BasicLocation;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.blocks.BlockType;
-import com.rogermiranda1000.versioncontroller.particles.ParticleEntity;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,6 +18,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 public class ResetBlocks extends CustomBlock<ResetBlock> {
@@ -68,6 +68,14 @@ public class ResetBlocks extends CustomBlock<ResetBlock> {
     public boolean onCustomBlockBreak(BlockBreakEvent blockBreakEvent, ResetBlock block) {
         block.removed();
         return false;
+    }
+
+    public boolean insideResetBlock(final Location loc) {
+        final AtomicBoolean found = new AtomicBoolean(false);
+        this.getAllBlocks(e -> {
+            if (e.getKey().insideRegion(loc)) found.set(true);
+        });
+        return found.get();
     }
 
     public void updateAllBlocks() {
