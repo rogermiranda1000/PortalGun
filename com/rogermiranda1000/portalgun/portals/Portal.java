@@ -3,6 +3,7 @@ package com.rogermiranda1000.portalgun.portals;
 import com.rogermiranda1000.portalgun.Direction;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.versioncontroller.VersionController;
+import com.rogermiranda1000.versioncontroller.particles.ParticleEntity;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -18,7 +19,7 @@ import java.util.function.Function;
 public abstract class Portal {
     private static HashMap<UUID, Portal[]> portals;
     private static HashMap<Location, Portal> portalsLocations;
-    private static Object[] particles;
+    private static ParticleEntity[] particles;
     public static Function<Block, Boolean> isEmptyBlock;
     public static Function<Block, Boolean> isValidBlock;
     protected static final int iterations = 20;
@@ -40,7 +41,7 @@ public abstract class Portal {
     static {
         Portal.portals = new HashMap<>();
         Portal.portalsLocations = new HashMap<>();
-        Portal.particles = new Object[2];
+        Portal.particles = new ParticleEntity[2];
     }
 
     protected Portal(OfflinePlayer owner, Location loc, Direction dir, boolean isLeft) {
@@ -79,13 +80,13 @@ public abstract class Portal {
         return l;
     }
 
-    private static void spawnParticle(Location loc, Object particle, Player owner) {
+    private static void spawnParticle(Location loc, ParticleEntity particle, Player owner) {
         if (loc == null) return;
 
-        if(!Config.ONLY_YOUR_PORTALS.getBoolean()) VersionController.get().playParticle(loc.getWorld(), particle, loc);
+        if(!Config.ONLY_YOUR_PORTALS.getBoolean()) particle.playParticle(loc.getWorld(), loc);
         else {
             for(Player ply: Bukkit.getOnlinePlayers()) {
-                if(ply.hasPermission("portalgun.overrideotherportals") || ply.equals(owner)) VersionController.get().playParticle(ply, particle, loc);
+                if(ply.hasPermission("portalgun.overrideotherportals") || ply.equals(owner)) particle.playParticle(ply, loc);
             }
         }
     }
@@ -267,12 +268,12 @@ public abstract class Portal {
         return sb.toString();
     }
 
-    protected Object getParticle() {
+    protected ParticleEntity getParticle() {
         int pos = (this.isLeft ? 0 : 1); // left portal => pos 0
         return Portal.particles[pos];
     }
 
-    public static void setParticle(Object particle, boolean leftPortal) {
+    public static void setParticle(ParticleEntity particle, boolean leftPortal) {
         int pos = (leftPortal ? 0 : 1); // left portal => pos 0
         Portal.particles[pos] = particle;
     }

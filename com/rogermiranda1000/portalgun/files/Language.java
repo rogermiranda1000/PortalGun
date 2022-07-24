@@ -10,9 +10,11 @@ import java.util.Map;
 public enum Language {
     HELP_GET_GUN("help.get_portalgun"),
     HELP_GET_BOOTS("help.get_portalboots"),
+    HELP_GET_RESTARTER("help.get_restarter"),
     HELP_REMOVE("help.remove_portals"),
     HELP_REMOVE_OTHERS("help.remove_others_portals"),
     HELP_REMOVE_ALL("help.remove_all_portals"),
+    HELP_UNKNOWN("help.unknown_command"),
     PORTAL_DENIED("portal.deny"),
     PORTAL_OPENED("portal.open"),
     PORTAL_COLLIDING("portal.collides"),
@@ -21,6 +23,7 @@ public enum Language {
     USER_NOT_FOUND("user.not_found"),
     USER_GET_GUN("user.get_portalgun"),
     USER_GET_BOOTS("user.get_portalboots"),
+    USER_GET_RESTARTER("user.get_restarter"),
     USER_NO_PORTALS("user.no_portals"),
     OTHER_USER_NO_PORTALS("user.other_no_portals"),
     USER_REMOVE("user.remove"),
@@ -65,7 +68,7 @@ public enum Language {
         File languageFile = new File(Language.languagePath,languageName + ".yml");
         try {
             if (!languageFile.exists() && !Language.createLanguageFile(languageName)) {
-                PortalGun.printErrorMessage("Language file '" + languageName + "' does not exists (and cannot be created). Using english file instead.");
+                PortalGun.plugin.printConsoleErrorMessage("Language file '" + languageName + "' does not exists (and cannot be created). Using english file instead.");
                 Language.loadHashMap("english");
             }
             else {
@@ -76,8 +79,15 @@ public enum Language {
                 Language.translations = new HashMap<>();
                 for(Language l : Language.values()) {
                     translation = lang.getString(l.key);
+                    if (translation == null) {
+                        PortalGun.plugin.printConsoleWarningMessage(l.key + " not defined in language file, picking the default one...");
+                        translation = (String) Language.getEnglishFile().get(l.key);
+
+                        // save existing file
+                        lang.set(l.key, translation);
+                        lang.save(languageFile);
+                    }
                     Language.translations.put(l, translation);
-                    if (translation == null) PortalGun.printErrorMessage(l.key + " not defined in language file.");
                 }
             }
         } catch (Exception e) {
@@ -141,13 +151,15 @@ public enum Language {
         r.put(Language.USER_REMOVE_ALL.key, "You have removed all portals.");
         r.put(Language.USER_GET_GUN.key, "PortalGun gived!");
         r.put(Language.USER_GET_BOOTS.key, "PortalBoots gived!");
+        r.put(Language.USER_GET_RESTARTER.key, "Restarter block gived! Place one and another over it and you'll create a \"door\" that will reset portals.");
         r.put(Language.HELP_GET_GUN.key, "Get the PortalGun.");
         r.put(Language.HELP_GET_BOOTS.key, "Get the PortalBoots.");
+        r.put(Language.HELP_GET_RESTARTER.key, "Get the portals restarter.");
         r.put(Language.HELP_REMOVE.key, "Delete your active portals.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Delete others' active portals.");
         r.put(Language.HELP_REMOVE_ALL.key, "Delete all the active portals.");
         r.put(Language.USER_NOT_FOUND.key, "[player] not found.");
-
+        r.put(Language.HELP_UNKNOWN.key, "Unknown command.");
 
 
         return r;
@@ -168,14 +180,17 @@ public enum Language {
         r.put(Language.USER_REMOVE_ALL.key, "Todos los portales han sido eliminados.");
         r.put(Language.USER_GET_GUN.key, "PortalGun recibida!");
         r.put(Language.USER_GET_BOOTS.key, "PortalBoots recibidas!");
+        r.put(Language.USER_GET_RESTARTER.key, "Se ha recibido el reiniciador de portales! Coloca uno y otro encima y crearás una \"puerta\" que reiniciará los portales.");
         r.put(Language.HELP_GET_GUN.key, "Obtén la PortalGun.");
         r.put(Language.HELP_GET_BOOTS.key, "Obtén las PortalBoots.");
+        r.put(Language.HELP_GET_RESTARTER.key, "Obtén el reiniciador de portales.");
         r.put(Language.HELP_REMOVE.key, "Elimina tus portales activos.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Elimina los portales activos de otro usuario.");
         r.put(Language.HELP_REMOVE_ALL.key, "Elimina todos los portales.");
         r.put(Language.USER_NOT_FOUND.key, "El usuario [player] no se ha encontrado.");
         r.put(Language.USER_REMOVE_OTHERS.key, "Has eliminado los portales de [player].");
         r.put(Language.OTHER_USER_NO_PORTALS.key, "[player] no tiene portales abiertos.");
+        r.put(Language.HELP_UNKNOWN.key, "Comando desconocido.");
 
         return r;
     }
@@ -195,14 +210,17 @@ public enum Language {
         r.put(Language.USER_REMOVE_ALL.key, "S'han eliminat tots els portals.");
         r.put(Language.USER_GET_GUN.key, "PortalGun obtinguda!");
         r.put(Language.USER_GET_BOOTS.key, "PortalBoots obtingudes!");
+        r.put(Language.USER_GET_RESTARTER.key, "S'ha obtingut el reiniciador de portals! Col·loca un i un altre a sobre i crearàs una \"porta\" que reiniciarà els portals.");
         r.put(Language.HELP_GET_GUN.key, "Adquireix la PortalGun.");
         r.put(Language.HELP_GET_BOOTS.key, "Adquireix les PortalBoots.");
+        r.put(Language.HELP_GET_RESTARTER.key, "Adquireix el reiniciador de portals.");
         r.put(Language.HELP_REMOVE.key, "Elimina els teus portals actius.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Elimina els portals actius d'un altre usuari.");
         r.put(Language.HELP_REMOVE_ALL.key, "Elimina tots els portals.");
         r.put(Language.USER_NOT_FOUND.key, "L'usuari [player] no s'ha trobat.");
         r.put(Language.USER_REMOVE_OTHERS.key, "Has eliminat els portals de [player].");
         r.put(Language.OTHER_USER_NO_PORTALS.key, "[player] no té portals oberts.");
+        r.put(Language.HELP_UNKNOWN.key, "Comanda desconeguda.");
 
         return r;
     }

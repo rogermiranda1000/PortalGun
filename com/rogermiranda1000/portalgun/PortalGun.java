@@ -4,42 +4,62 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.CancellationException;
 
-import com.rogermiranda1000.portalgun.eventos.*;
+import com.rogermiranda1000.helper.CustomCommand;
+import com.rogermiranda1000.helper.RogerPlugin;
+import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
+import com.rogermiranda1000.portalgun.events.*;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.FileManager;
+import com.rogermiranda1000.portalgun.files.Language;
 import com.rogermiranda1000.portalgun.portals.CeilingPortal;
 import com.rogermiranda1000.portalgun.portals.FloorPortal;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
+import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 
-public class PortalGun extends JavaPlugin
-{
+public class PortalGun extends RogerPlugin {
     public static PortalGun plugin;
 
     public static ItemStack item;
     public static ItemStack botas;
-    public static final String clearPrefix=ChatColor.GOLD.toString() + ChatColor.BOLD.toString() + "[PortalGun] " + ChatColor.GREEN.toString(), errorPrefix=clearPrefix+ChatColor.RED;
     private static final int particleDelay = 2;
     private static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
 
     private BukkitTask particleTask;
     private BukkitTask teleportTask;
 
+    public PortalGun() {
+        super(new onDead(), new onLeave(), new onMove(), new onUse());
+
+        this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
+    }
+
+    @Override
+    public String getPluginID() {
+        return "44746";
+    }
+
     @Override
     public void onEnable() {
         PortalGun.plugin = this;
 
         FileManager.loadFiles();
+
+        super.setCommands(PortalGunCommands.commands); // @pre before super.onEnable() & after loading languages
+        super.onEnable();
+        ResetBlocks.getInstance().updateAllBlocks(); // @pre super.onEnable()
 
         // Load portals
         if (Config.PERSISTANT.getBoolean()) {
@@ -56,7 +76,7 @@ public class PortalGun extends JavaPlugin
                         if(argsWorld.length!=4) continue;
                         World w = Bukkit.getWorld(argsWorld[0]);
                         if (w == null) {
-                            PortalGun.printErrorMessage("The portal's world '" + argsWorld[0] + "' doesn't exist.");
+                            this.printConsoleErrorMessage("The portal's world '" + argsWorld[0] + "' doesn't exist.");
                             continue;
                         }
                         Location portalLocation = new Location(w, Double.parseDouble(argsWorld[1]), Double.parseDouble(argsWorld[2]), Double.parseDouble(argsWorld[3]));
@@ -73,7 +93,7 @@ public class PortalGun extends JavaPlugin
                                 p = new WallPortal(player, portalLocation, Direction.valueOf(args[2]), args[3].equalsIgnoreCase("L"));
                                 break;
                             default:
-                                PortalGun.printErrorMessage("Invalid portal type (" + args[4] + ")");
+                                this.printConsoleErrorMessage("Invalid portal type (" + args[4] + ")");
                         }
                         if (p != null) Portal.setPortal(UUID.fromString(args[0]), p);
                     }
@@ -87,7 +107,7 @@ public class PortalGun extends JavaPlugin
         LeatherArmorMeta meta2 = (LeatherArmorMeta) botas.getItemMeta();
         meta2.setDisplayName(ChatColor.GREEN.toString() + "Portal Boots");
         // TODO: unbreakable alternative
-        if (VersionController.version > 10) meta2.setUnbreakable(true);
+        if (VersionController.version.compareTo(Version.MC_1_10) > 0) meta2.setUnbreakable(true);
         meta2.setColor(Color.WHITE);
         botas.setItemMeta(meta2);
         botas.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
@@ -100,26 +120,14 @@ public class PortalGun extends JavaPlugin
             PortalGun.updateTeleportedEntities();
             PortalGun.teleportEntities();
         }, 1, PortalGun.particleDelay*3);
-
-        // Events
-        getServer().getPluginManager().registerEvents(new onDead(), this);
-        getServer().getPluginManager().registerEvents(new onLeave(), this);
-        getServer().getPluginManager().registerEvents(new onMove(), this);
-        if (VersionController.version>=10) getServer().getPluginManager().registerEvents(new onTab(), this);
-        getServer().getPluginManager().registerEvents(new onUse(), this);
-
-        // Commands
-        this.getCommand("portalgun").setExecutor(new onCommand());
-    }
-
-    public static void printErrorMessage(String txt) {
-        Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED.toString() + "[PortalGun] " + txt);
     }
 
     private static void playAllParticles() {
         for (Portal p: Portal.getPortals()) {
             if (p.getPosition().getChunk().isLoaded()) p.playParticle();
         }
+
+        ResetBlocks.getInstance().playAllParticles();
     }
 
     // TODO: don't teleport Item Frames
@@ -177,6 +185,8 @@ public class PortalGun extends JavaPlugin
 
     @Override
     public void onDisable() {
+        super.onDisable();
+
         this.particleTask.cancel();
         this.teleportTask.cancel();
 
@@ -199,5 +209,36 @@ public class PortalGun extends JavaPlugin
                 }
             }
         }
+    }
+
+    @Override
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
+        for (CustomCommand command : PortalGunCommands.commands) {
+            switch (command.search((sender instanceof Player) ? (Player) sender : null, cmd.getName(), args)) {
+                case NO_MATCH:
+                    continue;
+
+                case NO_PERMISSIONS:
+                    sender.sendMessage(this.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
+                    break;
+                case MATCH:
+                    command.notifier.onCommand(sender, args);
+                    break;
+                case NO_PLAYER:
+                    sender.sendMessage("Don't use this command in console.");
+                    break;
+                case INVALID_LENGTH:
+                    sender.sendMessage(this.errorPrefix +"Unknown command. Use " + ChatColor.GOLD + "/mineit ?");
+                    break;
+                default:
+                    this.printConsoleErrorMessage("Unknown response to command");
+                    return false;
+            }
+            return true;
+        }
+
+        sender.sendMessage(this.errorPrefix + Language.HELP_UNKNOWN.getText());
+        PortalGunCommands.commands[0].notifier.onCommand(sender, new String[]{}); // '?' command
+        return true;
     }
 }

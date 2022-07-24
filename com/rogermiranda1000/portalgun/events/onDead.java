@@ -1,4 +1,4 @@
-package com.rogermiranda1000.portalgun.eventos;
+package com.rogermiranda1000.portalgun.events;
 
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.Language;
@@ -15,6 +15,6 @@ public class onDead implements Listener {
         Player p = (Player)e.getEntity();
         if(!Config.DELETE_ON_DEATH.getBoolean()) return;
 
-        if(Portal.removePortal(p)) p.sendMessage(PortalGun.errorPrefix + Language.USER_DEATH.getText());
+        if(Portal.removePortal(p)) p.sendMessage(PortalGun.plugin.errorPrefix + Language.USER_DEATH.getText());
     }
 }

@@ -1,8 +1,11 @@
 package com.rogermiranda1000.portalgun.files;
 
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.blocks.ResetBlock;
 import com.rogermiranda1000.portalgun.portals.Portal;
+import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
+import com.rogermiranda1000.versioncontroller.blocks.BlockType;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -30,7 +33,8 @@ public enum Config {
     PERSISTANT("portals.save"),
     PARTICLES("portals.particles"),
     CREATE_SOUND("portals.create_sound"),
-    TELEPORT_SOUND("portals.teleport_sound");
+    TELEPORT_SOUND("portals.teleport_sound"),
+    RESTARTER_PARTICLES("restarter.particles");
 
     private static FileConfiguration fileConfiguration;
     private static HashMap<Config, Object> savedConfiguration;
@@ -72,6 +76,7 @@ public enum Config {
         Language.loadHashMap(Config.fileConfiguration.getString(LANGUAGE.key));
 
         loadPortalParticles();
+        loadRestarterParticles();
     }
 
     public static void checkAndCreate() {
@@ -91,24 +96,39 @@ public enum Config {
         }
     }
 
-    // TODO: 1.8 Effect (instead of Particle)
     private static void loadPortalParticles() {
         List<String> particles = Config.fileConfiguration.getStringList(Config.PARTICLES.key);
         if (particles.size() != 2) {
-            PortalGun.printErrorMessage(Config.PARTICLES.key + " must have only 2 particles!");
+            PortalGun.plugin.printConsoleErrorMessage(Config.PARTICLES.key + " must have only 2 particles!");
             return;
         }
 
         try {
             Portal.setParticle(VersionController.get().getParticle(particles.get(0)), true);
         } catch (IllegalArgumentException IAEx) {
-            PortalGun.printErrorMessage("Particle '" + particles.get(0) + "' does not exists.");
+            PortalGun.plugin.printConsoleErrorMessage("Particle '" + particles.get(0) + "' does not exists.");
         }
 
         try {
             Portal.setParticle(VersionController.get().getParticle(particles.get(1)), false);
         } catch (IllegalArgumentException IAEx) {
-            PortalGun.printErrorMessage("Particle '" + particles.get(1) + "' does not exists.");
+            PortalGun.plugin.printConsoleErrorMessage("Particle '" + particles.get(1) + "' does not exists.");
+        }
+    }
+
+    private static void loadRestarterParticles() {
+        String particle = Config.fileConfiguration.getString(Config.RESTARTER_PARTICLES.key);
+        if (particle == null) {
+            // < v.2.3
+            particle = Config.getDefaultRestarterParticle();
+            Config.fileConfiguration.set(Config.RESTARTER_PARTICLES.key, particle);
+            PortalGun.plugin.saveConfig();
+        }
+
+        try {
+            ResetBlock.setParticle(VersionController.get().getParticle(particle));
+        } catch (IllegalArgumentException IAEx) {
+            PortalGun.plugin.printConsoleErrorMessage("Particle '" + particle + "' does not exists.");
         }
     }
 
@@ -119,13 +139,13 @@ public enum Config {
      */
     private static void loadPortalgunMaterial(@Nullable String material, @Nullable Integer customModelData) {
         if (material == null) {
-            PortalGun.printErrorMessage(MATERIAL.key + " is not setted in config file!");
+            PortalGun.plugin.printConsoleErrorMessage(MATERIAL.key + " is not setted in config file!");
             return;
         }
 
         Material portalgunMaterial = Material.getMaterial(material);
         if (portalgunMaterial == null) {
-            PortalGun.printErrorMessage("PortalGun's item (" + material + ") does not exists.");
+            PortalGun.plugin.printConsoleErrorMessage("PortalGun's item (" + material + ") does not exists.");
             return;
         }
 
@@ -138,10 +158,10 @@ public enum Config {
     }
 
     private static void loadValidBlocks() {
-        ArrayList<Object> allowedBlocks = new ArrayList<>();
+        ArrayList<BlockType> allowedBlocks = new ArrayList<>();
 
         for (String txt : Config.fileConfiguration.getStringList(Config.WHITELISTED_BLOCKS.key)) {
-            Object o = VersionController.get().getMaterial(txt);
+            BlockType o = VersionController.get().getMaterial(txt);
             if (o != null) allowedBlocks.add(o);
         }
 
@@ -156,7 +176,7 @@ public enum Config {
 
         c.put(Config.LANGUAGE.key, "english");
         c.put(Config.MATERIAL.key, "BLAZE_ROD");
-        if (VersionController.version >= 14) c.put(Config.CUSTOM_MODEL_DATA.key, -1);
+        if (VersionController.version.compareTo(Version.MC_1_14) >= 0) c.put(Config.CUSTOM_MODEL_DATA.key, -1);
         c.put(Config.MAX_LENGHT.key, 80);
         c.put(Config.PARTICLES.key, Config.getDefaultParticles());
         c.put(Config.REMOVE_ON_LEAVE.key, true);
@@ -167,6 +187,7 @@ public enum Config {
         c.put(Config.WHITELISTED_BLOCKS.key, Config.getDefaultBlocks());
         c.put(Config.TELEPORT_SOUND.key, Config.getDefaultTeleportSound());
         c.put(Config.CREATE_SOUND.key, Config.getDefaultCreateSound());
+        c.put(Config.RESTARTER_PARTICLES.key, Config.getDefaultRestarterParticle());
 
         return c;
     }
@@ -174,15 +195,19 @@ public enum Config {
     private static String getDefaultTeleportSound() {
         if (VersionController.isPaper) return "ENTITY_SHULKER_TELEPORT"; // TODO check version on paper too
 
-        if (VersionController.version<9) return "ENDERMAN_TELEPORT";
+        if (VersionController.version.compareTo(Version.MC_1_9) < 0) return "ENDERMAN_TELEPORT";
         else return "ENTITY_SHULKER_TELEPORT";
     }
 
     private static String getDefaultCreateSound() {
         if (VersionController.isPaper) return "ENTITY_SLIME_JUMP"; // TODO check version on paper too
 
-        if (VersionController.version<9) return "SLIME_WALK2";
+        if (VersionController.version.compareTo(Version.MC_1_9) < 0) return "SLIME_WALK2";
         else return "ENTITY_SLIME_JUMP";
+    }
+
+    private static String getDefaultRestarterParticle() {
+        return (VersionController.version.compareTo(Version.MC_1_13) < 0) ? "CRIT" : "NAUTILUS";
     }
 
     private static ArrayList<String> getDefaultParticles() {
@@ -194,7 +219,7 @@ public enum Config {
             particles.add("VILLAGER_HAPPY");
         }
         else {
-            if (VersionController.version < 9) {
+            if (VersionController.version.compareTo(Version.MC_1_9) < 0) {
                 particles.add("FLAME");
                 particles.add("HAPPY_VILLAGER");
             } else {
@@ -209,7 +234,7 @@ public enum Config {
     private static ArrayList<String> getDefaultBlocks() {
         ArrayList<String> blocks = new ArrayList<>();
 
-        if (VersionController.version<13) {
+        if (VersionController.version.compareTo(Version.MC_1_13) < 0) {
             blocks.add("WOOL:0");
             blocks.add("QUARTZ_BLOCK:0");
             blocks.add("QUARTZ_BLOCK:1");

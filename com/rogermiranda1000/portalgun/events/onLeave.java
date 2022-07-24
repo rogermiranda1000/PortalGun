@@ -1,6 +1,5 @@
-package com.rogermiranda1000.portalgun.eventos;
+package com.rogermiranda1000.portalgun.events;
 
-import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import org.bukkit.event.EventHandler;

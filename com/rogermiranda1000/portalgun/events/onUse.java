@@ -1,7 +1,8 @@
-package com.rogermiranda1000.portalgun.eventos;
+package com.rogermiranda1000.portalgun.events;
 
 import com.rogermiranda1000.portalgun.Direction;
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.Language;
 import com.rogermiranda1000.portalgun.portals.CeilingPortal;
@@ -30,27 +31,33 @@ public class onUse implements Listener {
 
         event.setCancelled(true);
         if (!player.hasPermission("portalgun.open")) {
-            player.sendMessage(PortalGun.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
+            player.sendMessage(PortalGun.plugin.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
             return;
         }
 
         // raytracing
         BlockIterator iter = new BlockIterator(player, Config.MAX_LENGHT.getInteger());
         Block colliderBlock = iter.next();
-        while (Portal.isEmptyBlock.apply(colliderBlock) && iter.hasNext()) colliderBlock = iter.next(); // TODO: bloacklist blocks
+        while (Portal.isEmptyBlock.apply(colliderBlock) && !ResetBlocks.getInstance().insideResetBlock(colliderBlock.getLocation()) && iter.hasNext()) colliderBlock = iter.next(); // TODO: bloacklist blocks
+
+        if (ResetBlocks.getInstance().insideResetBlock(colliderBlock.getLocation())) {
+            player.playSound(player.getLocation(), Config.CREATE_SOUND.getSound(), 3.0F, 0.5F);
+            // TODO fail animation
+            return;
+        }
 
         Portal p = getMatchingPortal(player, colliderBlock.getLocation(), event.getAction().equals(Action.LEFT_CLICK_BLOCK) || event.getAction().equals(Action.LEFT_CLICK_AIR),
                 Direction.getDirection((Entity)player), player.getLocation().getBlock().getLocation().subtract(colliderBlock.getLocation()).toVector());
 
         if (p == null) {
-            if (!iter.hasNext()) player.sendMessage(PortalGun.errorPrefix + Language.PORTAL_FAR.getText());
-            else player.sendMessage(PortalGun.errorPrefix + Language.PORTAL_DENIED.getText());
+            if (!iter.hasNext()) player.sendMessage(PortalGun.plugin.errorPrefix + Language.PORTAL_FAR.getText());
+            else player.sendMessage(PortalGun.plugin.errorPrefix + Language.PORTAL_DENIED.getText());
             return;
         }
 
         // existing portal in that location? (and not replaced)
         if (p.collidesAndPersists()) {
-            player.sendMessage(PortalGun.errorPrefix + Language.PORTAL_COLLIDING.getText());
+            player.sendMessage(PortalGun.plugin.errorPrefix + Language.PORTAL_COLLIDING.getText());
             return;
         }
 
