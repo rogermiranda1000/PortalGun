@@ -11,7 +11,9 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nullable;
@@ -19,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-// TODO: config
 public enum Config {
     LANGUAGE("language"),
     MATERIAL("portalgun.material"),
@@ -151,10 +152,22 @@ public enum Config {
 
         PortalGun.item = new ItemStack(portalgunMaterial);
         ItemMeta meta = PortalGun.item.getItemMeta();
-        meta.setDisplayName(ChatColor.GOLD.toString() + ChatColor.BOLD.toString() + "PortalGun");
+
+        meta.setDisplayName(ChatColor.GOLD.toString() + ChatColor.BOLD + "PortalGun"); // TODO change
+        // TODO add lore
         if (customModelData != null && customModelData != -1) meta.setCustomModelData(customModelData);
+
+        if (!(meta instanceof Damageable)) {
+            PortalGun.plugin.printConsoleWarningMessage("PortalGun's item (" + material + ") is not a tool! The datapack can't be applied.");
+            PortalGun.item.addUnsafeEnchantment(Enchantment.DURABILITY, 10); // as the item is not damageable, the only way we can know it's the PortalGun is by the enchantment
+            PortalGun.item.setItemMeta(meta); // save before exit
+            return;
+        }
+
+        ((Damageable) meta).setDamage(1);
+        meta.setUnbreakable(true);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
         PortalGun.item.setItemMeta(meta);
-        PortalGun.item.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
     }
 
     private static void loadValidBlocks() {
@@ -175,7 +188,7 @@ public enum Config {
         HashMap<String,Object> c = new HashMap<>();
 
         c.put(Config.LANGUAGE.key, "english");
-        c.put(Config.MATERIAL.key, "BLAZE_ROD");
+        c.put(Config.MATERIAL.key, "WOODEN_SHOVEL");
         if (VersionController.version.compareTo(Version.MC_1_14) >= 0) c.put(Config.CUSTOM_MODEL_DATA.key, -1);
         c.put(Config.MAX_LENGHT.key, 80);
         c.put(Config.PARTICLES.key, Config.getDefaultParticles());
