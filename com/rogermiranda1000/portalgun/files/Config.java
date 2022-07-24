@@ -157,7 +157,7 @@ public enum Config {
         // TODO add lore
         if (customModelData != null && customModelData != -1) meta.setCustomModelData(customModelData);
 
-        if (!(meta instanceof Damageable)) {
+        if (!(meta instanceof Damageable)) { // TODO pre 1.13
             PortalGun.plugin.printConsoleWarningMessage("PortalGun's item (" + material + ") is not a tool! The datapack can't be applied.");
             PortalGun.item.addUnsafeEnchantment(Enchantment.DURABILITY, 10); // as the item is not damageable, the only way we can know it's the PortalGun is by the enchantment
             PortalGun.item.setItemMeta(meta); // save before exit

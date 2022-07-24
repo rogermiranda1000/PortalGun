@@ -1,8 +1,8 @@
 package com.rogermiranda1000.portalgun.events;
 
+import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
-import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -11,15 +11,10 @@ public class onPlayerJoin implements Listener {
     /**
      * Given a GET argument 'tool' and the pack_format 'format', it generates a resourcepack
      */
-    private static final String RESOURCEPACK_BASE_URL = "https://rogermiranda1000.com/PortalGun/index.php";
-    private static Material portalgun;
-
-    public static void setPortalGun(Material mat) {
-        portalgun = mat;
-    }
+    private static final String RESOURCEPACK_BASE_URL = "https://rogermiranda1000.com/PortalGun/index.php"; // TODO custom URL
 
     private static String getUrl() {
-        return RESOURCEPACK_BASE_URL + "?tool=" + portalgun.name() + "&format=" + getPackFormat();
+        return RESOURCEPACK_BASE_URL + "?tool=" + PortalGun.item.getType().name() + "&format=" + getPackFormat();
     }
 
     /**
