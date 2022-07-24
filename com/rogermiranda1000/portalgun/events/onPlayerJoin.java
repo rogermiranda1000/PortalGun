@@ -11,7 +11,7 @@ public class onPlayerJoin implements Listener {
     /**
      * Given a GET argument 'tool' and the pack_format 'format', it generates a resourcepack
      */
-    private static final String RESOURCEPACK_BASE_URL = "https://rogermiranda1000.com/PortalGun/index.php"; // TODO custom URL
+    private static final String RESOURCEPACK_BASE_URL = "http://rogermiranda1000.com/portalgun/index.php"; // TODO custom URL
 
     private static String getUrl() {
         return RESOURCEPACK_BASE_URL + "?tool=" + PortalGun.item.getType().name() + "&format=" + getPackFormat();
