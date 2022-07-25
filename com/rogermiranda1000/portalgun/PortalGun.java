@@ -32,6 +32,7 @@ import org.bukkit.scheduler.BukkitTask;
 public class PortalGun extends RogerPlugin {
     public static PortalGun plugin;
 
+    public static boolean useResourcePack;
     public static ItemStack item;
     public static ItemStack botas;
     private static final int particleDelay = 2;

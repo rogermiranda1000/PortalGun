@@ -9,12 +9,14 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class onPlayerJoin implements Listener {
     /**
-     * Given a GET argument 'tool' and the pack_format 'format', it generates a resourcepack
+     * Given a GET argument 'tool', 'damage'/'custom_model_data' and the pack_format 'format', it generates a resourcepack
      */
     private static final String RESOURCEPACK_BASE_URL = "http://rogermiranda1000.com/portalgun/index.php"; // TODO custom URL
 
     private static String getUrl() {
-        return RESOURCEPACK_BASE_URL + "?tool=" + PortalGun.item.getType().name() + "&format=" + getPackFormat();
+        return RESOURCEPACK_BASE_URL + "?tool=" + PortalGun.item.getType().name() + "&format=" + getPackFormat() +
+                ((VersionController.version.compareTo(Version.MC_1_14) >= 0) ? ("&custom_model_data=" + PortalGun.item.getItemMeta().getCustomModelData())
+                                                                                : ("&damage=" + VersionController.get().getDurability(PortalGun.item)));
     }
 
     /**
@@ -40,6 +42,7 @@ public class onPlayerJoin implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
+        if (!PortalGun.useResourcePack) return;
         e.getPlayer().setResourcePack(getUrl());
     }
 }

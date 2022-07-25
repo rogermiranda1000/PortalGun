@@ -10,10 +10,8 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nullable;
@@ -23,8 +21,10 @@ import java.util.*;
 
 public enum Config {
     LANGUAGE("language"),
+    RESOURCEPACK("resourcepack"),
     MATERIAL("portalgun.material"),
     CUSTOM_MODEL_DATA("portalgun.custom_model_data"),
+    DURABILITY("portalgun.durability"),
     DELETE_ON_DEATH("portals.remove_on_death"),
     REMOVE_ON_LEAVE("portals.remove_on_leave"),
     MAX_LENGHT("portals.placement_length"),
@@ -72,7 +72,10 @@ public enum Config {
     public static void loadConfig() {
         Config.loadValidBlocks();
 
-        Config.loadPortalgunMaterial(Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null);
+        PortalGun.useResourcePack = Config.fileConfiguration.getBoolean(RESOURCEPACK.key);
+
+        Config.loadPortalgunMaterial(Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
+                Config.fileConfiguration.contains(DURABILITY.key) ? Config.fileConfiguration.getInt(DURABILITY.key) : null);
 
         Language.loadHashMap(Config.fileConfiguration.getString(LANGUAGE.key));
 
@@ -138,7 +141,7 @@ public enum Config {
      * @param material PortalGun's material
      * @param customModelData PortalGun's CustomModelData. NULL or -1 if any
      */
-    private static void loadPortalgunMaterial(@Nullable String material, @Nullable Integer customModelData) {
+    private static void loadPortalgunMaterial(@Nullable String material, @Nullable Integer customModelData, @Nullable Integer durability) {
         if (material == null) {
             PortalGun.plugin.printConsoleErrorMessage(MATERIAL.key + " is not setted in config file!");
             return;
@@ -155,18 +158,23 @@ public enum Config {
 
         meta.setDisplayName(ChatColor.GOLD.toString() + ChatColor.BOLD + "PortalGun"); // TODO change
         // TODO add lore
-        if (customModelData != null && customModelData != -1) meta.setCustomModelData(customModelData);
 
-        if (!(meta instanceof Damageable)) { // TODO pre 1.13
-            PortalGun.plugin.printConsoleWarningMessage("PortalGun's item (" + material + ") is not a tool! The datapack can't be applied.");
-            PortalGun.item.addUnsafeEnchantment(Enchantment.DURABILITY, 10); // as the item is not damageable, the only way we can know it's the PortalGun is by the enchantment
-            PortalGun.item.setItemMeta(meta); // save before exit
-            return;
+        // resourcepack
+        if (customModelData != null) meta.setCustomModelData(customModelData);
+        else {
+            PortalGun.item.setItemMeta(meta); // the next method will change the meta
+            try {
+                VersionController.get().setDurability(PortalGun.item, durability);
+                meta = PortalGun.item.getItemMeta();
+
+                meta.setUnbreakable(true);
+                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+            } catch (IllegalArgumentException ex) {
+                PortalGun.plugin.printConsoleErrorMessage("Can't use " + PortalGun.item.getType().name() + " with the resourcepack.");
+                PortalGun.useResourcePack = false;
+            }
         }
 
-        ((Damageable) meta).setDamage(1);
-        meta.setUnbreakable(true);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
         PortalGun.item.setItemMeta(meta);
     }
 
@@ -188,8 +196,15 @@ public enum Config {
         HashMap<String,Object> c = new HashMap<>();
 
         c.put(Config.LANGUAGE.key, "english");
-        c.put(Config.MATERIAL.key, "WOODEN_SHOVEL");
-        if (VersionController.version.compareTo(Version.MC_1_14) >= 0) c.put(Config.CUSTOM_MODEL_DATA.key, -1);
+        c.put(Config.RESOURCEPACK.key, true);
+        if (VersionController.version.compareTo(Version.MC_1_14) >= 0) {
+            c.put(Config.MATERIAL.key, "BLAZE_ROD");
+            c.put(Config.CUSTOM_MODEL_DATA.key, 7);
+        }
+        else {
+            c.put(Config.MATERIAL.key, "WOODEN_HOE");
+            c.put(Config.DURABILITY.key, 7);
+        }
         c.put(Config.MAX_LENGHT.key, 80);
         c.put(Config.PARTICLES.key, Config.getDefaultParticles());
         c.put(Config.REMOVE_ON_LEAVE.key, true);
