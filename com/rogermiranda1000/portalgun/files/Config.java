@@ -195,14 +195,9 @@ public enum Config {
 
         c.put(Config.LANGUAGE.key, "english");
         c.put(Config.RESOURCEPACK.key, true);
-        if (VersionController.version.compareTo(Version.MC_1_14) >= 0) {
-            c.put(Config.MATERIAL.key, "BLAZE_ROD");
-            c.put(Config.CUSTOM_MODEL_DATA.key, 1);
-        }
-        else {
-            c.put(Config.MATERIAL.key, "WOOD_SWORD");
-            c.put(Config.DURABILITY.key, 1);
-        }
+        c.put(Config.MATERIAL.key, "IRON_HOE");
+        if (VersionController.version.compareTo(Version.MC_1_14) >= 0) c.put(Config.CUSTOM_MODEL_DATA.key, 1);
+        else c.put(Config.DURABILITY.key, 1);
         c.put(Config.MAX_LENGHT.key, 80);
         c.put(Config.PARTICLES.key, Config.getDefaultParticles());
         c.put(Config.REMOVE_ON_LEAVE.key, true);
