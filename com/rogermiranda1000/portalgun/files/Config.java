@@ -10,7 +10,6 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -21,7 +20,7 @@ import java.util.*;
 
 public enum Config {
     LANGUAGE("language"),
-    RESOURCEPACK("resourcepack"),
+    RESOURCEPACK("resourcepack.use"),
     MATERIAL("portalgun.material"),
     CUSTOM_MODEL_DATA("portalgun.custom_model_data"),
     DURABILITY("portalgun.durability"),
@@ -198,11 +197,11 @@ public enum Config {
         c.put(Config.RESOURCEPACK.key, true);
         if (VersionController.version.compareTo(Version.MC_1_14) >= 0) {
             c.put(Config.MATERIAL.key, "BLAZE_ROD");
-            c.put(Config.CUSTOM_MODEL_DATA.key, 7);
+            c.put(Config.CUSTOM_MODEL_DATA.key, 1);
         }
         else {
             c.put(Config.MATERIAL.key, "WOOD_SWORD");
-            c.put(Config.DURABILITY.key, 7);
+            c.put(Config.DURABILITY.key, 1);
         }
         c.put(Config.MAX_LENGHT.key, 80);
         c.put(Config.PARTICLES.key, Config.getDefaultParticles());

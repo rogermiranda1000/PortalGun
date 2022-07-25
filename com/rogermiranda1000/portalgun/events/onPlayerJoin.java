@@ -3,6 +3,7 @@ package com.rogermiranda1000.portalgun.events;
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -43,6 +44,6 @@ public class onPlayerJoin implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         if (!PortalGun.useResourcePack) return;
-        e.getPlayer().setResourcePack(getUrl());
+        Bukkit.getScheduler().runTaskLater(PortalGun.plugin, ()->e.getPlayer().setResourcePack(getUrl()), 20L);
     }
 }
