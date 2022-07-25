@@ -28,7 +28,9 @@ public class onPlayerJoin implements Listener {
      * 4	    1.13–1.14.4
      * 5	    1.15–1.16.1
      * 6	    1.16.2–1.16.5
-     * 7	    1.17
+     * 7	    1.17.x
+     * 8        1.18.x
+     * 9        1.19.x
      * @return pack_format
      */
     private static short getPackFormat() {
@@ -38,7 +40,9 @@ public class onPlayerJoin implements Listener {
         else if (VersionController.version.compareTo(Version.MC_1_15) < 0) return 4;
         else if (VersionController.version.compareTo(Version.MC_1_16_2) < 0) return 5;
         else if (VersionController.version.compareTo(Version.MC_1_17) < 0) return 6;
-        else return 7; // Version >= 1.17
+        else if (VersionController.version.compareTo(Version.MC_1_18) < 0) return 7;
+        else if (VersionController.version.compareTo(Version.MC_1_19) < 0) return 8;
+        else return 9; // Version >= 1.19
     }
 
     @EventHandler
