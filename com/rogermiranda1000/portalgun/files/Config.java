@@ -10,6 +10,7 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -163,7 +164,7 @@ public enum Config {
             meta.setCustomModelData(customModelData);
             PortalGun.item.setItemMeta(meta);
         }
-        else {
+        else if (durability != null) {
             PortalGun.item.setItemMeta(meta); // the next method will change the meta
             try {
                 VersionController.get().setDurability(PortalGun.item, durability);
@@ -173,6 +174,11 @@ public enum Config {
                 PortalGun.plugin.printConsoleErrorMessage("Can't use " + PortalGun.item.getType().name() + " with the resourcepack.");
                 PortalGun.useResourcePack = false;
             }
+        }
+        else {
+            meta.addEnchant(Enchantment.DURABILITY, 10, true); // we need an identifier
+            PortalGun.item.setItemMeta(meta);
+            if (PortalGun.useResourcePack) PortalGun.plugin.printConsoleErrorMessage("The resourcepack won't work on 1.8!");
         }
     }
 
@@ -194,10 +200,10 @@ public enum Config {
         HashMap<String,Object> c = new HashMap<>();
 
         c.put(Config.LANGUAGE.key, "english");
-        c.put(Config.RESOURCEPACK.key, true);
+        if (VersionController.version.compareTo(Version.MC_1_9) >= 0) c.put(Config.RESOURCEPACK.key, true);
         c.put(Config.MATERIAL.key, "IRON_HOE");
         if (VersionController.version.compareTo(Version.MC_1_14) >= 0) c.put(Config.CUSTOM_MODEL_DATA.key, 1);
-        else c.put(Config.DURABILITY.key, 1);
+        else if (VersionController.version.compareTo(Version.MC_1_9) >= 0) c.put(Config.DURABILITY.key, 1);
         c.put(Config.MAX_LENGHT.key, 80);
         c.put(Config.PARTICLES.key, Config.getDefaultParticles());
         c.put(Config.REMOVE_ON_LEAVE.key, true);

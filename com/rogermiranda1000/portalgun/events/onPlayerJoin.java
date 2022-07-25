@@ -15,9 +15,18 @@ public class onPlayerJoin implements Listener {
     private static final String RESOURCEPACK_BASE_URL = "http://rogermiranda1000.com/portalgun/index.php"; // TODO custom URL
 
     private static String getUrl() {
+        String identifierKey = null, identifierValue = "";
+        if (VersionController.version.compareTo(Version.MC_1_14) >= 0) {
+            identifierKey = "custom_model_data";
+            identifierValue = String.valueOf(PortalGun.item.getItemMeta().getCustomModelData());
+        }
+        else if (VersionController.version.compareTo(Version.MC_1_9) >= 0) {
+            identifierKey = "damage";
+            identifierValue = String.valueOf(((float)VersionController.get().getDurability(PortalGun.item)) / PortalGun.item.getType().getMaxDurability());
+        }
+
         return RESOURCEPACK_BASE_URL + "?tool=" + PortalGun.item.getType().name() + "&format=" + getPackFormat() +
-                ((VersionController.version.compareTo(Version.MC_1_14) >= 0) ? ("&custom_model_data=" + PortalGun.item.getItemMeta().getCustomModelData())
-                                                                                : ("&damage=" + (((float)VersionController.get().getDurability(PortalGun.item)) / PortalGun.item.getType().getMaxDurability())));
+                ((identifierKey == null) ? "" : ("&" + identifierKey + "=" + identifierValue));
     }
 
     /**
