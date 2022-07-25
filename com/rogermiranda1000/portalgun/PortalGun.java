@@ -17,6 +17,7 @@ import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
+import com.sun.istack.internal.NotNull;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -27,21 +28,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
 
 public class PortalGun extends RogerPlugin {
     public static PortalGun plugin;
 
+    public static boolean useResourcePack;
     public static ItemStack item;
     public static ItemStack botas;
     private static final int particleDelay = 2;
-    private static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
+    public static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
 
     private BukkitTask particleTask;
     private BukkitTask teleportTask;
 
     public PortalGun() {
-        super(new onDead(), new onLeave(), new onMove(), new onUse());
+        super(new onDead(), new onLeave(), new onMove(), new onUse(), new onPlayerJoin());
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
     }
@@ -180,7 +181,8 @@ public class PortalGun extends RogerPlugin {
      */
     private static void updateTeleportedEntities() {
         PortalGun.teleportedEntities.entrySet().removeIf(e -> !e.getKey().isValid()); // Entity no loger exists
-        PortalGun.teleportedEntities.entrySet().removeIf(e -> !e.getKey().getLocation().getBlock().getLocation().equals(e.getValue())); // Entity has moved
+        PortalGun.teleportedEntities.entrySet().removeIf(e -> !e.getKey().getLocation().getBlock().getLocation().equals(e.getValue())
+                && (Portal.getPortal(e.getValue()) == null || !Portal.getPortal(e.getValue()).equals(Portal.getPortal(e.getKey().getLocation().getBlock().getLocation())))); // Entity has moved to another portal (or no portal at all)
     }
 
     @Override

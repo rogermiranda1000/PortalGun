@@ -6,6 +6,7 @@ import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.blocks.BlockType;
+import com.sun.istack.internal.NotNull;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -19,11 +20,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-// TODO: config
 public enum Config {
     LANGUAGE("language"),
+    RESOURCEPACK("resourcepack.use"),
+    PORTALGUN_NAME("portalgun.name"),
+    PORTALGUN_LORE("portalgun.lore"),
     MATERIAL("portalgun.material"),
     CUSTOM_MODEL_DATA("portalgun.custom_model_data"),
+    DURABILITY("portalgun.durability"),
     DELETE_ON_DEATH("portals.remove_on_death"),
     REMOVE_ON_LEAVE("portals.remove_on_leave"),
     MAX_LENGHT("portals.placement_length"),
@@ -71,7 +75,11 @@ public enum Config {
     public static void loadConfig() {
         Config.loadValidBlocks();
 
-        Config.loadPortalgunMaterial(Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null);
+        PortalGun.useResourcePack = Config.fileConfiguration.getBoolean(RESOURCEPACK.key);
+
+        Config.loadPortalgunMaterial(Config.fileConfiguration.getString(PORTALGUN_NAME.key), Config.fileConfiguration.getStringList(PORTALGUN_LORE.key),
+                Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
+                Config.fileConfiguration.contains(DURABILITY.key) ? Config.fileConfiguration.getInt(DURABILITY.key) : null);
 
         Language.loadHashMap(Config.fileConfiguration.getString(LANGUAGE.key));
 
@@ -137,24 +145,45 @@ public enum Config {
      * @param material PortalGun's material
      * @param customModelData PortalGun's CustomModelData. NULL or -1 if any
      */
-    private static void loadPortalgunMaterial(@Nullable String material, @Nullable Integer customModelData) {
-        if (material == null) {
-            PortalGun.plugin.printConsoleErrorMessage(MATERIAL.key + " is not setted in config file!");
-            return;
-        }
-
+    private static void loadPortalgunMaterial(@NotNull String name, @NotNull List<String> lore, @NotNull String material, @Nullable Integer customModelData, @Nullable Integer durability) {
         Material portalgunMaterial = Material.getMaterial(material);
         if (portalgunMaterial == null) {
             PortalGun.plugin.printConsoleErrorMessage("PortalGun's item (" + material + ") does not exists.");
             return;
         }
 
+        ItemMeta meta;
+        if (durability != null) {
+            try {
+                PortalGun.item = VersionController.get().setUnbreakable(new ItemStack(portalgunMaterial));
+                VersionController.get().setDurability(PortalGun.item, durability);
+                //meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+            } catch (IllegalArgumentException ex) {
+                PortalGun.plugin.printConsoleErrorMessage("Can't use " + PortalGun.item.getType().name() + " with the resourcepack.");
+                PortalGun.useResourcePack = false;
+                PortalGun.item = new ItemStack(portalgunMaterial);
+            } finally {
+                meta = PortalGun.item.getItemMeta();
+                meta.setDisplayName(name);
+                meta.setLore(lore);
+                PortalGun.item.setItemMeta(meta);
+            }
+            return;
+        }
+
         PortalGun.item = new ItemStack(portalgunMaterial);
-        ItemMeta meta = PortalGun.item.getItemMeta();
-        meta.setDisplayName(ChatColor.GOLD.toString() + ChatColor.BOLD.toString() + "PortalGun");
-        if (customModelData != null && customModelData != -1) meta.setCustomModelData(customModelData);
+        meta = PortalGun.item.getItemMeta();
+
+        meta.setDisplayName(name);
+        meta.setLore(lore);
+
+        // resourcepack & item identificator
+        if (customModelData != null) meta.setCustomModelData(customModelData);
+        else {
+            meta.addEnchant(Enchantment.DURABILITY, 10, true); // we need an identifier
+            if (PortalGun.useResourcePack) PortalGun.plugin.printConsoleErrorMessage("The resourcepack won't work on 1.8!");
+        }
         PortalGun.item.setItemMeta(meta);
-        PortalGun.item.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
     }
 
     private static void loadValidBlocks() {
@@ -175,8 +204,12 @@ public enum Config {
         HashMap<String,Object> c = new HashMap<>();
 
         c.put(Config.LANGUAGE.key, "english");
-        c.put(Config.MATERIAL.key, "BLAZE_ROD");
-        if (VersionController.version.compareTo(Version.MC_1_14) >= 0) c.put(Config.CUSTOM_MODEL_DATA.key, -1);
+        if (VersionController.version.compareTo(Version.MC_1_9) >= 0) c.put(Config.RESOURCEPACK.key, true);
+        c.put(Config.MATERIAL.key, "IRON_HOE");
+        c.put(Config.PORTALGUN_NAME.key, "§6§lPortalGun");
+        c.put(Config.PORTALGUN_LORE.key, new String[]{"With the PortalGun you can open portals."});
+        if (VersionController.version.compareTo(Version.MC_1_14) >= 0) c.put(Config.CUSTOM_MODEL_DATA.key, 1);
+        else if (VersionController.version.compareTo(Version.MC_1_9) >= 0) c.put(Config.DURABILITY.key, 1);
         c.put(Config.MAX_LENGHT.key, 80);
         c.put(Config.PARTICLES.key, Config.getDefaultParticles());
         c.put(Config.REMOVE_ON_LEAVE.key, true);

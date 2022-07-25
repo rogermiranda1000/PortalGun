@@ -312,6 +312,7 @@ public abstract class Portal {
         return this.teleportToDestiny(e, velocity, getDestiny(index));
     }
 
+    @Nullable
     public Location getDestiny(short index) {
         if (this.linked == null) return null;
 

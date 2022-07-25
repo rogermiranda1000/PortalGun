@@ -6,6 +6,7 @@ import com.rogermiranda1000.helper.blocks.CustomBlock;
 import com.rogermiranda1000.helper.blocks.file.BasicLocation;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.blocks.BlockType;
+import com.sun.istack.internal.NotNull;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,7 +16,6 @@ import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;

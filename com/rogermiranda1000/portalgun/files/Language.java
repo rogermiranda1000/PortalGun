@@ -102,6 +102,7 @@ public enum Language {
             Language.createLanguageFile("english");
             Language.createLanguageFile("spanish");
             Language.createLanguageFile("catalan");
+            Language.createLanguageFile("polish");
         }
     }
 
@@ -110,7 +111,7 @@ public enum Language {
      * @return true: created; false: no able to create
      */
     public static boolean createLanguageFile(String language) {
-        if (!language.equalsIgnoreCase("english") && !language.equalsIgnoreCase("spanish") && !language.equalsIgnoreCase("catalan"))
+        if (!language.equalsIgnoreCase("english") && !language.equalsIgnoreCase("spanish") && !language.equalsIgnoreCase("catalan") && !language.equalsIgnoreCase("polish"))
             return false;
 
         final YamlConfiguration lang = new YamlConfiguration();
@@ -121,6 +122,7 @@ public enum Language {
             if (language.equalsIgnoreCase("english")) Language.addValues(lang, Language.getEnglishFile());
             else if (language.equalsIgnoreCase("spanish")) Language.addValues(lang, Language.getSpanishFile());
             else if (language.equalsIgnoreCase("catalan")) Language.addValues(lang, Language.getCatalanFile());
+            else if (language.equalsIgnoreCase("polish")) Language.addValues(lang, Language.getPolishFile());
 
             lang.save(languageFile);
         } catch(Exception e){
@@ -221,6 +223,38 @@ public enum Language {
         r.put(Language.USER_REMOVE_OTHERS.key, "Has eliminat els portals de [player].");
         r.put(Language.OTHER_USER_NO_PORTALS.key, "[player] no té portals oberts.");
         r.put(Language.HELP_UNKNOWN.key, "Comanda desconeguda.");
+
+        return r;
+    }
+
+    private static HashMap<String, Object> getPolishFile() {
+        HashMap<String, Object> r = new HashMap<>();
+
+        r.put(Language.USER_NO_PERMISSIONS.key, "Nie masz na to uprawnień!");
+        r.put(Language.USER_DEATH.key, "Twoje portale zostały usunięte przez to że umarłeś.");
+        r.put(Language.USER_REMOVE_ALL.key, "Usunąłeś wszystkie portale.");
+        r.put(Language.USER_GET_BOOTS.key, "Buty Portalowe otrzymane!");
+        r.put(Language.OTHER_USER_REMOVE.key, "[player] usunął twoje portale.");
+        r.put(Language.USER_GET_RESTARTER.key, "Otrzymano blok restartowy! Połóż jeden na drugim i stworzysz takie \"drzwi\" które resetują portale.");
+        r.put(Language.USER_GET_GUN.key, "Działo portalowe otrzymane!");
+        r.put(Language.USER_NO_PORTALS.key, "Nie masz żadnych otwartych portali.");
+        r.put(Language.USER_REMOVE.key, "Usunąłeś swoje portale.");
+        r.put(Language.USER_REMOVE_OTHERS.key, "Usunąłeś portale gracza [player].");
+        r.put(Language.OTHER_USER_NO_PORTALS.key, "[player] nie ma żadnych otwartych portali.");
+        r.put(Language.USER_NOT_FOUND.key, "[player] nie został znaleziony.");
+
+        r.put(Language.PORTAL_OPENED.key, "[player] otworzył portal(e) w [pos].");
+        r.put(Language.PORTAL_FAR.key, "Jesteś zbyt daleko aby tam stawić portal.");
+        r.put(Language.PORTAL_DENIED.key, "Nie możesz otworzyć tu portalu.");
+        r.put(Language.PORTAL_COLLIDING.key, "Nie możesz otworzyć dwóch portali na tym samym bloku!");
+
+        r.put(Language.HELP_REMOVE.key, "Usuwa twoje aktywne portale.");
+        r.put(Language.HELP_UNKNOWN.key, "Nieznana komenda.");
+        r.put(Language.HELP_REMOVE_OTHERS.key, "Usuń aktywne portale innych graczy.");
+        r.put(Language.HELP_GET_GUN.key, "Zdobądź działo portalowe.");
+        r.put(Language.HELP_GET_RESTARTER.key, "Zdobądź blok restartowy.");
+        r.put(Language.HELP_GET_BOOTS.key, "Zdobądź buty portalowe.");
+        r.put(Language.HELP_REMOVE_ALL.key, "Usuń wszystkie aktywne portale.");
 
         return r;
     }
