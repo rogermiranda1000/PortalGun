@@ -16,7 +16,7 @@ public class onPlayerJoin implements Listener {
     private static String getUrl() {
         return RESOURCEPACK_BASE_URL + "?tool=" + PortalGun.item.getType().name() + "&format=" + getPackFormat() +
                 ((VersionController.version.compareTo(Version.MC_1_14) >= 0) ? ("&custom_model_data=" + PortalGun.item.getItemMeta().getCustomModelData())
-                                                                                : ("&damage=" + VersionController.get().getDurability(PortalGun.item)));
+                                                                                : ("&damage=" + (((float)VersionController.get().getDurability(PortalGun.item)) / PortalGun.item.getType().getMaxDurability())));
     }
 
     /**

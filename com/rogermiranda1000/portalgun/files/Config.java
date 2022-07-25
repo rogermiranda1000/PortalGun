@@ -160,22 +160,21 @@ public enum Config {
         // TODO add lore
 
         // resourcepack
-        if (customModelData != null) meta.setCustomModelData(customModelData);
+        if (customModelData != null) {
+            meta.setCustomModelData(customModelData);
+            PortalGun.item.setItemMeta(meta);
+        }
         else {
             PortalGun.item.setItemMeta(meta); // the next method will change the meta
             try {
                 VersionController.get().setDurability(PortalGun.item, durability);
-                meta = PortalGun.item.getItemMeta();
-
-                meta.setUnbreakable(true);
-                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+                PortalGun.item = VersionController.get().setUnbreakable(PortalGun.item);
+                //meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
             } catch (IllegalArgumentException ex) {
                 PortalGun.plugin.printConsoleErrorMessage("Can't use " + PortalGun.item.getType().name() + " with the resourcepack.");
                 PortalGun.useResourcePack = false;
             }
         }
-
-        PortalGun.item.setItemMeta(meta);
     }
 
     private static void loadValidBlocks() {
@@ -202,7 +201,7 @@ public enum Config {
             c.put(Config.CUSTOM_MODEL_DATA.key, 7);
         }
         else {
-            c.put(Config.MATERIAL.key, "WOODEN_HOE");
+            c.put(Config.MATERIAL.key, "WOOD_SWORD");
             c.put(Config.DURABILITY.key, 7);
         }
         c.put(Config.MAX_LENGHT.key, 80);
