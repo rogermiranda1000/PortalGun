@@ -17,6 +17,7 @@ import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
+import com.sun.istack.internal.NotNull;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -27,11 +28,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
 
 public class PortalGun extends RogerPlugin {
     public static PortalGun plugin;
 
+    public static boolean useResourcePack;
     public static ItemStack item;
     public static ItemStack botas;
     private static final int particleDelay = 2;
@@ -41,7 +42,7 @@ public class PortalGun extends RogerPlugin {
     private BukkitTask teleportTask;
 
     public PortalGun() {
-        super(new onDead(), new onLeave(), new onMove(), new onUse());
+        super(new onDead(), new onLeave(), new onMove(), new onUse(), new onPlayerJoin());
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
     }
