@@ -103,6 +103,7 @@ public enum Language {
             Language.createLanguageFile("spanish");
             Language.createLanguageFile("catalan");
             Language.createLanguageFile("polish");
+            Language.createLanguageFile("czech");
         }
     }
 
@@ -111,7 +112,8 @@ public enum Language {
      * @return true: created; false: no able to create
      */
     public static boolean createLanguageFile(String language) {
-        if (!language.equalsIgnoreCase("english") && !language.equalsIgnoreCase("spanish") && !language.equalsIgnoreCase("catalan") && !language.equalsIgnoreCase("polish"))
+        if (!language.equalsIgnoreCase("english") && !language.equalsIgnoreCase("spanish") && !language.equalsIgnoreCase("catalan")
+                && !language.equalsIgnoreCase("polish") && !language.equalsIgnoreCase("czech"))
             return false;
 
         final YamlConfiguration lang = new YamlConfiguration();
@@ -123,6 +125,7 @@ public enum Language {
             else if (language.equalsIgnoreCase("spanish")) Language.addValues(lang, Language.getSpanishFile());
             else if (language.equalsIgnoreCase("catalan")) Language.addValues(lang, Language.getCatalanFile());
             else if (language.equalsIgnoreCase("polish")) Language.addValues(lang, Language.getPolishFile());
+            else if (language.equalsIgnoreCase("czech")) Language.addValues(lang, Language.getCzechFile());
 
             lang.save(languageFile);
         } catch(Exception e){
@@ -255,6 +258,38 @@ public enum Language {
         r.put(Language.HELP_GET_RESTARTER.key, "Zdobądź blok restartowy.");
         r.put(Language.HELP_GET_BOOTS.key, "Zdobądź buty portalowe.");
         r.put(Language.HELP_REMOVE_ALL.key, "Usuń wszystkie aktywne portale.");
+
+        return r;
+    }
+
+    private static HashMap<String, Object> getCzechFile() {
+        HashMap<String, Object> r = new HashMap<>();
+
+        r.put(Language.USER_NO_PERMISSIONS.key, "Na tohle nemáš opravnění!");
+        r.put(Language.USER_DEATH.key, "Tvé potrály byly odstraněny kvůli tvé smrti.");
+        r.put(Language.USER_REMOVE_ALL.key, "Všechny tvé portály byly odstraněny.");
+        r.put(Language.USER_GET_BOOTS.key, "Dostal jsi Portálové boty!");
+        r.put(Language.OTHER_USER_REMOVE.key, "[player] odstraníl tvé portály.");
+        r.put(Language.USER_GET_RESTARTER.key, "Dostal jsi Restartovací blok! Polož jeden na druhý a tím vytvoříš \"dveře\" ,které resetují portály.");
+        r.put(Language.USER_GET_GUN.key, "Dostal jsi Portálovou pistoli!");
+        r.put(Language.USER_NO_PORTALS.key, "Právě teď nemáš žádné aktivní portály.");
+        r.put(Language.USER_REMOVE.key, "Úspěšně jsi si odstraníl všechny své portály.");
+        r.put(Language.USER_REMOVE_OTHERS.key, "Odstranil jsi portály hráče [player].");
+        r.put(Language.OTHER_USER_NO_PORTALS.key, "[player] nemá žádné aktivní portály.");
+        r.put(Language.USER_NOT_FOUND.key, "[player] nebyl nalezen.");
+
+        r.put(Language.PORTAL_OPENED.key, "[player] otevřel portál na [pos].");
+        r.put(Language.PORTAL_FAR.key, "Tento blok se nachází příliš daleko na aktivaci portálu.");
+        r.put(Language.PORTAL_DENIED.key, "Zde nelze položit portál.");
+        r.put(Language.PORTAL_COLLIDING.key, "Nemůžeš položit dva portály na stejný blok!");
+
+        r.put(Language.HELP_REMOVE.key, "Odstraní tvé aktivní portály.");
+        r.put(Language.HELP_UNKNOWN.key, "Neznámý příkaz.");
+        r.put(Language.HELP_REMOVE_OTHERS.key, "Odstraní portály ostatních hráčů.");
+        r.put(Language.HELP_GET_GUN.key, "Získáš Portálovou pistoli.");
+        r.put(Language.HELP_GET_RESTARTER.key, "Získáš Portálový restartér.");
+        r.put(Language.HELP_GET_BOOTS.key, "Získáš Portálové boty.");
+        r.put(Language.HELP_REMOVE_ALL.key, "Odstraní všechny aktivní portály.");
 
         return r;
     }

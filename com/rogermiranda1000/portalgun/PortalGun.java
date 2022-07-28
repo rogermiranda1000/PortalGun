@@ -53,6 +53,12 @@ public class PortalGun extends RogerPlugin {
     }
 
     @Override
+    public Integer getMetricsID() {
+        // /!\\ Other branches MUST change this to null (or your ID) /!\\
+        return 15938;
+    }
+
+    @Override
     public void onEnable() {
         PortalGun.plugin = this;
 
