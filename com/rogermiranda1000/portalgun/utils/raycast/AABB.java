@@ -1,7 +1,9 @@
 package com.rogermiranda1000.portalgun.utils.raycast;
 
+import com.rogermiranda1000.versioncontroller.VersionController;
+import com.rogermiranda1000.versioncontroller.entities.BoundingBox;
 import org.bukkit.Location;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -11,14 +13,16 @@ import java.util.Map;
 // Just an AABB class I made with some useful methods I needed.
 // Mainly for fast Ray-AABB collision detection.
 // @author https://www.spigotmc.org/threads/hitboxes-and-ray-tracing.174358/
+// @author Roger Miranda
 
 public class AABB {
 
-    private Vector min, max; // min/max locations
+    private final Vector min, max; // min/max locations
 
     // Create Bounding Box from min/max locations.
     public AABB(Vector min, Vector max) {
-        this(min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ());
+        this.min = min.clone();
+        this.max = max.clone();
     }
 
     // Main constructor for AABB
@@ -27,9 +31,10 @@ public class AABB {
         this.max = new Vector(Math.max(x1, x2), Math.max(y1, y2), Math.max(z1, z2));
     }
 
-    private AABB(Player player) {
-        this.min = getMin(player);
-        this.max = getMax(player);
+    private AABB(Entity e) {
+        BoundingBox boundingBox = VersionController.get().getBoundingBox(e);
+        this.min = boundingBox.getMin();
+        this.max = boundingBox.getMax();
     }
 
     private Vector getMin(Player player) {
@@ -41,8 +46,8 @@ public class AABB {
     }
 
     // Create an AABB based on a player's hitbox
-    public static AABB from(Player player) {
-        return new AABB(player);
+    public static AABB from(Entity e) {
+        return new AABB(e);
     }
 
     public Vector getMin() {

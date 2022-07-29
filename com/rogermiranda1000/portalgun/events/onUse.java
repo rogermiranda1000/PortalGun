@@ -93,7 +93,7 @@ public class onUse implements Listener {
         for (Entity e : possible) {
             if (e instanceof Player || e instanceof Painting || e instanceof Item || e instanceof ItemFrame) continue; // TODO glowing item frame; TODO custom blacklist
 
-            double dis = AABB.from(p).collidesD(ray, 0, max);
+            double dis = AABB.from(e).collidesD(ray, 0, max);
             if (dis != -1) {
                 if (closest == null || dis < d) {
                     d = dis;

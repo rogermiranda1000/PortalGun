@@ -8,7 +8,7 @@ import org.bukkit.util.Vector;
 // @author https://www.spigotmc.org/threads/hitboxes-and-ray-tracing.174358/
 
 public class Ray {
-    private Vector origin, direction;
+    private final Vector origin, direction;
 
     // Create a ray at the origin pointing in a direction.
     public Ray(Vector origin, Vector direction) {
