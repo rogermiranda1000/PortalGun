@@ -1,6 +1,8 @@
 package com.rogermiranda1000.portalgun.events;
 
 import com.rogermiranda1000.portalgun.utils.raycast.Ray;
+import com.rogermiranda1000.versioncontroller.VersionController;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -49,10 +51,95 @@ public class onPortalgunEntity {
         return pickedEntities.containsValue(e);
     }
 
+    /**
+     * Get the maximun location the Entity can be moved to the destiny without colliding with any solid block
+     * @param e         Entity to teleport
+     * @param destiny   Target destiny
+     * @return          Teleported
+     */
+    private static Location secureTeleport(Entity e, Location destiny) {
+        Location start = e.getLocation(), pre = start, current = start;
+        if (!start.getWorld().equals(destiny.getWorld())) return start;
+
+        // @author https://www.geeksforgeeks.org/bresenhams-algorithm-for-3-d-line-drawing/
+        if (!VersionController.get().isPassable(start.getBlock())) return start;
+        int dx = Math.abs(destiny.getBlockX() - start.getBlockX()),
+                dy = Math.abs(destiny.getBlockY() - start.getBlockY()),
+                dz = Math.abs(destiny.getBlockZ() - start.getBlockZ());
+        int xs = (destiny.getBlockX() > start.getBlockX()) ? 1 : -1,
+            ys = (destiny.getBlockY() > start.getBlockY()) ? 1 : -1,
+            zs = (destiny.getBlockZ() > start.getBlockZ()) ? 1 : -1;
+        int p1, p2;
+
+        if (dx == 0 && dy == 0 && dz == 0) return destiny;
+        if (dx >= dy && dx >= dz) {
+            p1 = 2*dy - dx;
+            p2 = 2*dz - dx;
+            while (current.getBlockX() != destiny.getBlockX()) {
+                current = new Location(current.getWorld(), current.getBlockX()+xs, current.getBlockY(), current.getBlockZ());
+                if (p1 >= 0) {
+                    current = new Location(current.getWorld(), current.getBlockX(), current.getBlockY()+ys, current.getBlockZ());
+                    p1 -= 2*dx;
+                }
+                if (p2 >= 0) {
+                    current = new Location(current.getWorld(), current.getBlockX(), current.getBlockY(), current.getBlockZ()+zs);
+                    p2 -= 2*dx;
+                }
+
+                p1 += 2*dy;
+                p2 += 2*dz;
+                if (!VersionController.get().isPassable(current.getBlock())) return pre;
+                pre = current;
+            }
+        }
+        else if (dy >= dx && dy >= dz) {
+            p1 = 2*dx - dy;
+            p2 = 2*dz - dy;
+            while (current.getBlockY() != destiny.getBlockY()) {
+                current = new Location(current.getWorld(), current.getBlockX(), current.getBlockY()+ys, current.getBlockZ());
+                if (p1 >= 0) {
+                    current = new Location(current.getWorld(), current.getBlockX()+xs, current.getBlockY(), current.getBlockZ());
+                    p1 -= 2*dy;
+                }
+                if (p2 >= 0) {
+                    current = new Location(current.getWorld(), current.getBlockX(), current.getBlockY(), current.getBlockZ()+zs);
+                    p2 -= 2*dy;
+                }
+
+                p1 += 2*dx;
+                p2 += 2*dz;
+                if (!VersionController.get().isPassable(current.getBlock())) return pre;
+                pre = current;
+            }
+        }
+        else {
+            p1 = 2*dy - dz;
+            p2 = 2*dx - dz;
+            while (current.getBlockZ() != destiny.getBlockZ()) {
+                current = new Location(current.getWorld(), current.getBlockX(), current.getBlockY(), current.getBlockZ()+zs);
+                if (p1 >= 0) {
+                    current = new Location(current.getWorld(), current.getBlockX(), current.getBlockY()+ys, current.getBlockZ());
+                    p1 -= 2*dz;
+                }
+                if (p2 >= 0) {
+                    current = new Location(current.getWorld(), current.getBlockX()+xs, current.getBlockY(), current.getBlockZ());
+                    p2 -= 2*dz;
+                }
+
+                p1 += 2*dy;
+                p2 += 2*dx;
+                if (!VersionController.get().isPassable(current.getBlock())) return pre;
+                pre = current;
+            }
+        }
+
+        return destiny;
+    }
+
     public static void updatePickedEntities() {
-        pickedEntities.entrySet().removeIf(e -> e.getValue().isValid()); // Entity no loger exists
+        pickedEntities.entrySet().removeIf(e -> !e.getValue().isValid()); // Entity no loger exists
         for (Map.Entry<Player,Entity> e : pickedEntities.entrySet()) {
-            e.getValue().teleport(Ray.getPoint(e.getKey(), PICKED_ENTITY_DISTANCE));
+            e.getValue().teleport(secureTeleport(e.getValue(), Ray.getPoint(e.getKey(), PICKED_ENTITY_DISTANCE)));
         }
     }
 }
