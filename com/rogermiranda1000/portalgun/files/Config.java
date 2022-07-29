@@ -3,6 +3,7 @@ package com.rogermiranda1000.portalgun.files;
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.blocks.ResetBlock;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
+import com.rogermiranda1000.portalgun.events.onPortalgunEntity;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
@@ -12,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -87,6 +89,16 @@ public enum Config {
 
         loadPortalParticles();
         loadRestarterParticles();
+
+        // TODO configurable
+        onPortalgunEntity.entityPickBlacklist.add(Player.class);
+        onPortalgunEntity.entityPickBlacklist.add(Item.class);
+        onPortalgunEntity.entityPickBlacklist.add(ItemFrame.class);
+        // TODO glowing item frame
+        onPortalgunEntity.entityPickBlacklist.add(EnderCrystal.class);
+        onPortalgunEntity.entityPickBlacklist.add(EnderDragon.class);
+        onPortalgunEntity.entityPickBlacklist.add(Wither.class);
+        // TODO warden
     }
 
     public static void checkAndCreate() {
