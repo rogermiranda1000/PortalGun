@@ -27,6 +27,11 @@ import java.util.List;
 import java.util.function.Function;
 
 public class onUse implements Listener {
+    private final onPortalgunEntity onEntityPick;
+    public onUse(onPortalgunEntity onEntityPickEvent) {
+        this.onEntityPick = onEntityPickEvent;
+    }
+
     @EventHandler
     public void onPlayerUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
@@ -35,16 +40,26 @@ public class onUse implements Listener {
         if(event.getAction().equals(Action.PHYSICAL)) return;
 
         event.setCancelled(true);
-        if (PortalGun.takeEntities && player.hasPermission("portalgun.entities")
-                && (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK))) {
+
+        boolean leftClick = (event.getAction().equals(Action.LEFT_CLICK_BLOCK) || event.getAction().equals(Action.LEFT_CLICK_AIR));
+        if (onPortalgunEntity.haveEntityPicked(player)) {
+            if (leftClick) this.onEntityPick.launchEntity(player);
+            else this.onEntityPick.freeEntity(player);
+            return;
+        }
+
+        if (PortalGun.takeEntities && player.hasPermission("portalgun.entities") && !leftClick) {
             // maybe the player is facing an entity?
             Entity facing = getLookingEntity(player, PortalGun.MAX_ENTITY_PICK_RANGE, Portal.isEmptyBlock);
             if (facing != null) {
-                System.out.println("looking entity " + facing.toString());
-                return;
+                PlayerPickEvent ppe = new PlayerPickEvent(player, facing);
+                this.onEntityPick.onEntityPick(ppe);
+                if (!ppe.isCancelled()) return;
+                // else just ignore the pick and throw a portal
             }
         }
 
+        /* opening a portal */
         if (!player.hasPermission("portalgun.open")) {
             player.sendMessage(PortalGun.plugin.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
             return;
@@ -62,7 +77,7 @@ public class onUse implements Listener {
             return;
         }
 
-        Portal p = getMatchingPortal(player, colliderBlock.getLocation(), event.getAction().equals(Action.LEFT_CLICK_BLOCK) || event.getAction().equals(Action.LEFT_CLICK_AIR),
+        Portal p = getMatchingPortal(player, colliderBlock.getLocation(), leftClick,
                 Direction.getDirection((Entity)player), player.getLocation().getBlock().getLocation().subtract(colliderBlock.getLocation()).toVector());
 
         if (p == null) {
@@ -91,7 +106,7 @@ public class onUse implements Listener {
         double d = -1;
         Entity closest = null;
         for (Entity e : possible) {
-            if (e instanceof Player || e instanceof Painting || e instanceof Item || e instanceof ItemFrame) continue; // TODO glowing item frame; TODO custom blacklist
+            if (e.equals(p)) continue;
 
             double dis = AABB.from(e).collidesD(ray, 0, max);
             if (dis != -1) {
