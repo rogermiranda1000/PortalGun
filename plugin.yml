@@ -1,6 +1,6 @@
 name: PortalGun
 main: com.rogermiranda1000.portalgun.PortalGun
-version: 2.4.1
+version: 2.5
 author: rogermiranda1000
 description: Plugin inspired in the PortalGun from Portal.
 api-version: 1.13
@@ -22,8 +22,8 @@ permissions:
     portalgun.destroy:
         description: Can destroy portals placing or breaking blocks.
         default: true
-    portalgun.restarter:
-        description: Get the restarter block
+    portalgun.emancipator:
+        description: Get the emancipation block
         default: op
     portalgun.remove.others:
         description: Remove others' portals

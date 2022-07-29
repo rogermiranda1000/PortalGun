@@ -46,7 +46,7 @@ public class ResetBlocks extends CustomBlock<ResetBlock> {
     private static ItemStack getResetBlockItem() {
         ItemStack r = new ItemStack(Material.IRON_BLOCK);
         ItemMeta meta = r.getItemMeta();
-        meta.setDisplayName(ChatColor.LIGHT_PURPLE + "Restarter");
+        meta.setDisplayName(ChatColor.LIGHT_PURPLE + "Emancipation Block");
         meta.addEnchant(Enchantment.DURABILITY, 10, true);
         r.setItemMeta(meta);
         return r;

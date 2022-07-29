@@ -6,7 +6,6 @@ import com.rogermiranda1000.portalgun.files.Language;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class PortalGunCommands {
@@ -15,7 +14,7 @@ public class PortalGunCommands {
                 sender.sendMessage(PortalGun.plugin.clearPrefix);
                 sender.sendMessage(ChatColor.GOLD + "  /portalgun " + ChatColor.GREEN + "- " + Language.HELP_GET_GUN.getText());
                 sender.sendMessage(ChatColor.GOLD + "  /portalgun boots " + ChatColor.GREEN + "- " + Language.HELP_GET_BOOTS.getText());
-                sender.sendMessage(ChatColor.GOLD + "  /portalgun restarter " + ChatColor.GREEN + "- " + Language.HELP_GET_RESTARTER.getText());
+                sender.sendMessage(ChatColor.GOLD + "  /portalgun restarter " + ChatColor.GREEN + "- " + Language.HELP_GET_EMANCIPATOR.getText());
                 sender.sendMessage(ChatColor.GOLD + "  /portalgun remove " + ChatColor.GREEN + "- " + Language.HELP_REMOVE.getText());
                 sender.sendMessage(ChatColor.GOLD + "  /portalgun remove [player] " + ChatColor.GREEN + "- " + Language.HELP_REMOVE_OTHERS.getText());
                 sender.sendMessage(ChatColor.GOLD + "  /portalgun remove all " + ChatColor.GREEN + "- " + Language.HELP_REMOVE_ALL.getText());
@@ -32,10 +31,10 @@ public class PortalGunCommands {
                 player.sendMessage(PortalGun.plugin.clearPrefix + ChatColor.GREEN + Language.USER_GET_BOOTS.getText());
             }),
             // TODO: give portal boots to others
-            new CustomCommand("portalgun restarter", "portalgun.restarter", false, "portalgun restarter", Language.HELP_GET_RESTARTER.getText(), (sender, args) -> {
+            new CustomCommand("portalgun emancipator", "portalgun.emancipator", false, "portalgun emancipator", Language.HELP_GET_EMANCIPATOR.getText(), (sender, args) -> {
                 Player player = (Player)sender;
                 player.getInventory().addItem(ResetBlocks.resetBlockItem);
-                player.sendMessage(PortalGun.plugin.clearPrefix + ChatColor.GREEN + Language.USER_GET_RESTARTER.getText());
+                player.sendMessage(PortalGun.plugin.clearPrefix + ChatColor.GREEN + Language.USER_GET_EMANCIPATOR.getText());
             }),
             new CustomCommand("portalgun remove", "portalgun.remove", false, "portalgun remove", Language.HELP_REMOVE.getText(), (sender, args) -> {
                 Player player = (Player)sender;
