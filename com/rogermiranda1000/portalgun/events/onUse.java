@@ -9,17 +9,22 @@ import com.rogermiranda1000.portalgun.portals.CeilingPortal;
 import com.rogermiranda1000.portalgun.portals.FloorPortal;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
+import com.rogermiranda1000.portalgun.utils.raycast.AABB;
+import com.rogermiranda1000.portalgun.utils.raycast.Ray;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.function.Function;
 
 public class onUse implements Listener {
     @EventHandler
@@ -30,15 +35,26 @@ public class onUse implements Listener {
         if(event.getAction().equals(Action.PHYSICAL)) return;
 
         event.setCancelled(true);
+        if (PortalGun.takeEntities && player.hasPermission("portalgun.entities")
+                && (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK))) {
+            // maybe the player is facing an entity?
+            Entity facing = getLookingEntity(player, PortalGun.MAX_ENTITY_PICK_RANGE, Portal.isEmptyBlock);
+            if (facing != null) {
+                System.out.println("looking entity " + facing.toString());
+                return;
+            }
+        }
+
         if (!player.hasPermission("portalgun.open")) {
             player.sendMessage(PortalGun.plugin.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
             return;
         }
 
-        // raytracing
-        BlockIterator iter = new BlockIterator(player, Config.MAX_LENGHT.getInteger());
-        Block colliderBlock = iter.next();
-        while (Portal.isEmptyBlock.apply(colliderBlock) && !ResetBlocks.getInstance().insideResetBlock(colliderBlock.getLocation()) && iter.hasNext()) colliderBlock = iter.next(); // TODO: bloacklist blocks
+        Block colliderBlock = getLookingBlock(player, Config.MAX_LENGHT.getInteger(), Portal.isEmptyBlock);
+        if (colliderBlock == null) {
+            player.sendMessage(PortalGun.plugin.errorPrefix + Language.PORTAL_FAR.getText());
+            return;
+        }
 
         if (ResetBlocks.getInstance().insideResetBlock(colliderBlock.getLocation())) {
             player.playSound(player.getLocation(), Config.CREATE_SOUND.getSound(), 3.0F, 0.5F);
@@ -50,8 +66,7 @@ public class onUse implements Listener {
                 Direction.getDirection((Entity)player), player.getLocation().getBlock().getLocation().subtract(colliderBlock.getLocation()).toVector());
 
         if (p == null) {
-            if (!iter.hasNext()) player.sendMessage(PortalGun.plugin.errorPrefix + Language.PORTAL_FAR.getText());
-            else player.sendMessage(PortalGun.plugin.errorPrefix + Language.PORTAL_DENIED.getText());
+            player.sendMessage(PortalGun.plugin.errorPrefix + Language.PORTAL_DENIED.getText());
             return;
         }
 
@@ -69,7 +84,46 @@ public class onUse implements Listener {
         ));
     }
 
-    Portal getMatchingPortal(Player owner, Location loc, boolean isLeft, Direction direction, Vector v) {
+    @Nullable
+    public static Entity getLookingEntity(Player p, int max, @Nullable Function<Block,Boolean> emptyBlock) {
+        List<Entity> possible = p.getNearbyEntities(max, max, max);
+        Ray ray = Ray.from(p);
+        double d = -1;
+        Entity closest = null;
+        for (Entity e : possible) {
+            if (e instanceof Player || e instanceof Painting || e instanceof Item || e instanceof ItemFrame) continue; // TODO glowing item frame; TODO custom blacklist
+
+            double dis = AABB.from(e).collidesD(ray, 0, max);
+            if (dis != -1) {
+                if (closest == null || dis < d) {
+                    d = dis;
+                    closest = e;
+                }
+            }
+        }
+
+        if (emptyBlock == null || closest == null) return closest;
+        Block closestBlock = getLookingBlock(p, max, emptyBlock);
+        if (closestBlock == null) return closest; // not looking any block
+        return closest.getLocation().distanceSquared(p.getLocation()) < closestBlock.getLocation().distanceSquared(p.getLocation()) ? closest : null; // if the block is closer to the player then he's facing the block
+    }
+
+    @Nullable
+    public static Entity getLookingEntity(Player p, int max) {
+        return getLookingEntity(p, max, null);
+    }
+
+    @Nullable
+    public static Block getLookingBlock(Player p, int max, Function<Block,Boolean> emptyBlock) {
+        // raycasting
+        BlockIterator iter = new BlockIterator(p, max);
+        Block colliderBlock = iter.next();
+        while (emptyBlock.apply(colliderBlock) && iter.hasNext()) colliderBlock = iter.next(); // TODO: bloacklist blocks
+        if (!iter.hasNext()) return emptyBlock.apply(colliderBlock) ? null /* we reached the max distance */ : colliderBlock;
+        return colliderBlock;
+    }
+
+    private Portal getMatchingPortal(Player owner, Location loc, boolean isLeft, Direction direction, Vector v) {
         Direction []directions = getDirections(direction, v);
 
         for (Direction dir : directions) {
@@ -98,7 +152,7 @@ public class onUse implements Listener {
      * @param v Vector from final block to player
      * @return Portal's possible direction(s)
      */
-    Direction []getDirections(Direction dir, Vector v) {
+    private Direction []getDirections(Direction dir, Vector v) {
         double x = v.getX(), z = v.getZ();
 
         // TODO: arreglar este desaste

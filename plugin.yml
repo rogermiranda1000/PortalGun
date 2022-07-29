@@ -16,6 +16,9 @@ permissions:
     portalgun.open:
         description: Open portals
         default: true
+    portalgun.entities:
+        description: Take entities
+        default: true
     portalgun.remove:
         description: Remove your portals
         default: true
