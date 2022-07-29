@@ -1,6 +1,7 @@
 package com.rogermiranda1000.portalgun.events;
 
 import com.rogermiranda1000.portalgun.utils.raycast.Ray;
+import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -12,7 +13,7 @@ import java.util.*;
 public class onPortalgunEntity {
     public static final Set<Class<? extends Entity>> entityPickBlacklist = new HashSet<>();
     private static final HashMap<Player, Entity> pickedEntities = new HashMap<>();
-    private static final float LAUNCH_VELOCITY_MULTIPLIER = 1.5f,
+    private static final float LAUNCH_VELOCITY_MULTIPLIER = 1.f,
                             PICKED_ENTITY_DISTANCE = 2.5f;
 
     public void onEntityPick(PlayerPickEvent event) {
@@ -21,21 +22,21 @@ public class onPortalgunEntity {
             return;
         }
 
-        // TODO set gravity
-        //event.getEntityPicked().setGravity(false);
+        if (VersionController.version.compareTo(Version.MC_1_10) >= 0) event.getEntityPicked().setGravity(false);
         pickedEntities.put(event.getPlayer(), event.getEntityPicked());
+        // TODO sound
     }
 
     public void launchEntity(Player p) {
         Entity e = pickedEntities.remove(p);
-        //e.setGravity(true);
+        if (VersionController.version.compareTo(Version.MC_1_10) >= 0) e.setGravity(true);
         e.setVelocity(e.getLocation().toVector().subtract(p.getLocation().toVector()).multiply(LAUNCH_VELOCITY_MULTIPLIER));
+        // TODO sound
     }
 
     // TODO free on item change from hand
     public void freeEntity(Player p) {
-        Entity e = pickedEntities.remove(p);
-        //e.setGravity(true);
+        onPortalgunEntity.removeEntity(p);
     }
 
     public static boolean haveEntityPicked(Player p) {
@@ -49,6 +50,15 @@ public class onPortalgunEntity {
 
     public static boolean isEntityPicked(Entity e) {
         return pickedEntities.containsValue(e);
+    }
+
+    public static void removeEntity(Player p) {
+        Entity e = pickedEntities.remove(p);
+        if (VersionController.version.compareTo(Version.MC_1_10) >= 0) e.setGravity(true);
+    }
+
+    public static void clear() {
+        for (Player p : pickedEntities.keySet()) removeEntity(p);
     }
 
     /**
@@ -139,7 +149,14 @@ public class onPortalgunEntity {
     public static void updatePickedEntities() {
         pickedEntities.entrySet().removeIf(e -> !e.getValue().isValid()); // Entity no loger exists
         for (Map.Entry<Player,Entity> e : pickedEntities.entrySet()) {
-            e.getValue().teleport(secureTeleport(e.getValue(), Ray.getPoint(e.getKey(), PICKED_ENTITY_DISTANCE)));
+            Location expect = Ray.getPoint(e.getKey(), PICKED_ENTITY_DISTANCE),
+                    newLocation = secureTeleport(e.getValue(), expect);
+
+            if (newLocation == expect) {
+                // grabbed objects face away from the player
+                newLocation.setYaw(e.getKey().getLocation().getYaw());
+            }
+            e.getValue().teleport(newLocation);
         }
     }
 }

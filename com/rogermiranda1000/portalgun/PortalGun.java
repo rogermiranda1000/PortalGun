@@ -202,6 +202,8 @@ public class PortalGun extends RogerPlugin {
         this.teleportTask.cancel();
         this.pickEntitiesTask.cancel();
 
+        onPortalgunEntity.clear();
+
         if (Config.PERSISTANT.getBoolean()) {
             getLogger().info("Saving portals...");
             File file = new File(getDataFolder(), "portals.yml");
