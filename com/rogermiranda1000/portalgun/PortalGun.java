@@ -32,11 +32,12 @@ import org.bukkit.scheduler.BukkitTask;
 public class PortalGun extends RogerPlugin {
     public static PortalGun plugin;
 
-    public static boolean useResourcePack;
+    public static boolean useResourcePack, takeEntities;
     public static ItemStack item;
     public static ItemStack botas;
     private static final int particleDelay = 2;
     public static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
+    public static final int MAX_ENTITY_PICK_RANGE = 3;
 
     private BukkitTask particleTask;
     private BukkitTask teleportTask;

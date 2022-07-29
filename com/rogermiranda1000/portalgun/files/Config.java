@@ -2,12 +2,12 @@ package com.rogermiranda1000.portalgun.files;
 
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.blocks.ResetBlock;
+import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.blocks.BlockType;
 import com.sun.istack.internal.NotNull;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -38,7 +38,8 @@ public enum Config {
     PARTICLES("portals.particles"),
     CREATE_SOUND("portals.create_sound"),
     TELEPORT_SOUND("portals.teleport_sound"),
-    RESTARTER_PARTICLES("restarter.particles");
+    RESTARTER_PARTICLES("emancipator.particles"),
+    TAKE_ENTITIES("portalgun.take_entities");
 
     private static FileConfiguration fileConfiguration;
     private static HashMap<Config, Object> savedConfiguration;
@@ -76,6 +77,7 @@ public enum Config {
         Config.loadValidBlocks();
 
         PortalGun.useResourcePack = Config.fileConfiguration.getBoolean(RESOURCEPACK.key);
+        PortalGun.takeEntities = Config.fileConfiguration.getBoolean(TAKE_ENTITIES.key);
 
         Config.loadPortalgunMaterial(Config.fileConfiguration.getString(PORTALGUN_NAME.key), Config.fileConfiguration.getStringList(PORTALGUN_LORE.key),
                 Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
@@ -196,8 +198,8 @@ public enum Config {
 
         // TODO: lava restriction?
         // TODO: isPassable?
-        Portal.isEmptyBlock = VersionController.get()::isPassable;
-        Portal.isValidBlock = b->( !VersionController.get().isPassable(b) && (!Config.fileConfiguration.getBoolean(Config.WHITELIST_BLOCKS.key) || allowedBlocks.contains(VersionController.get().getObject(b))) );
+        Portal.isEmptyBlock = b -> VersionController.get().isPassable(b) && !ResetBlocks.getInstance().insideResetBlock(b.getLocation());
+        Portal.isValidBlock = b -> !VersionController.get().isPassable(b) && (!Config.fileConfiguration.getBoolean(Config.WHITELIST_BLOCKS.key) || allowedBlocks.contains(VersionController.get().getObject(b)));
     }
 
     private static HashMap<String,Object> getDefaultConfiguration() {
@@ -221,6 +223,7 @@ public enum Config {
         c.put(Config.TELEPORT_SOUND.key, Config.getDefaultTeleportSound());
         c.put(Config.CREATE_SOUND.key, Config.getDefaultCreateSound());
         c.put(Config.RESTARTER_PARTICLES.key, Config.getDefaultRestarterParticle());
+        c.put(Config.TAKE_ENTITIES.key, true);
 
         return c;
     }
