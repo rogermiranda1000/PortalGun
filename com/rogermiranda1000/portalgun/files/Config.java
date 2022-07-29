@@ -41,7 +41,8 @@ public enum Config {
     CREATE_SOUND("portals.create_sound"),
     TELEPORT_SOUND("portals.teleport_sound"),
     RESTARTER_PARTICLES("emancipator.particles"),
-    TAKE_ENTITIES("portalgun.take_entities");
+    TAKE_ENTITIES("portalgun.take_entities.enabled"),
+    TAKE_ENTITIES_BLACKLIST("portalgun.take_entities.blacklist");
 
     private static FileConfiguration fileConfiguration;
     private static HashMap<Config, Object> savedConfiguration;
@@ -89,17 +90,7 @@ public enum Config {
 
         loadPortalParticles();
         loadRestarterParticles();
-
-        // TODO configurable
-        onPortalgunEntity.entityPickBlacklist.add(Player.class);
-        onPortalgunEntity.entityPickBlacklist.add(ExperienceOrb.class);
-        onPortalgunEntity.entityPickBlacklist.add(Item.class);
-        onPortalgunEntity.entityPickBlacklist.add(ItemFrame.class);
-        // TODO glowing item frame
-        onPortalgunEntity.entityPickBlacklist.add(EnderCrystal.class);
-        onPortalgunEntity.entityPickBlacklist.add(EnderDragon.class);
-        onPortalgunEntity.entityPickBlacklist.add(Wither.class);
-        // TODO warden
+        loadPickEntityBlacklist();
     }
 
     public static void checkAndCreate() {
@@ -115,6 +106,16 @@ public enum Config {
                 PortalGun.plugin.saveConfig();
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    private static void loadPickEntityBlacklist() {
+        for (String name : Config.fileConfiguration.getStringList(Config.TAKE_ENTITIES_BLACKLIST.key)) {
+            try {
+                onPortalgunEntity.entityPickBlacklist.add(Class.forName("org.bukkit.entity." + name).asSubclass(Entity.class));
+            } catch (ClassNotFoundException | ClassCastException ex) {
+                PortalGun.plugin.printConsoleErrorMessage("Entity " + name + " not found!");
             }
         }
     }
@@ -237,8 +238,25 @@ public enum Config {
         c.put(Config.CREATE_SOUND.key, Config.getDefaultCreateSound());
         c.put(Config.RESTARTER_PARTICLES.key, Config.getDefaultRestarterParticle());
         c.put(Config.TAKE_ENTITIES.key, true);
+        c.put(Config.TAKE_ENTITIES_BLACKLIST.key, getDefaultPickEntitiesBlacklist());
 
         return c;
+    }
+
+    private static Collection<String> getDefaultPickEntitiesBlacklist() {
+        Collection<String> r = new ArrayList<>();
+
+        r.add(Player.class.getSimpleName());
+        r.add(ExperienceOrb.class.getSimpleName());
+        r.add(Item.class.getSimpleName());
+        r.add(ItemFrame.class.getSimpleName());
+        r.add(EnderCrystal.class.getSimpleName());
+        r.add(EnderDragon.class.getSimpleName());
+        r.add(Wither.class.getSimpleName());
+
+        if (VersionController.version.compareTo(Version.MC_1_19) >= 0) r.add("Warden");
+
+        return r;
     }
 
     private static String getDefaultTeleportSound() {
