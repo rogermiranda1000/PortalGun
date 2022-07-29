@@ -54,6 +54,7 @@ public class onPortalgunEntity {
 
     public static void removeEntity(Player p) {
         Entity e = pickedEntities.remove(p);
+        if (e == null) return;
         if (VersionController.version.compareTo(Version.MC_1_10) >= 0) e.setGravity(true);
     }
 
