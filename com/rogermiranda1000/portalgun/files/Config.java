@@ -92,6 +92,7 @@ public enum Config {
 
         // TODO configurable
         onPortalgunEntity.entityPickBlacklist.add(Player.class);
+        onPortalgunEntity.entityPickBlacklist.add(ExperienceOrb.class);
         onPortalgunEntity.entityPickBlacklist.add(Item.class);
         onPortalgunEntity.entityPickBlacklist.add(ItemFrame.class);
         // TODO glowing item frame

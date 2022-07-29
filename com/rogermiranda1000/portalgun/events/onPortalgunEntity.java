@@ -1,5 +1,6 @@
 package com.rogermiranda1000.portalgun.events;
 
+import com.rogermiranda1000.portalgun.utils.raycast.Ray;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -9,7 +10,8 @@ import java.util.*;
 public class onPortalgunEntity {
     public static final Set<Class<? extends Entity>> entityPickBlacklist = new HashSet<>();
     private static final HashMap<Player, Entity> pickedEntities = new HashMap<>();
-    private static final float LAUNCH_VELOCITY_MULTIPLIER = 1.5f;
+    private static final float LAUNCH_VELOCITY_MULTIPLIER = 1.5f,
+                            PICKED_ENTITY_DISTANCE = 2.5f;
 
     public void onEntityPick(PlayerPickEvent event) {
         if (entityPickBlacklist.contains(event.getEntityPicked().getClass())) {
@@ -48,8 +50,9 @@ public class onPortalgunEntity {
     }
 
     public static void updatePickedEntities() {
+        pickedEntities.entrySet().removeIf(e -> e.getValue().isValid()); // Entity no loger exists
         for (Map.Entry<Player,Entity> e : pickedEntities.entrySet()) {
-            e.getValue().teleport(e.getKey().getLocation().clone().add(0,1,1));
+            e.getValue().teleport(Ray.getPoint(e.getKey(), PICKED_ENTITY_DISTANCE));
         }
     }
 }
