@@ -32,17 +32,19 @@ import org.bukkit.scheduler.BukkitTask;
 public class PortalGun extends RogerPlugin {
     public static PortalGun plugin;
 
-    public static boolean useResourcePack;
+    public static boolean useResourcePack, takeEntities;
     public static ItemStack item;
     public static ItemStack botas;
-    private static final int particleDelay = 2;
+    private static final int particleDelay = 2, pickedEntitiesDelay = 3;
     public static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
+    public static final int MAX_ENTITY_PICK_RANGE = 4; // TODO configurable
 
     private BukkitTask particleTask;
     private BukkitTask teleportTask;
+    private BukkitTask pickEntitiesTask;
 
     public PortalGun() {
-        super(new onDead(), new onLeave(), new onMove(), new onUse(), new onPlayerJoin());
+        super(new onDead(), new onLeave(), new onMove(), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity());
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
     }
@@ -127,6 +129,7 @@ public class PortalGun extends RogerPlugin {
             PortalGun.updateTeleportedEntities();
             PortalGun.teleportEntities();
         }, 1, PortalGun.particleDelay*3);
+        this.pickEntitiesTask = this.getServer().getScheduler().runTaskTimerAsynchronously(this, onPortalgunEntity::updatePickedEntities, 0, PortalGun.pickedEntitiesDelay);
     }
 
     private static void playAllParticles() {
@@ -197,6 +200,9 @@ public class PortalGun extends RogerPlugin {
 
         this.particleTask.cancel();
         this.teleportTask.cancel();
+        this.pickEntitiesTask.cancel();
+
+        onPortalgunEntity.clear();
 
         if (Config.PERSISTANT.getBoolean()) {
             getLogger().info("Saving portals...");

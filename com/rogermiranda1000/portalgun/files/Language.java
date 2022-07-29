@@ -10,7 +10,7 @@ import java.util.Map;
 public enum Language {
     HELP_GET_GUN("help.get_portalgun"),
     HELP_GET_BOOTS("help.get_portalboots"),
-    HELP_GET_RESTARTER("help.get_restarter"),
+    HELP_GET_EMANCIPATOR("help.get_emancipator"),
     HELP_REMOVE("help.remove_portals"),
     HELP_REMOVE_OTHERS("help.remove_others_portals"),
     HELP_REMOVE_ALL("help.remove_all_portals"),
@@ -23,7 +23,7 @@ public enum Language {
     USER_NOT_FOUND("user.not_found"),
     USER_GET_GUN("user.get_portalgun"),
     USER_GET_BOOTS("user.get_portalboots"),
-    USER_GET_RESTARTER("user.get_restarter"),
+    USER_GET_EMANCIPATOR("user.get_emancipator"),
     USER_NO_PORTALS("user.no_portals"),
     OTHER_USER_NO_PORTALS("user.other_no_portals"),
     USER_REMOVE("user.remove"),
@@ -156,10 +156,10 @@ public enum Language {
         r.put(Language.USER_REMOVE_ALL.key, "You have removed all portals.");
         r.put(Language.USER_GET_GUN.key, "PortalGun gived!");
         r.put(Language.USER_GET_BOOTS.key, "PortalBoots gived!");
-        r.put(Language.USER_GET_RESTARTER.key, "Restarter block gived! Place one and another over it and you'll create a \"door\" that will reset portals.");
+        r.put(Language.USER_GET_EMANCIPATOR.key, "Emancipation block gived! Place one and another over it and you'll create an emancipation grill.");
         r.put(Language.HELP_GET_GUN.key, "Get the PortalGun.");
         r.put(Language.HELP_GET_BOOTS.key, "Get the PortalBoots.");
-        r.put(Language.HELP_GET_RESTARTER.key, "Get the portals restarter.");
+        r.put(Language.HELP_GET_EMANCIPATOR.key, "Get the emancipation block.");
         r.put(Language.HELP_REMOVE.key, "Delete your active portals.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Delete others' active portals.");
         r.put(Language.HELP_REMOVE_ALL.key, "Delete all the active portals.");
@@ -185,10 +185,10 @@ public enum Language {
         r.put(Language.USER_REMOVE_ALL.key, "Todos los portales han sido eliminados.");
         r.put(Language.USER_GET_GUN.key, "PortalGun recibida!");
         r.put(Language.USER_GET_BOOTS.key, "PortalBoots recibidas!");
-        r.put(Language.USER_GET_RESTARTER.key, "Se ha recibido el reiniciador de portales! Coloca uno y otro encima y crearás una \"puerta\" que reiniciará los portales.");
+        r.put(Language.USER_GET_EMANCIPATOR.key, "Se ha recibido el bloque emancipador! Coloca uno y otro encima y crearás una red emancipadora.");
         r.put(Language.HELP_GET_GUN.key, "Obtén la PortalGun.");
         r.put(Language.HELP_GET_BOOTS.key, "Obtén las PortalBoots.");
-        r.put(Language.HELP_GET_RESTARTER.key, "Obtén el reiniciador de portales.");
+        r.put(Language.HELP_GET_EMANCIPATOR.key, "Obtén el bloque emancipador.");
         r.put(Language.HELP_REMOVE.key, "Elimina tus portales activos.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Elimina los portales activos de otro usuario.");
         r.put(Language.HELP_REMOVE_ALL.key, "Elimina todos los portales.");
@@ -215,10 +215,10 @@ public enum Language {
         r.put(Language.USER_REMOVE_ALL.key, "S'han eliminat tots els portals.");
         r.put(Language.USER_GET_GUN.key, "PortalGun obtinguda!");
         r.put(Language.USER_GET_BOOTS.key, "PortalBoots obtingudes!");
-        r.put(Language.USER_GET_RESTARTER.key, "S'ha obtingut el reiniciador de portals! Col·loca un i un altre a sobre i crearàs una \"porta\" que reiniciarà els portals.");
+        r.put(Language.USER_GET_EMANCIPATOR.key, "S'ha obtingut el bloc emancipador! Col·loca un i un altre a sobre i crearàs una xarxa emancipadora.");
         r.put(Language.HELP_GET_GUN.key, "Adquireix la PortalGun.");
         r.put(Language.HELP_GET_BOOTS.key, "Adquireix les PortalBoots.");
-        r.put(Language.HELP_GET_RESTARTER.key, "Adquireix el reiniciador de portals.");
+        r.put(Language.HELP_GET_EMANCIPATOR.key, "Adquireix el bloc d'emancipació.");
         r.put(Language.HELP_REMOVE.key, "Elimina els teus portals actius.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Elimina els portals actius d'un altre usuari.");
         r.put(Language.HELP_REMOVE_ALL.key, "Elimina tots els portals.");
@@ -238,7 +238,7 @@ public enum Language {
         r.put(Language.USER_REMOVE_ALL.key, "Usunąłeś wszystkie portale.");
         r.put(Language.USER_GET_BOOTS.key, "Buty Portalowe otrzymane!");
         r.put(Language.OTHER_USER_REMOVE.key, "[player] usunął twoje portale.");
-        r.put(Language.USER_GET_RESTARTER.key, "Otrzymano blok restartowy! Połóż jeden na drugim i stworzysz takie \"drzwi\" które resetują portale.");
+        r.put(Language.USER_GET_EMANCIPATOR.key, "Otrzymano emancypacyjny blok! Postaw jeden i drugi na wierzchu, a stworzysz emancypacyjną sieć.");
         r.put(Language.USER_GET_GUN.key, "Działo portalowe otrzymane!");
         r.put(Language.USER_NO_PORTALS.key, "Nie masz żadnych otwartych portali.");
         r.put(Language.USER_REMOVE.key, "Usunąłeś swoje portale.");
@@ -255,7 +255,7 @@ public enum Language {
         r.put(Language.HELP_UNKNOWN.key, "Nieznana komenda.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Usuń aktywne portale innych graczy.");
         r.put(Language.HELP_GET_GUN.key, "Zdobądź działo portalowe.");
-        r.put(Language.HELP_GET_RESTARTER.key, "Zdobądź blok restartowy.");
+        r.put(Language.HELP_GET_EMANCIPATOR.key, "Zdobądź blok wyzwoliciela.");
         r.put(Language.HELP_GET_BOOTS.key, "Zdobądź buty portalowe.");
         r.put(Language.HELP_REMOVE_ALL.key, "Usuń wszystkie aktywne portale.");
 
@@ -270,7 +270,7 @@ public enum Language {
         r.put(Language.USER_REMOVE_ALL.key, "Všechny tvé portály byly odstraněny.");
         r.put(Language.USER_GET_BOOTS.key, "Dostal jsi Portálové boty!");
         r.put(Language.OTHER_USER_REMOVE.key, "[player] odstraníl tvé portály.");
-        r.put(Language.USER_GET_RESTARTER.key, "Dostal jsi Restartovací blok! Polož jeden na druhý a tím vytvoříš \"dveře\" ,které resetují portály.");
+        r.put(Language.USER_GET_EMANCIPATOR.key, "Emancipační blok byl přijat! Umístěte jeden a druhý navrch a vytvoříte emancipační síť.");
         r.put(Language.USER_GET_GUN.key, "Dostal jsi Portálovou pistoli!");
         r.put(Language.USER_NO_PORTALS.key, "Právě teď nemáš žádné aktivní portály.");
         r.put(Language.USER_REMOVE.key, "Úspěšně jsi si odstraníl všechny své portály.");
@@ -287,7 +287,7 @@ public enum Language {
         r.put(Language.HELP_UNKNOWN.key, "Neznámý příkaz.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Odstraní portály ostatních hráčů.");
         r.put(Language.HELP_GET_GUN.key, "Získáš Portálovou pistoli.");
-        r.put(Language.HELP_GET_RESTARTER.key, "Získáš Portálový restartér.");
+        r.put(Language.HELP_GET_EMANCIPATOR.key, "Získáš emancipátorový blok.");
         r.put(Language.HELP_GET_BOOTS.key, "Získáš Portálové boty.");
         r.put(Language.HELP_REMOVE_ALL.key, "Odstraní všechny aktivní portály.");
 
