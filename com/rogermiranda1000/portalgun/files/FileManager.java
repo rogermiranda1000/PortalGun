@@ -7,7 +7,7 @@ import java.io.File;
 public class FileManager {
     public static File pluginFolder;
 
-    public static void loadFiles() {
+    public static void loadFiles() throws ConfigFileException {
         FileManager.pluginFolder = PortalGun.plugin.getDataFolder();
         if (!FileManager.pluginFolder.exists()) FileManager.pluginFolder.mkdir();
 
