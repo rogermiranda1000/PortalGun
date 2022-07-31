@@ -130,16 +130,17 @@ public class PortalGun extends RogerPlugin {
         meta2.setColor(Color.WHITE);
         botas.setItemMeta(meta2);
         botas.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
-    
+
+        SentryScheduler scheduler = new SentryScheduler(this);
         // Particles
-        this.particleTask = SentryScheduler.getInstance().runTaskTimerAsynchronously(this, PortalGun::playAllParticles, 0, PortalGun.particleDelay);
+        this.particleTask = scheduler.runTaskTimerAsynchronously(this, PortalGun::playAllParticles, 0, PortalGun.particleDelay);
         // TODO: configuration "only players teleports"
         // Entities
-        this.teleportTask = SentryScheduler.getInstance().runTaskTimerAsynchronously(this, ()->{
+        this.teleportTask = scheduler.runTaskTimerAsynchronously(this, ()->{
             PortalGun.updateTeleportedEntities();
             PortalGun.teleportEntities();
         }, 1, PortalGun.particleDelay*3);
-        this.pickEntitiesTask = SentryScheduler.getInstance().runTaskTimerAsynchronously(this, onPortalgunEntity::updatePickedEntities, 0, PortalGun.pickedEntitiesDelay);
+        this.pickEntitiesTask = scheduler.runTaskTimerAsynchronously(this, onPortalgunEntity::updatePickedEntities, 0, PortalGun.pickedEntitiesDelay);
     }
 
     private static void playAllParticles() {

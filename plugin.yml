@@ -43,3 +43,6 @@ permissions:
     portalgun.boots:
         description: Get the Portal Boots
         default: true
+    portalgun.report:
+        description: Send reports
+        default: op

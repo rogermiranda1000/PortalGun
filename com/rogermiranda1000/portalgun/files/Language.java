@@ -14,6 +14,7 @@ public enum Language {
     HELP_REMOVE("help.remove_portals"),
     HELP_REMOVE_OTHERS("help.remove_others_portals"),
     HELP_REMOVE_ALL("help.remove_all_portals"),
+    HELP_REPORT("help.report"),
     HELP_UNKNOWN("help.unknown_command"),
     PORTAL_DENIED("portal.deny"),
     PORTAL_OPENED("portal.open"),
@@ -30,7 +31,8 @@ public enum Language {
     USER_REMOVE_OTHERS("user.remove_others"),
     OTHER_USER_REMOVE("user.other_remove"),
     USER_DEATH("user.remove_death"),
-    USER_REMOVE_ALL("user.remove_all");
+    USER_REMOVE_ALL("user.remove_all"),
+    REPORT_SENT("report.sent");
 
     private static HashMap<Language, String> translations;
     public static File languagePath;
@@ -163,9 +165,10 @@ public enum Language {
         r.put(Language.HELP_REMOVE.key, "Delete your active portals.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Delete others' active portals.");
         r.put(Language.HELP_REMOVE_ALL.key, "Delete all the active portals.");
+        r.put(Language.HELP_REPORT.key, "Send information about a problem. In the 'contact' zone set your email or discord so I can contact with you (if you don't want to set '-')");
         r.put(Language.USER_NOT_FOUND.key, "[player] not found.");
         r.put(Language.HELP_UNKNOWN.key, "Unknown command.");
-
+        r.put(Language.REPORT_SENT.key, "Report sent! Thanks for helping.");
 
         return r;
     }
@@ -192,10 +195,12 @@ public enum Language {
         r.put(Language.HELP_REMOVE.key, "Elimina tus portales activos.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Elimina los portales activos de otro usuario.");
         r.put(Language.HELP_REMOVE_ALL.key, "Elimina todos los portales.");
+        r.put(Language.HELP_REPORT.key, "Envia información sobre un problema. En la parte de 'contacto' pon tu email o discord para que pueda contactar contigo (si no quieres, pon '-')");
         r.put(Language.USER_NOT_FOUND.key, "El usuario [player] no se ha encontrado.");
         r.put(Language.USER_REMOVE_OTHERS.key, "Has eliminado los portales de [player].");
         r.put(Language.OTHER_USER_NO_PORTALS.key, "[player] no tiene portales abiertos.");
         r.put(Language.HELP_UNKNOWN.key, "Comando desconocido.");
+        r.put(Language.REPORT_SENT.key, "Reporte enviado! Gracias por ayudar.");
 
         return r;
     }
@@ -222,10 +227,12 @@ public enum Language {
         r.put(Language.HELP_REMOVE.key, "Elimina els teus portals actius.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Elimina els portals actius d'un altre usuari.");
         r.put(Language.HELP_REMOVE_ALL.key, "Elimina tots els portals.");
+        r.put(Language.HELP_REPORT.key, "Envia informació sobre un problema. En la part de 'contacte' posa el teu email o discord per a que pugui contactar amb tu (si no vols, posa '-')");
         r.put(Language.USER_NOT_FOUND.key, "L'usuari [player] no s'ha trobat.");
         r.put(Language.USER_REMOVE_OTHERS.key, "Has eliminat els portals de [player].");
         r.put(Language.OTHER_USER_NO_PORTALS.key, "[player] no té portals oberts.");
         r.put(Language.HELP_UNKNOWN.key, "Comanda desconeguda.");
+        r.put(Language.REPORT_SENT.key, "Report enviat! Gràcies per ajudar.");
 
         return r;
     }
@@ -258,6 +265,9 @@ public enum Language {
         r.put(Language.HELP_GET_EMANCIPATOR.key, "Zdobądź blok wyzwoliciela.");
         r.put(Language.HELP_GET_BOOTS.key, "Zdobądź buty portalowe.");
         r.put(Language.HELP_REMOVE_ALL.key, "Usuń wszystkie aktywne portale.");
+        r.put(Language.HELP_REPORT.key, "Wyślij informacje o problemie. W strefie 'kontakt' ustaw swój adres e-mail lub discord, abym mógł się z tobą skontaktować (jeśli nie chcesz ustawiać '-')");
+
+        r.put(Language.REPORT_SENT.key, "Raport wysłany! Dziękuję za pomoc.");
 
         return r;
     }
@@ -290,6 +300,9 @@ public enum Language {
         r.put(Language.HELP_GET_EMANCIPATOR.key, "Získáš emancipátorový blok.");
         r.put(Language.HELP_GET_BOOTS.key, "Získáš Portálové boty.");
         r.put(Language.HELP_REMOVE_ALL.key, "Odstraní všechny aktivní portály.");
+        r.put(Language.HELP_REPORT.key, "Odešlete informace o problému. V zóně 'kontakt' nastavte svůj e-mail nebo diskor, abych se s vámi mohl spojit (pokud nechcete nastavit '-')");
+
+        r.put(Language.REPORT_SENT.key, "Hlášení odesláno! Díky za pomoc.");
 
         return r;
     }
