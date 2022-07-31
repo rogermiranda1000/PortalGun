@@ -66,11 +66,17 @@ public class PortalGunCommands {
                 sender.sendMessage(PortalGun.plugin.clearPrefix + Language.USER_REMOVE_ALL.getText());
             }),
             new CustomCommand("portalgun report \\S+ .+", "portalgun.report", true, "portalgun report [contact] [report]", Language.HELP_REPORT.getText(), (sender, args) -> {
+                String contact = args[1];
+                if (!contact.equals("-") && !contact.contains("@") && !contact.contains("#")) {
+                    sender.sendMessage(PortalGun.plugin.errorPrefix + Language.REPORT_CONTACT_ERROR.getText());
+                    return;
+                }
+
                 StringBuilder msg = new StringBuilder();
                 for (int n = 2; n < args.length; n++) msg.append(args[n]).append(' ');
                 msg.setLength(msg.length()-1); // remove last ' '
 
-                PortalGun.plugin.userReport(args[1].equals("-") ? null : args[1], (sender instanceof Player) ? ((Player)sender).getName() : null, msg.toString());
+                PortalGun.plugin.userReport(contact.equals("-") ? null : contact, (sender instanceof Player) ? ((Player)sender).getName() : null, msg.toString());
                 sender.sendMessage(PortalGun.plugin.clearPrefix + Language.REPORT_SENT.getText());
             })
     };
