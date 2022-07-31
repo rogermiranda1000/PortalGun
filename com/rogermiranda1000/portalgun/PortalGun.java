@@ -6,6 +6,7 @@ import java.util.concurrent.CancellationException;
 
 import com.rogermiranda1000.helper.CustomCommand;
 import com.rogermiranda1000.helper.RogerPlugin;
+import com.rogermiranda1000.helper.SentryScheduler;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.events.*;
 import com.rogermiranda1000.portalgun.files.Config;
@@ -61,13 +62,22 @@ public class PortalGun extends RogerPlugin {
     }
 
     @Override
-    public void onEnable() {
+    public String getSentryDsn() {
+        // /!\\ Other branches MUST change this to null (or your Dsn) /!\\
+        return "https://26fe0afe50a948c6a86b68205315fcc5@o1339981.ingest.sentry.io/6612626";
+    }
+
+    @Override
+    public void preOnEnable() {
         PortalGun.plugin = this;
 
         FileManager.loadFiles();
+        this.setCommandMessages(Language.USER_NO_PERMISSIONS.getText(), Language.HELP_UNKNOWN.getText());
 
         super.setCommands(PortalGunCommands.commands); // @pre before super.onEnable() & after loading languages
-        super.onEnable();
+    }
+    @Override
+    public void postOnEnable() {
         ResetBlocks.getInstance().updateAllBlocks(); // @pre super.onEnable()
 
         // Load portals
@@ -120,16 +130,17 @@ public class PortalGun extends RogerPlugin {
         meta2.setColor(Color.WHITE);
         botas.setItemMeta(meta2);
         botas.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
-    
+
+        SentryScheduler scheduler = new SentryScheduler(this);
         // Particles
-        this.particleTask = this.getServer().getScheduler().runTaskTimerAsynchronously(this, PortalGun::playAllParticles, 0, PortalGun.particleDelay);
+        this.particleTask = scheduler.runTaskTimerAsynchronously(this, PortalGun::playAllParticles, 0, PortalGun.particleDelay);
         // TODO: configuration "only players teleports"
         // Entities
-        this.teleportTask = this.getServer().getScheduler().runTaskTimerAsynchronously(this, ()->{
+        this.teleportTask = scheduler.runTaskTimerAsynchronously(this, ()->{
             PortalGun.updateTeleportedEntities();
             PortalGun.teleportEntities();
         }, 1, PortalGun.particleDelay*3);
-        this.pickEntitiesTask = this.getServer().getScheduler().runTaskTimerAsynchronously(this, onPortalgunEntity::updatePickedEntities, 0, PortalGun.pickedEntitiesDelay);
+        this.pickEntitiesTask = scheduler.runTaskTimerAsynchronously(this, onPortalgunEntity::updatePickedEntities, 0, PortalGun.pickedEntitiesDelay);
     }
 
     private static void playAllParticles() {
@@ -195,9 +206,7 @@ public class PortalGun extends RogerPlugin {
     }
 
     @Override
-    public void onDisable() {
-        super.onDisable();
-
+    public void postOnDisable() {
         this.particleTask.cancel();
         this.teleportTask.cancel();
         this.pickEntitiesTask.cancel();
@@ -223,36 +232,5 @@ public class PortalGun extends RogerPlugin {
                 }
             }
         }
-    }
-
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
-        for (CustomCommand command : PortalGunCommands.commands) {
-            switch (command.search((sender instanceof Player) ? (Player) sender : null, cmd.getName(), args)) {
-                case NO_MATCH:
-                    continue;
-
-                case NO_PERMISSIONS:
-                    sender.sendMessage(this.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
-                    break;
-                case MATCH:
-                    command.notifier.onCommand(sender, args);
-                    break;
-                case NO_PLAYER:
-                    sender.sendMessage("Don't use this command in console.");
-                    break;
-                case INVALID_LENGTH:
-                    sender.sendMessage(this.errorPrefix +"Unknown command. Use " + ChatColor.GOLD + "/mineit ?");
-                    break;
-                default:
-                    this.printConsoleErrorMessage("Unknown response to command");
-                    return false;
-            }
-            return true;
-        }
-
-        sender.sendMessage(this.errorPrefix + Language.HELP_UNKNOWN.getText());
-        PortalGunCommands.commands[0].notifier.onCommand(sender, new String[]{}); // '?' command
-        return true;
     }
 }

@@ -18,6 +18,7 @@ public class PortalGunCommands {
                 sender.sendMessage(ChatColor.GOLD + "  /portalgun remove " + ChatColor.GREEN + "- " + Language.HELP_REMOVE.getText());
                 sender.sendMessage(ChatColor.GOLD + "  /portalgun remove [player] " + ChatColor.GREEN + "- " + Language.HELP_REMOVE_OTHERS.getText());
                 sender.sendMessage(ChatColor.GOLD + "  /portalgun remove all " + ChatColor.GREEN + "- " + Language.HELP_REMOVE_ALL.getText());
+                sender.sendMessage(ChatColor.GOLD + "  /portalgun report [contact/-] [report] " + ChatColor.GREEN + "- " + Language.HELP_REPORT.getText());
             }),
             new CustomCommand("portalgun", "portalgun.portalgun", false, "portalgun", Language.HELP_GET_GUN.getText(), (sender, args) -> {
                 Player player = (Player)sender;
@@ -63,6 +64,14 @@ public class PortalGunCommands {
                 // TODO: warn players (Language.OTHER_USER_REMOVE.getText({"player", player.getName()}))
                 Portal.removeAllPortals();
                 sender.sendMessage(PortalGun.plugin.clearPrefix + Language.USER_REMOVE_ALL.getText());
+            }),
+            new CustomCommand("portalgun report \\S+ .+", "portalgun.report", true, "portalgun report [contact] [report]", Language.HELP_REPORT.getText(), (sender, args) -> {
+                StringBuilder msg = new StringBuilder();
+                for (int n = 2; n < args.length; n++) msg.append(args[n]).append(' ');
+                msg.setLength(msg.length()-1); // remove last ' '
+
+                PortalGun.plugin.userReport(args[1].equals("-") ? null : args[1], (sender instanceof Player) ? ((Player)sender).getName() : null, msg.toString());
+                sender.sendMessage(PortalGun.plugin.clearPrefix + Language.REPORT_SENT.getText());
             })
     };
 }
