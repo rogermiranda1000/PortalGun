@@ -76,21 +76,25 @@ public enum Config {
         return Sound.valueOf((String) this.getObject());
     }
 
-    public static void loadConfig() {
-        Config.loadValidBlocks();
+    public static void loadConfig() throws ConfigFileException {
+        try {
+            Config.loadValidBlocks();
 
-        PortalGun.useResourcePack = Config.fileConfiguration.getBoolean(RESOURCEPACK.key);
-        PortalGun.takeEntities = Config.fileConfiguration.getBoolean(TAKE_ENTITIES.key);
+            PortalGun.useResourcePack = Config.fileConfiguration.getBoolean(RESOURCEPACK.key);
+            PortalGun.takeEntities = Config.fileConfiguration.getBoolean(TAKE_ENTITIES.key);
 
-        Config.loadPortalgunMaterial(Config.fileConfiguration.getString(PORTALGUN_NAME.key), Config.fileConfiguration.getStringList(PORTALGUN_LORE.key),
-                Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
-                Config.fileConfiguration.contains(DURABILITY.key) ? Config.fileConfiguration.getInt(DURABILITY.key) : null);
+            Config.loadPortalgunMaterial(Config.fileConfiguration.getString(PORTALGUN_NAME.key), Config.fileConfiguration.getStringList(PORTALGUN_LORE.key),
+                    Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
+                    Config.fileConfiguration.contains(DURABILITY.key) ? Config.fileConfiguration.getInt(DURABILITY.key) : null);
 
-        Language.loadHashMap(Config.fileConfiguration.getString(LANGUAGE.key));
+            Language.loadHashMap(Config.fileConfiguration.getString(LANGUAGE.key));
 
-        loadPortalParticles();
-        loadRestarterParticles();
-        loadPickEntityBlacklist();
+            loadPortalParticles();
+            loadRestarterParticles();
+            loadPickEntityBlacklist();
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            throw new ConfigFileException(ex);
+        }
     }
 
     public static void checkAndCreate() {
@@ -120,27 +124,26 @@ public enum Config {
         }
     }
 
-    private static void loadPortalParticles() {
+    private static void loadPortalParticles() throws IllegalArgumentException {
         List<String> particles = Config.fileConfiguration.getStringList(Config.PARTICLES.key);
         if (particles.size() != 2) {
-            PortalGun.plugin.printConsoleErrorMessage(Config.PARTICLES.key + " must have only 2 particles!");
-            return;
+            throw new IllegalArgumentException(Config.PARTICLES.key + " must have only 2 particles!");
         }
 
         try {
             Portal.setParticle(VersionController.get().getParticle(particles.get(0)), true);
         } catch (IllegalArgumentException IAEx) {
-            PortalGun.plugin.printConsoleErrorMessage("Particle '" + particles.get(0) + "' does not exists.");
+            throw new IllegalArgumentException("Particle '" + particles.get(0) + "' does not exists.");
         }
 
         try {
             Portal.setParticle(VersionController.get().getParticle(particles.get(1)), false);
         } catch (IllegalArgumentException IAEx) {
-            PortalGun.plugin.printConsoleErrorMessage("Particle '" + particles.get(1) + "' does not exists.");
+            throw new IllegalArgumentException("Particle '" + particles.get(1) + "' does not exists.");
         }
     }
 
-    private static void loadRestarterParticles() {
+    private static void loadRestarterParticles() throws IllegalArgumentException {
         String particle = Config.fileConfiguration.getString(Config.RESTARTER_PARTICLES.key);
         if (particle == null) {
             // < v.2.3
@@ -152,7 +155,7 @@ public enum Config {
         try {
             ResetBlock.setParticle(VersionController.get().getParticle(particle));
         } catch (IllegalArgumentException IAEx) {
-            PortalGun.plugin.printConsoleErrorMessage("Particle '" + particle + "' does not exists.");
+            throw new IllegalArgumentException("Particle '" + particle + "' does not exists.");
         }
     }
 
@@ -160,12 +163,13 @@ public enum Config {
      * It creates the PortalGun
      * @param material PortalGun's material
      * @param customModelData PortalGun's CustomModelData. NULL or -1 if any
+     * @throws IllegalArgumentException Invalid PortalGun material
      */
-    private static void loadPortalgunMaterial(@NotNull String name, @NotNull List<String> lore, @NotNull String material, @Nullable Integer customModelData, @Nullable Integer durability) {
+    private static void loadPortalgunMaterial(@NotNull String name, @NotNull List<String> lore, @NotNull String material, @Nullable Integer customModelData, @Nullable Integer durability) throws IllegalArgumentException {
         Material portalgunMaterial = Material.getMaterial(material);
         if (portalgunMaterial == null) {
             PortalGun.plugin.printConsoleErrorMessage("PortalGun's item (" + material + ") does not exists.");
-            return;
+            throw new IllegalArgumentException("PortalGun's item (" + material + ") does not exists.");
         }
 
         ItemMeta meta;
@@ -194,7 +198,10 @@ public enum Config {
         meta.setLore(lore);
 
         // resourcepack & item identificator
-        if (customModelData != null) meta.setCustomModelData(customModelData);
+        if (customModelData != null) {
+            if (VersionController.version.compareTo(Version.MC_1_14) >= 0) meta.setCustomModelData(customModelData);
+            else throw new IllegalArgumentException("Using custom model data prior to 1.14");
+        }
         else {
             meta.addEnchant(Enchantment.DURABILITY, 10, true); // we need an identifier
             if (PortalGun.useResourcePack) PortalGun.plugin.printConsoleErrorMessage("The resourcepack won't work on 1.8!");
