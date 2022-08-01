@@ -1,8 +1,10 @@
 package com.rogermiranda1000.portalgun.events;
 
+import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.utils.raycast.Ray;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -157,7 +159,7 @@ public class onPortalgunEntity {
                 // grabbed objects face away from the player
                 newLocation.setYaw(e.getKey().getLocation().getYaw());
             }
-            e.getValue().teleport(newLocation);
+            Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> e.getValue().teleport(newLocation));
         }
     }
 }

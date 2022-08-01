@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.CancellationException;
 
-import com.rogermiranda1000.helper.CustomCommand;
 import com.rogermiranda1000.helper.RogerPlugin;
 import com.rogermiranda1000.helper.SentryScheduler;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
@@ -130,7 +129,7 @@ public class PortalGun extends RogerPlugin {
 
         SentryScheduler scheduler = new SentryScheduler(this);
         // Particles
-        this.particleTask = scheduler.runTaskTimerAsynchronously(this, PortalGun::playAllParticles, 0, PortalGun.particleDelay);
+        this.particleTask = scheduler.runTaskTimer(this, PortalGun::playAllParticles, 0, PortalGun.particleDelay);
         // TODO: configuration "only players teleports"
         // Entities
         this.teleportTask = scheduler.runTaskTimerAsynchronously(this, ()->{
@@ -163,18 +162,10 @@ public class PortalGun extends RogerPlugin {
                 final Location destinyLocation = portal.getDestiny(portal.getLocationIndex(entityBlockLocation));
                 if (destinyLocation == null) continue;
 
-                if (destinyLocation.getWorld().equals(entityBlockLocation.getWorld())) {
-                    if(portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) PortalGun.teleportedEntities.put(e, destinyLocation);
-                }
-                else {
-                    try {
-                        // Async does not support teleport between worlds
-                        Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> {
-                            if (portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) PortalGun.teleportedEntities.put(e, destinyLocation);
-                            return null;
-                        });
-                    } catch (CancellationException ex) {}
-                }
+                Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> {
+                    if (portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) PortalGun.teleportedEntities.put(e, destinyLocation);
+                    return null;
+                });
             }
         }
     }
