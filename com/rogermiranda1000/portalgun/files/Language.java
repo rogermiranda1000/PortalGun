@@ -32,7 +32,8 @@ public enum Language {
     OTHER_USER_REMOVE("user.other_remove"),
     USER_DEATH("user.remove_death"),
     USER_REMOVE_ALL("user.remove_all"),
-    REPORT_SENT("report.sent");
+    REPORT_SENT("report.sent"),
+    REPORT_CONTACT_ERROR("report.contact_error");
 
     private static HashMap<Language, String> translations;
     public static File languagePath;
@@ -169,6 +170,7 @@ public enum Language {
         r.put(Language.USER_NOT_FOUND.key, "[player] not found.");
         r.put(Language.HELP_UNKNOWN.key, "Unknown command.");
         r.put(Language.REPORT_SENT.key, "Report sent! Thanks for helping.");
+        r.put(Language.REPORT_CONTACT_ERROR.key, "You need to put an email (something@website) or Discord (user#id) to contact. If you don't want to, then set '-'.");
 
         return r;
     }
@@ -201,6 +203,7 @@ public enum Language {
         r.put(Language.OTHER_USER_NO_PORTALS.key, "[player] no tiene portales abiertos.");
         r.put(Language.HELP_UNKNOWN.key, "Comando desconocido.");
         r.put(Language.REPORT_SENT.key, "Reporte enviado! Gracias por ayudar.");
+        r.put(Language.REPORT_CONTACT_ERROR.key, "Has de poner un correo (algo@web) or Discord (usuario#id) para contactar. Si no quieres, entonces pon '-'.");
 
         return r;
     }
@@ -233,6 +236,7 @@ public enum Language {
         r.put(Language.OTHER_USER_NO_PORTALS.key, "[player] no té portals oberts.");
         r.put(Language.HELP_UNKNOWN.key, "Comanda desconeguda.");
         r.put(Language.REPORT_SENT.key, "Report enviat! Gràcies per ajudar.");
+        r.put(Language.REPORT_CONTACT_ERROR.key, "Has de posar un correu (algo@web) o Discord (usuari#id) per a contactar. Si no vols, posa '-'.");
 
         return r;
     }
@@ -268,6 +272,7 @@ public enum Language {
         r.put(Language.HELP_REPORT.key, "Wyślij informacje o problemie. W strefie 'kontakt' ustaw swój adres e-mail lub discord, abym mógł się z tobą skontaktować (jeśli nie chcesz ustawiać '-')");
 
         r.put(Language.REPORT_SENT.key, "Raport wysłany! Dziękuję za pomoc.");
+        r.put(Language.REPORT_CONTACT_ERROR.key, "Aby się skontaktować, musisz podać e-mail (something@website) lub Discord (user#id). Jeśli nie chcesz, ustaw '-'.");
 
         return r;
     }
@@ -303,6 +308,7 @@ public enum Language {
         r.put(Language.HELP_REPORT.key, "Odešlete informace o problému. V zóně 'kontakt' nastavte svůj e-mail nebo diskor, abych se s vámi mohl spojit (pokud nechcete nastavit '-')");
 
         r.put(Language.REPORT_SENT.key, "Hlášení odesláno! Díky za pomoc.");
+        r.put(Language.REPORT_CONTACT_ERROR.key, "Chcete-li kontaktovat, musíte zadat e-mail (něco@web) nebo Discord (uživatele#ID). Pokud nechcete, nastavte '-'.");
 
         return r;
     }
