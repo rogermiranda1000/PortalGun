@@ -133,8 +133,10 @@ public class PortalGun extends RogerPlugin {
         // TODO: configuration "only players teleports"
         // Entities
         this.teleportTask = scheduler.runTaskTimerAsynchronously(this, ()->{
-            PortalGun.updateTeleportedEntities();
-            PortalGun.teleportEntities();
+            synchronized (PortalGun.teleportedEntities) {
+                PortalGun.updateTeleportedEntities();
+                PortalGun.teleportEntities();
+            }
         }, 1, PortalGun.particleDelay*3);
         this.pickEntitiesTask = scheduler.runTaskTimerAsynchronously(this, onPortalgunEntity::updatePickedEntities, 0, PortalGun.pickedEntitiesDelay);
     }
