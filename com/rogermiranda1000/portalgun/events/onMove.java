@@ -46,11 +46,15 @@ public class onMove implements Listener {
             if (2*approachVelocitySquare < delta.dot(delta) /* square of each element */) return;
         }
         else {
-            if (PortalGun.teleportedEntities.containsKey(player)) return; // prevent bouncing from one portal to another
+            synchronized (PortalGun.teleportedEntities) {
+                if (PortalGun.teleportedEntities.containsKey(player)) return; // prevent bouncing from one portal to another
+            }
         }
 
         if(portal.teleportToDestiny(player, VersionController.get().getVelocity(e), destiny)) {
-            PortalGun.teleportedEntities.put(player, destiny);
+            synchronized (PortalGun.teleportedEntities) {
+                PortalGun.teleportedEntities.put(player, destiny);
+            }
             player.playSound(player.getLocation(), Config.TELEPORT_SOUND.getSound(), 3.0F, 0.5F);
         }
     }

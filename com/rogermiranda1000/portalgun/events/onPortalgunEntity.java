@@ -150,18 +150,21 @@ public class onPortalgunEntity {
     }
 
     public static void updatePickedEntities() {
+        Set<Map.Entry<Player, Entity>> entities;
         synchronized (pickedEntities) {
             pickedEntities.entrySet().removeIf(e -> !e.getValue().isValid()); // Entity no loger exists
-            for (Map.Entry<Player, Entity> e : pickedEntities.entrySet()) {
-                Location expect = Ray.getPoint(e.getKey(), PICKED_ENTITY_DISTANCE),
-                        newLocation = secureTeleport(e.getValue(), expect);
+            entities = pickedEntities.entrySet();
+        }
 
-                if (newLocation == expect) {
-                    // grabbed objects face away from the player
-                    newLocation.setYaw(e.getKey().getLocation().getYaw());
-                }
-                Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> e.getValue().teleport(newLocation));
+        for (Map.Entry<Player, Entity> e : entities) {
+            Location expect = Ray.getPoint(e.getKey(), PICKED_ENTITY_DISTANCE),
+                    newLocation = secureTeleport(e.getValue(), expect);
+
+            if (newLocation == expect) {
+                // grabbed objects face away from the player
+                newLocation.setYaw(e.getKey().getLocation().getYaw());
             }
+            Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> e.getValue().teleport(newLocation));
         }
     }
 }
