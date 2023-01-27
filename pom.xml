@@ -1,0 +1,147 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.rogermiranda1000</groupId>
+  <artifactId>PortalGun</artifactId>
+  <version>2.5.4</version>
+  <name>PortalGun</name>
+  <url>https://www.spigotmc.org/resources/portalgun-1-8-1-19.44746/</url>
+  <packaging>jar</packaging>
+
+  <properties>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
+    <maven.test.skip>true</maven.test.skip>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.github.rogermiranda1000</groupId>
+      <artifactId>WatchWolf-Tester</artifactId>
+      <version>LATEST</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot-api</artifactId>
+      <version>1.16.5-R0.1-SNAPSHOT</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/spigot-1.16.5.jar</systemPath>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+      <version>LATEST</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- FILE DEPENDENCIES -->
+
+    <dependency>
+      <groupId>com.rogermiranda1000</groupId>
+      <artifactId>versioncontroller</artifactId>
+      <version>LATEST</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/VersionController.jar</systemPath>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>PortalGun</finalName>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-plugin-plugin</artifactId>
+          <version>3.6.0</version>
+          <configuration>
+            <!-- see http://jira.codehaus.org/browse/MNG-5346 -->
+            <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.9.1</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>2.5.1</version>
+        <configuration>
+          <groupId>com.rogermiranda1000</groupId>
+          <artifactId>versioncontroller</artifactId>
+          <version>LATEST</version>
+          <packaging>jar</packaging>
+          <file>${basedir}/lib/VersionController.jar</file>
+          <generatePom>true</generatePom>
+        </configuration>
+        <executions>
+          <execution>
+            <id>install-jar-lib</id>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+            <phase>validate</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- attach VersionController -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.rogermiranda1000</groupId>
+                  <artifactId>versioncontroller</artifactId>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}/classes</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+  </build>
+
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
+</project>

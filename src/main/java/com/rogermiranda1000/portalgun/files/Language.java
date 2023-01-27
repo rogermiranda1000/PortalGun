@@ -107,6 +107,7 @@ public enum Language {
             Language.createLanguageFile("catalan");
             Language.createLanguageFile("polish");
             Language.createLanguageFile("czech");
+            Language.createLanguageFile("german");
         }
     }
 
@@ -116,7 +117,7 @@ public enum Language {
      */
     public static boolean createLanguageFile(String language) {
         if (!language.equalsIgnoreCase("english") && !language.equalsIgnoreCase("spanish") && !language.equalsIgnoreCase("catalan")
-                && !language.equalsIgnoreCase("polish") && !language.equalsIgnoreCase("czech"))
+                && !language.equalsIgnoreCase("polish") && !language.equalsIgnoreCase("czech") && !language.equalsIgnoreCase("german"))
             return false;
 
         final YamlConfiguration lang = new YamlConfiguration();
@@ -129,6 +130,7 @@ public enum Language {
             else if (language.equalsIgnoreCase("catalan")) Language.addValues(lang, Language.getCatalanFile());
             else if (language.equalsIgnoreCase("polish")) Language.addValues(lang, Language.getPolishFile());
             else if (language.equalsIgnoreCase("czech")) Language.addValues(lang, Language.getCzechFile());
+            else if (language.equalsIgnoreCase("german")) Language.addValues(lang, Language.getGermanFile());
 
             lang.save(languageFile);
         } catch(Exception e){
@@ -309,6 +311,42 @@ public enum Language {
 
         r.put(Language.REPORT_SENT.key, "Hlášení odesláno! Díky za pomoc.");
         r.put(Language.REPORT_CONTACT_ERROR.key, "Chcete-li kontaktovat, musíte zadat e-mail (něco@web) nebo Discord (uživatele#ID). Pokud nechcete, nastavte '-'.");
+
+        return r;
+    }
+
+    private static HashMap<String, Object> getGermanFile() {
+        HashMap<String, Object> r = new HashMap<>();
+
+        r.put(Language.USER_NO_PERMISSIONS.key, "Du hast keine Rechte!");
+        r.put(Language.USER_DEATH.key, "Deine Portale haben sich wegen deines Todes geschlossen.");
+        r.put(Language.USER_REMOVE_ALL.key, "Du hast alle Portale geschlossen.");
+        r.put(Language.USER_GET_BOOTS.key, "Du hast die PortalBoots erhalten!");
+        r.put(Language.OTHER_USER_REMOVE.key, "[player] hat deine Portale geschlossen.");
+        r.put(Language.USER_GET_EMANCIPATOR.key, "Du hast den Emancipation block erhalten! Platziere 2 aufeinander um die Portale zu benutzen.");
+        r.put(Language.USER_GET_GUN.key, "Du hast die PortalGun erhalten.");
+        r.put(Language.USER_NO_PORTALS.key, "Du hast grade keine offende Portale.");
+        r.put(Language.USER_REMOVE.key, "Du hast erfolgreich deine Portale geschlossen.");
+        r.put(Language.USER_REMOVE_OTHERS.key, "Du hast die Portale von [player] geschlossen.");
+        r.put(Language.OTHER_USER_NO_PORTALS.key, "[player] hat keine offende Portale.");
+        r.put(Language.USER_NOT_FOUND.key, "[player] nicht gefunden.");
+
+        r.put(Language.PORTAL_OPENED.key, "[player] hat ein Portal bei [pos] geoefnet.");
+        r.put(Language.PORTAL_FAR.key, "Der Block ist zu weit entfernt.");
+        r.put(Language.PORTAL_DENIED.key, "Hier kannst du kein Portal oefnnen.");
+        r.put(Language.PORTAL_COLLIDING.key, "Du kannst nicht beide Portale auf denselben Block setzen.");
+
+        r.put(Language.HELP_REMOVE.key, "Loescht deine aktiven Portale.");
+        r.put(Language.HELP_UNKNOWN.key, "Unbekannter Befehl.");
+        r.put(Language.HELP_REMOVE_OTHERS.key, "Delete others' active portals.");
+        r.put(Language.HELP_GET_GUN.key, "Erhalte die PortalGun.");
+        r.put(Language.HELP_GET_EMANCIPATOR.key, "Erhalte den emancipation block.");
+        r.put(Language.HELP_GET_BOOTS.key, "Erhalte die PortalBoots.");
+        r.put(Language.HELP_REMOVE_ALL.key, "Loescht alle aktiven Portale.");
+        r.put(Language.HELP_REPORT.key, "Sendet ein Bug Report an die Entwickler. Du must eine E-Mail (something@website) eingeben oder ein Discord (user#id) Benutzername. Wenn du es nicht willst, denn schreibe '-'.");
+
+        r.put(Language.REPORT_SENT.key, "Report gesendet. Danke fuer deine Hilfe.");
+        r.put(Language.REPORT_CONTACT_ERROR.key, "Du must eine E-Mail (something@website) eingeben oder ein Discord (user#id) Benutzername. Wenn du es nicht willst, denn schreibe '-'.");
 
         return r;
     }
