@@ -152,7 +152,9 @@ public class PortalGun extends RogerPlugin {
         for (World world : Bukkit.getWorlds()) {
             for (Entity e : getEntities(world)) {
                 if (e instanceof Player) continue;
-                if (PortalGun.teleportedEntities.containsKey(e)) continue;
+                synchronized (PortalGun.teleportedEntities) {
+                    if (PortalGun.teleportedEntities.containsKey(e)) continue;
+                }
 
                 final Location entityBlockLocation = e.getLocation().getBlock().getLocation();
                 final Portal portal = Portal.getPortal(entityBlockLocation);
@@ -163,7 +165,11 @@ public class PortalGun extends RogerPlugin {
                 if (destinyLocation == null) continue;
 
                 Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> {
-                    if (portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) PortalGun.teleportedEntities.put(e, destinyLocation);
+                    if (portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) {
+                        synchronized (PortalGun.teleportedEntities) {
+                            PortalGun.teleportedEntities.put(e, destinyLocation);
+                        }
+                    }
                     return null;
                 });
             }
@@ -188,9 +194,11 @@ public class PortalGun extends RogerPlugin {
      * sees if teleported entities has moved (therefore, must be removed from the list)
      */
     private static void updateTeleportedEntities() {
-        PortalGun.teleportedEntities.entrySet().removeIf(e -> !e.getKey().isValid()); // Entity no loger exists
-        PortalGun.teleportedEntities.entrySet().removeIf(e -> !e.getKey().getLocation().getBlock().getLocation().equals(e.getValue())
-                && (Portal.getPortal(e.getValue()) == null || !Portal.getPortal(e.getValue()).equals(Portal.getPortal(e.getKey().getLocation().getBlock().getLocation())))); // Entity has moved to another portal (or no portal at all)
+        synchronized (PortalGun.teleportedEntities) {
+            PortalGun.teleportedEntities.entrySet().removeIf(e -> !e.getKey().isValid()); // Entity no loger exists
+            PortalGun.teleportedEntities.entrySet().removeIf(e -> !e.getKey().getLocation().getBlock().getLocation().equals(e.getValue())
+                    && (Portal.getPortal(e.getValue()) == null || !Portal.getPortal(e.getValue()).equals(Portal.getPortal(e.getKey().getLocation().getBlock().getLocation())))); // Entity has moved to another portal (or no portal at all)
+        }
     }
 
     @Override

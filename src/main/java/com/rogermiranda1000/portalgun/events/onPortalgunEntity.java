@@ -150,8 +150,13 @@ public class onPortalgunEntity {
     }
 
     public static void updatePickedEntities() {
-        pickedEntities.entrySet().removeIf(e -> !e.getValue().isValid()); // Entity no loger exists
-        for (Map.Entry<Player,Entity> e : pickedEntities.entrySet()) {
+        Set<Map.Entry<Player, Entity>> entities;
+        synchronized (pickedEntities) {
+            pickedEntities.entrySet().removeIf(e -> !e.getValue().isValid()); // Entity no loger exists
+            entities = pickedEntities.entrySet();
+        }
+
+        for (Map.Entry<Player, Entity> e : entities) {
             Location expect = Ray.getPoint(e.getKey(), PICKED_ENTITY_DISTANCE),
                     newLocation = secureTeleport(e.getValue(), expect);
 

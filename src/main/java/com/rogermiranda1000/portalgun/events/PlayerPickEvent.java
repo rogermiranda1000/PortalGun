@@ -1,11 +1,11 @@
 package com.rogermiranda1000.portalgun.events;
 
-import com.sun.istack.internal.NotNull;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
+import org.jetbrains.annotations.NotNull;
 
 public class PlayerPickEvent extends PlayerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();

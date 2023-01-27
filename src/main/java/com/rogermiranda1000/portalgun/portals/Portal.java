@@ -1,6 +1,7 @@
 package com.rogermiranda1000.portalgun.portals;
 
 import com.rogermiranda1000.portalgun.Direction;
+import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.particles.ParticleEntity;
@@ -293,7 +294,7 @@ public abstract class Portal {
     }
 
     // TODO: teleport not to exact center block
-    public boolean teleportToDestiny(Entity e, Vector velocity, Location l) {
+    public boolean teleportToDestiny(final Entity e, Vector velocity, Location l) {
         if (this.linked == null || l == null) return false;
 
         l = l.clone();
@@ -303,7 +304,8 @@ public abstract class Portal {
 
         e.teleport(l);
 
-        e.setVelocity( this.linked.getApproachVector().multiply( -velocity.dot(this.getApproachVector()) ) );
+        final Vector newVelocity = this.linked.getApproachVector().multiply( -velocity.dot(this.getApproachVector()) );
+        Bukkit.getScheduler().runTaskLater(PortalGun.plugin, ()->e.setVelocity(newVelocity), 1L);
 
         return true;
     }
