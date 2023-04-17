@@ -24,6 +24,8 @@ import java.util.*;
 
 public enum Config {
     LANGUAGE("language"),
+    CLEAR_PREFIX("prefix.clear"),
+    ERROR_PREFIX("prefix.error"),
     RESOURCEPACK("resourcepack.use"),
     PORTALGUN_NAME("portalgun.name"),
     PORTALGUN_LORE("portalgun.lore"),
@@ -79,6 +81,9 @@ public enum Config {
     public static void loadConfig() throws ConfigFileException {
         try {
             Config.loadValidBlocks();
+
+            PortalGun.clearPrefix = Config.fileConfiguration.getString(CLEAR_PREFIX.key);
+            PortalGun.errorPrefix = Config.fileConfiguration.getString(ERROR_PREFIX.key);
 
             PortalGun.useResourcePack = Config.fileConfiguration.getBoolean(RESOURCEPACK.key);
             PortalGun.takeEntities = Config.fileConfiguration.getBoolean(TAKE_ENTITIES.key);
@@ -229,6 +234,8 @@ public enum Config {
         c.put(Config.LANGUAGE.key, "english");
         if (VersionController.version.compareTo(Version.MC_1_9) >= 0) c.put(Config.RESOURCEPACK.key, true);
         c.put(Config.MATERIAL.key, "IRON_HOE");
+        c.put(Config.CLEAR_PREFIX.key, "§6§l[PortalGun] §a");
+        c.put(Config.ERROR_PREFIX.key, "§6§l[PortalGun] §c");
         c.put(Config.PORTALGUN_NAME.key, "§6§lPortalGun");
         c.put(Config.PORTALGUN_LORE.key, new String[]{"With the PortalGun you can open portals."});
         if (VersionController.version.compareTo(Version.MC_1_14) >= 0) c.put(Config.CUSTOM_MODEL_DATA.key, 1);
