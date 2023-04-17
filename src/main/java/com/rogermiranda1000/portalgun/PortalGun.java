@@ -29,6 +29,7 @@ import org.bukkit.scheduler.BukkitTask;
 public class PortalGun extends RogerPlugin {
     public static PortalGun plugin;
 
+    public static String clearPrefix, errorPrefix;
     public static boolean useResourcePack, takeEntities;
     public static ItemStack item;
     public static ItemStack botas;
@@ -44,6 +45,16 @@ public class PortalGun extends RogerPlugin {
         super(new onDead(), new onLeave(), new onMove(), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity());
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
+    }
+
+    @Override
+    public String getClearPrefix() {
+        return (PortalGun.clearPrefix == null || PortalGun.clearPrefix.length() == 0) ? super.getClearPrefix() : PortalGun.clearPrefix;
+    }
+
+    @Override
+    public String getErrorPrefix() {
+        return (PortalGun.errorPrefix == null || PortalGun.errorPrefix.length() == 0) ? super.getErrorPrefix() : PortalGun.errorPrefix;
     }
 
     @Override
@@ -70,7 +81,7 @@ public class PortalGun extends RogerPlugin {
         FileManager.loadFiles();
         this.setCommandMessages(Language.USER_NO_PERMISSIONS.getText(), Language.HELP_UNKNOWN.getText());
 
-        super.setCommands(PortalGunCommands.commands); // @pre before super.onEnable() & after loading languages
+        super.setCommands(new PortalGunCommands(this.getClearPrefix(), this.getErrorPrefix()).commands); // @pre before super.onEnable() & after loading languages
     }
     @Override
     public void postOnEnable() {
