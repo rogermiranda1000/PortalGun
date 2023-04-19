@@ -42,10 +42,14 @@ public class onUse implements Listener {
         event.setCancelled(true);
 
         boolean leftClick = (event.getAction().equals(Action.LEFT_CLICK_BLOCK) || event.getAction().equals(Action.LEFT_CLICK_AIR));
+        this.playerUsedPortalGun(player, leftClick);
+    }
+
+    public boolean playerUsedPortalGun(Player player, boolean leftClick) {
         if (onPortalgunEntity.haveEntityPicked(player)) {
             if (leftClick) this.onEntityPick.launchEntity(player);
             else this.onEntityPick.freeEntity(player);
-            return;
+            return true;
         }
 
         if (PortalGun.takeEntities && player.hasPermission("portalgun.entities") && !leftClick) {
@@ -54,41 +58,41 @@ public class onUse implements Listener {
             if (facing != null) {
                 PlayerPickEvent ppe = new PlayerPickEvent(player, facing);
                 this.onEntityPick.onEntityPick(ppe);
-                if (!ppe.isCancelled()) return;
+                if (!ppe.isCancelled()) return true;
                 // else just ignore the pick and throw a portal
             }
         }
 
         /* opening a portal */
         if (!player.hasPermission("portalgun.open")) {
-            player.sendMessage(PortalGun.plugin.errorPrefix + Language.USER_NO_PERMISSIONS.getText());
-            return;
+            player.sendMessage(PortalGun.plugin.getErrorPrefix() + Language.USER_NO_PERMISSIONS.getText());
+            return false;
         }
 
         Block colliderBlock = getLookingBlock(player, Config.MAX_LENGHT.getInteger(), Portal.isEmptyBlock);
         if (colliderBlock == null) {
-            player.sendMessage(PortalGun.plugin.errorPrefix + Language.PORTAL_FAR.getText());
-            return;
+            player.sendMessage(PortalGun.plugin.getErrorPrefix() + Language.PORTAL_FAR.getText());
+            return false;
         }
 
         if (ResetBlocks.getInstance().insideResetBlock(colliderBlock.getLocation())) {
             player.playSound(player.getLocation(), Config.CREATE_SOUND.getSound(), 3.0F, 0.5F);
             // TODO fail animation
-            return;
+            return false;
         }
 
         Portal p = getMatchingPortal(player, colliderBlock.getLocation(), leftClick,
                 Direction.getDirection((Entity)player), player.getLocation().getBlock().getLocation().subtract(colliderBlock.getLocation()).toVector());
 
         if (p == null) {
-            player.sendMessage(PortalGun.plugin.errorPrefix + Language.PORTAL_DENIED.getText());
-            return;
+            player.sendMessage(PortalGun.plugin.getErrorPrefix() + Language.PORTAL_DENIED.getText());
+            return false;
         }
 
         // existing portal in that location? (and not replaced)
         if (p.collidesAndPersists()) {
-            player.sendMessage(PortalGun.plugin.errorPrefix + Language.PORTAL_COLLIDING.getText());
-            return;
+            player.sendMessage(PortalGun.plugin.getErrorPrefix() + Language.PORTAL_COLLIDING.getText());
+            return false;
         }
 
         Portal.setPortal(player, p);
@@ -97,6 +101,7 @@ public class onUse implements Listener {
                 new String[] {"player", player.getName()},
                 new String[] {"pos", colliderBlock.getWorld().getName() + " > " + colliderBlock.getX() + ", " + colliderBlock.getY() + ", " + colliderBlock.getZ()}
         ));
+        return true;
     }
 
     @Nullable
