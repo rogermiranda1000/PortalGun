@@ -4,7 +4,7 @@ version: "${project.version}"
 author: rogermiranda1000
 description: Plugin inspired in the PortalGun from Portal.
 api-version: 1.13
-softdepend: [Gson-for-1-7-10,Multiverse-Core]
+softdepend: [Gson-for-1-7-10,Multiverse-Core,Residence,WorldGuard]
 commands:
     portalgun:
         description: Get the PortalGun
