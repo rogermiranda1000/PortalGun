@@ -32,6 +32,7 @@ public enum Config {
     MATERIAL("portalgun.material"),
     CUSTOM_MODEL_DATA("portalgun.custom_model_data"),
     DURABILITY("portalgun.durability"),
+    CAST_BEAM("portalgun.cast_beam"),
     DELETE_ON_DEATH("portals.remove_on_death"),
     REMOVE_ON_LEAVE("portals.remove_on_leave"),
     MAX_LENGHT("portals.placement_length"),
@@ -87,6 +88,7 @@ public enum Config {
 
             PortalGun.useResourcePack = Config.fileConfiguration.getBoolean(RESOURCEPACK.key);
             PortalGun.takeEntities = Config.fileConfiguration.getBoolean(TAKE_ENTITIES.key);
+            PortalGun.castBeam = Config.fileConfiguration.getBoolean(CAST_BEAM.key);
 
             Config.loadPortalgunMaterial(Config.fileConfiguration.getString(PORTALGUN_NAME.key), Config.fileConfiguration.getStringList(PORTALGUN_LORE.key),
                     Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
@@ -252,6 +254,7 @@ public enum Config {
         c.put(Config.CREATE_SOUND.key, Config.getDefaultCreateSound());
         c.put(Config.RESTARTER_PARTICLES.key, Config.getDefaultRestarterParticle());
         c.put(Config.TAKE_ENTITIES.key, true);
+        c.put(Config.CAST_BEAM.key, true);
         c.put(Config.TAKE_ENTITIES_BLACKLIST.key, getDefaultPickEntitiesBlacklist());
 
         return c;

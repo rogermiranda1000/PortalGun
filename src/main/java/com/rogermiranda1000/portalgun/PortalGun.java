@@ -6,6 +6,7 @@ import java.util.concurrent.CancellationException;
 
 import com.rogermiranda1000.helper.RogerPlugin;
 import com.rogermiranda1000.helper.SentryScheduler;
+import com.rogermiranda1000.portalgun.api.PortalGunAccessibleMethods;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.events.*;
 import com.rogermiranda1000.portalgun.files.Config;
@@ -26,7 +27,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitTask;
 
-public class PortalGun extends RogerPlugin {
+public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods {
     public static PortalGun plugin;
 
     public static String clearPrefix, errorPrefix;
@@ -36,6 +37,7 @@ public class PortalGun extends RogerPlugin {
     private static final int particleDelay = 2, pickedEntitiesDelay = 3;
     public static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
     public static final int MAX_ENTITY_PICK_RANGE = 4; // TODO configurable
+    public static boolean castBeam;
 
     private BukkitTask particleTask;
     private BukkitTask teleportTask;
@@ -239,5 +241,10 @@ public class PortalGun extends RogerPlugin {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean castPortal(Player p, boolean isLeft) {
+        return this.getListener(onUse.class).playerUsedPortalGun(p, isLeft);
     }
 }
