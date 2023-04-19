@@ -47,7 +47,8 @@ public enum Config {
     TAKE_ENTITIES("portalgun.take_entities.enabled"),
     TAKE_ENTITIES_BLACKLIST("portalgun.take_entities.blacklist"),
     BLACKLISTED_WORLDS("portals.blacklisted_worlds"),
-    WG_REGIONS("portals.only_allowed_worldguard_regions");
+    WG_REGIONS("portals.only_allowed_worldguard_regions"),
+    BLACKLIST_WG_REGIONS("portals.denied_worldguard_regions");
 
     private static FileConfiguration fileConfiguration;
     private static HashMap<Config, Object> savedConfiguration;
@@ -93,6 +94,7 @@ public enum Config {
             PortalGun.castBeam = Config.fileConfiguration.getBoolean(CAST_BEAM.key);
             PortalGun.blacklistedWorlds = Config.fileConfiguration.getStringList(BLACKLISTED_WORLDS.key);
             PortalGun.wgRegions = (Config.fileConfiguration.getStringList(WG_REGIONS.key).isEmpty() ? null : Config.fileConfiguration.getStringList(WG_REGIONS.key));
+            PortalGun.blacklistedWgRegions = (Config.fileConfiguration.getStringList(BLACKLIST_WG_REGIONS.key).isEmpty() ? null : Config.fileConfiguration.getStringList(BLACKLIST_WG_REGIONS.key));
 
             Config.loadPortalgunMaterial(Config.fileConfiguration.getString(PORTALGUN_NAME.key), Config.fileConfiguration.getStringList(PORTALGUN_LORE.key),
                     Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
@@ -262,6 +264,7 @@ public enum Config {
         c.put(Config.TAKE_ENTITIES_BLACKLIST.key, getDefaultPickEntitiesBlacklist());
         c.put(Config.BLACKLISTED_WORLDS.key, new String[]{"my-safe-world"});
         c.put(Config.WG_REGIONS.key, new String[]{});
+        c.put(Config.BLACKLIST_WG_REGIONS.key, new String[]{});
 
         return c;
     }

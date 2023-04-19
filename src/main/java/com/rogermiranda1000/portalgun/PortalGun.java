@@ -40,7 +40,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
     public static final int MAX_ENTITY_PICK_RANGE = 4; // TODO configurable
     public static boolean castBeam;
     public static Collection<String> blacklistedWorlds;
-    public static Collection<String> wgRegions;
+    public static Collection<String> wgRegions, blacklistedWgRegions;
 
     private BukkitTask particleTask;
     private BukkitTask teleportTask;
@@ -256,8 +256,12 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         Boolean ret = null;
         for (RegionDelimiter rd : this.regionDelimiter.get()) {
             // TODO un-garbage this
-            if (!(rd instanceof WorldRegion) /* it's WG */ && PortalGun.wgRegions == null /* no WG regions */) continue;
-            ret = (ret == null ? true : ret) & rd.isInsideRegion(loc, PortalGun.wgRegions);
+            if (!(rd instanceof WorldRegion)) {
+                // it's WG
+                if (PortalGun.wgRegions != null) ret = (ret == null ? true : ret) & rd.isInsideRegion(loc, PortalGun.wgRegions);
+                if (PortalGun.blacklistedWgRegions != null) ret = (ret == null ? true : ret) & !rd.isInsideRegion(loc, PortalGun.blacklistedWgRegions);
+            }
+            else ret = (ret == null ? true : ret) & rd.isInsideRegion(loc, null);
         }
         if (ret == null) ret = (PortalGun.wgRegions == null && PortalGun.blacklistedWorlds.isEmpty());
         return ret;
