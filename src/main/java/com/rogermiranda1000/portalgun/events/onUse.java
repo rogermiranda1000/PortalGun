@@ -87,6 +87,11 @@ public class onUse implements Listener {
             return false;
         }
 
+        if (!PortalGun.plugin.canSpawnPortal(colliderBlock.getLocation())) {
+            player.sendMessage(PortalGun.plugin.getErrorPrefix() + Language.PORTAL_DENIED.getText());
+            return false;
+        }
+
         Portal p = getMatchingPortal(player, colliderBlock.getLocation(), leftClick,
                 Direction.getDirection((Entity)player), player.getLocation().getBlock().getLocation().subtract(colliderBlock.getLocation()).toVector());
 

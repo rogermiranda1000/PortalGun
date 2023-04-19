@@ -2,10 +2,11 @@ package com.rogermiranda1000.portalgun;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.CancellationException;
 
 import com.rogermiranda1000.helper.RogerPlugin;
 import com.rogermiranda1000.helper.SentryScheduler;
+import com.rogermiranda1000.helper.worldguard.RegionDelimiter;
+import com.rogermiranda1000.helper.worldguard.WorldGuardManager;
 import com.rogermiranda1000.portalgun.api.PortalGunAccessibleMethods;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.events.*;
@@ -38,6 +39,8 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
     public static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
     public static final int MAX_ENTITY_PICK_RANGE = 4; // TODO configurable
     public static boolean castBeam;
+    public static Collection<String> blacklistedWorlds;
+    public static Collection<String> wgRegions, blacklistedWgRegions;
 
     private BukkitTask particleTask;
     private BukkitTask teleportTask;
@@ -81,6 +84,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         PortalGun.plugin = this;
 
         FileManager.loadFiles();
+        if (PortalGun.blacklistedWorlds.size() > 0) this.regionDelimiter.add(new WorldRegion(PortalGun.blacklistedWorlds));
         this.setCommandMessages(Language.USER_NO_PERMISSIONS.getText(), Language.HELP_UNKNOWN.getText());
 
         super.setCommands(new PortalGunCommands(this.getClearPrefix(), this.getErrorPrefix()).commands); // @pre before super.onEnable() & after loading languages
@@ -246,5 +250,20 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
     @Override
     public boolean castPortal(Player p, boolean isLeft) {
         return this.getListener(onUse.class).playerUsedPortalGun(p, isLeft);
+    }
+
+    public boolean canSpawnPortal(final Location loc) {
+        Boolean ret = null;
+        for (RegionDelimiter rd : this.regionDelimiter.get()) {
+            // TODO un-garbage this
+            if (!(rd instanceof WorldRegion)) {
+                // it's WG
+                if (PortalGun.wgRegions != null) ret = (ret == null ? true : ret) & rd.isInsideRegion(loc, PortalGun.wgRegions);
+                if (PortalGun.blacklistedWgRegions != null) ret = (ret == null ? true : ret) & !rd.isInsideRegion(loc, PortalGun.blacklistedWgRegions);
+            }
+            else ret = (ret == null ? true : ret) & rd.isInsideRegion(loc, null);
+        }
+        if (ret == null) ret = (PortalGun.wgRegions == null && PortalGun.blacklistedWorlds.isEmpty());
+        return ret;
     }
 }
