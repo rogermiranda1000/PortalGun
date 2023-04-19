@@ -269,9 +269,13 @@ public abstract class Portal {
         return sb.toString();
     }
 
-    protected ParticleEntity getParticle() {
-        int pos = (this.isLeft ? 0 : 1); // left portal => pos 0
+    public static ParticleEntity getParticle(boolean isLeft) {
+        int pos = (isLeft ? 0 : 1); // left portal => pos 0
         return Portal.particles[pos];
+    }
+
+    public ParticleEntity getParticle() {
+        return Portal.getParticle(this.isLeft);
     }
 
     public static void setParticle(ParticleEntity particle, boolean leftPortal) {

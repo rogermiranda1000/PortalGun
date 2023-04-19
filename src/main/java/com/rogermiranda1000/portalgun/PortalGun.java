@@ -37,6 +37,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
     private static final int particleDelay = 2, pickedEntitiesDelay = 3;
     public static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
     public static final int MAX_ENTITY_PICK_RANGE = 4; // TODO configurable
+    public static boolean castBeam;
 
     private BukkitTask particleTask;
     private BukkitTask teleportTask;

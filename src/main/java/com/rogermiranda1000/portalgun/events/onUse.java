@@ -12,6 +12,7 @@ import com.rogermiranda1000.portalgun.portals.WallPortal;
 import com.rogermiranda1000.portalgun.utils.raycast.AABB;
 import com.rogermiranda1000.portalgun.utils.raycast.Ray;
 import com.rogermiranda1000.versioncontroller.VersionController;
+import com.rogermiranda1000.versioncontroller.particles.ParticleEntity;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
@@ -27,6 +28,11 @@ import java.util.List;
 import java.util.function.Function;
 
 public class onUse implements Listener {
+    /**
+     * How many blocks will the bean advance before playing a particle
+     */
+    private static final float BEAN_STEPS = 0.2f;
+
     private final onPortalgunEntity onEntityPick;
     public onUse(onPortalgunEntity onEntityPickEvent) {
         this.onEntityPick = onEntityPickEvent;
@@ -101,7 +107,19 @@ public class onUse implements Listener {
                 new String[] {"player", player.getName()},
                 new String[] {"pos", colliderBlock.getWorld().getName() + " > " + colliderBlock.getX() + ", " + colliderBlock.getY() + ", " + colliderBlock.getZ()}
         ));
+        if (PortalGun.castBeam) onUse.castBeam(player.getLocation().add(0, player.getEyeHeight(), 0), colliderBlock.getLocation(), p.getParticle());
         return true;
+    }
+
+    private static void castBeam(Location start, Location target, ParticleEntity particle) {
+        Vector direction = start.getDirection().normalize().multiply(onUse.BEAN_STEPS);
+        double startToTargetSquaredDistance = start.distanceSquared(target);
+
+        Location bean = start.clone();
+        do {
+            bean.add(direction);
+            particle.playParticle(bean.getWorld(), bean);
+        } while (start.distanceSquared(bean) < startToTargetSquaredDistance);
     }
 
     @Nullable
