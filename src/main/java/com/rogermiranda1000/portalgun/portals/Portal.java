@@ -220,6 +220,18 @@ public abstract class Portal {
         if (p != null) {
             if (p.linked != null) p.linked.setLinked(null);
             for (Location l: p.calculateTeleportLocation()) Portal.portalsLocations.remove(l);
+
+            // TODO instead of searching the owner, add an attribute to the portal
+            for (Map.Entry<UUID,Portal[]> usersPortals : Portal.portals.entrySet()) {
+                int indexFound = -1;
+                for (int n = 0; n < usersPortals.getValue().length && indexFound == -1; n++) {
+                    if (p.equals(usersPortals.getValue()[n])) indexFound = n;
+                }
+                if (indexFound != -1) {
+                    usersPortals.getValue()[indexFound] = null; // remove the portal from the user's list
+                    break;
+                }
+            }
         }
     }
 
