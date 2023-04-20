@@ -252,6 +252,21 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         return this.getListener(onUse.class).playerUsedPortalGun(p, isLeft);
     }
 
+    @Override
+    public ArrayList<Portal> getPortals() {
+        return Portal.getPortals();
+    }
+
+    @Override
+    public void removePortal(Portal p) {
+        Portal.removePortal(p);
+    }
+
+    @Override
+    public void removePortals(Player p) {
+        Portal.removePortal(p);
+    }
+
     public boolean canSpawnPortal(final Location loc) {
         Boolean ret = null;
         for (RegionDelimiter rd : this.regionDelimiter.get()) {

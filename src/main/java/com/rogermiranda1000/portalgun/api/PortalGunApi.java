@@ -1,7 +1,10 @@
 package com.rogermiranda1000.portalgun.api;
 
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.portals.Portal;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
 
 public class PortalGunApi implements PortalGunAccessibleMethods {
     private static PortalGunApi portalGunApi = null;
@@ -20,5 +23,20 @@ public class PortalGunApi implements PortalGunAccessibleMethods {
     @Override
     public boolean castPortal(Player p, boolean isLeft) {
         return PortalGun.plugin.castPortal(p, isLeft);
+    }
+
+    @Override
+    public ArrayList<Portal> getPortals() {
+        return PortalGun.plugin.getPortals();
+    }
+
+    @Override
+    public void removePortal(Portal p) {
+        PortalGun.plugin.removePortal(p);
+    }
+
+    @Override
+    public void removePortals(Player p) {
+        PortalGun.plugin.removePortals(p);
     }
 }
