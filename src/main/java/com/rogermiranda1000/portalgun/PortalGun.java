@@ -1,13 +1,42 @@
 package com.rogermiranda1000.portalgun;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.CancellationException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.scheduler.BukkitTask;
 
 import com.rogermiranda1000.helper.RogerPlugin;
 import com.rogermiranda1000.helper.SentryScheduler;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
-import com.rogermiranda1000.portalgun.events.*;
+import com.rogermiranda1000.portalgun.events.onDead;
+import com.rogermiranda1000.portalgun.events.onLeave;
+import com.rogermiranda1000.portalgun.events.onMove;
+import com.rogermiranda1000.portalgun.events.onPlayerDamagesEntity;
+import com.rogermiranda1000.portalgun.events.onPlayerJoin;
+import com.rogermiranda1000.portalgun.events.onPortalgunEntity;
+import com.rogermiranda1000.portalgun.events.onUse;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.FileManager;
 import com.rogermiranda1000.portalgun.files.Language;
@@ -17,14 +46,8 @@ import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
+
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.*;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.scheduler.BukkitTask;
 
 public class PortalGun extends RogerPlugin {
     public static PortalGun plugin;
@@ -34,6 +57,7 @@ public class PortalGun extends RogerPlugin {
     public static ItemStack botas;
     private static final int particleDelay = 2, pickedEntitiesDelay = 3;
     public static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
+    public static final Set<String> entityTeleportBlacklist = new HashSet<>();
     public static final int MAX_ENTITY_PICK_RANGE = 4; // TODO configurable
 
     private BukkitTask particleTask;
@@ -154,6 +178,9 @@ public class PortalGun extends RogerPlugin {
                 if (e instanceof Player) continue;
                 synchronized (PortalGun.teleportedEntities) {
                     if (PortalGun.teleportedEntities.containsKey(e)) continue;
+                }
+                synchronized (PortalGun.entityTeleportBlacklist) {
+                    if (PortalGun.entityTeleportBlacklist.contains(e.getType().getName())) continue;
                 }
 
                 final Location entityBlockLocation = e.getLocation().getBlock().getLocation();

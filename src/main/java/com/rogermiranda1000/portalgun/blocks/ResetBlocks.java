@@ -1,11 +1,9 @@
 package com.rogermiranda1000.portalgun.blocks;
 
-import com.rogermiranda1000.helper.RogerPlugin;
-import com.rogermiranda1000.helper.blocks.ComplexStoreConversion;
-import com.rogermiranda1000.helper.blocks.CustomBlock;
-import com.rogermiranda1000.helper.blocks.file.BasicLocation;
-import com.rogermiranda1000.versioncontroller.VersionController;
-import com.rogermiranda1000.versioncontroller.blocks.BlockType;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,9 +15,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
+import com.rogermiranda1000.helper.RogerPlugin;
+import com.rogermiranda1000.helper.blocks.ComplexStoreConversion;
+import com.rogermiranda1000.helper.blocks.CustomBlock;
+import com.rogermiranda1000.helper.blocks.file.BasicLocation;
+import com.rogermiranda1000.versioncontroller.VersionController;
+import com.rogermiranda1000.versioncontroller.blocks.BlockType;
 
 public class ResetBlocks extends CustomBlock<ResetBlock> {
     public static class StoreResetBlock implements ComplexStoreConversion<ResetBlock, BasicLocation> {

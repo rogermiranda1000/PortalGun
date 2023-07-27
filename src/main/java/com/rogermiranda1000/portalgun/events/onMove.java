@@ -6,6 +6,7 @@ import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
 import com.rogermiranda1000.versioncontroller.VersionController;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,7 +16,7 @@ import org.bukkit.util.Vector;
 
 public class onMove implements Listener {
     @EventHandler
-    public void onMove(PlayerMoveEvent e) {
+    public void onMoveMListener(PlayerMoveEvent e) {
         if (e.getTo() == null) return;
         Vector delta = (e.getTo().clone()).subtract(e.getFrom()).multiply(0.2f /* blocks/second */ * 0.05f /* second/tick */).toVector();
         if (delta.length() == 0.f) return; // not moving?

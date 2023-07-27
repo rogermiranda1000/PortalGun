@@ -1,21 +1,23 @@
 package com.rogermiranda1000.portalgun.portals;
 
-import com.rogermiranda1000.portalgun.Direction;
-import com.rogermiranda1000.portalgun.PortalGun;
-import com.rogermiranda1000.portalgun.files.Config;
-import com.rogermiranda1000.versioncontroller.VersionController;
-import com.rogermiranda1000.versioncontroller.particles.ParticleEntity;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.function.Function;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.function.Function;
+import com.rogermiranda1000.portalgun.Direction;
+import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.files.Config;
+import com.rogermiranda1000.versioncontroller.particles.ParticleEntity;
 
 public abstract class Portal {
     private static HashMap<UUID, Portal[]> portals;
