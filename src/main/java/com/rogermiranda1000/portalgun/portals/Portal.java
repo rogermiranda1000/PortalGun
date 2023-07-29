@@ -2,6 +2,7 @@ package com.rogermiranda1000.portalgun.portals;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
