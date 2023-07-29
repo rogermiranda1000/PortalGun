@@ -6,7 +6,6 @@ import java.util.*;
 import com.rogermiranda1000.helper.RogerPlugin;
 import com.rogermiranda1000.helper.SentryScheduler;
 import com.rogermiranda1000.helper.worldguard.RegionDelimiter;
-import com.rogermiranda1000.helper.worldguard.WorldGuardManager;
 import com.rogermiranda1000.portalgun.api.PortalGunAccessibleMethods;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.events.*;
@@ -170,7 +169,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         for (World world : Bukkit.getWorlds()) {
             for (Entity e : getEntities(world)) {
                 if (e instanceof Player) continue;
-                if (PortalGun.entityTeleportBlacklist.contains(e.getType().getName())) continue; // blacklisted entity
+                if (PortalGun.entityTeleportBlacklist.contains(e.getType().name().toLowerCase())) continue; // blacklisted entity
                 synchronized (PortalGun.teleportedEntities) {
                     if (PortalGun.teleportedEntities.containsKey(e)) continue;
                 }
