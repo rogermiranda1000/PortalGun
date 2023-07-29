@@ -42,7 +42,8 @@ public enum Config {
     TELEPORT_SOUND("portals.teleport_sound"),
     RESTARTER_PARTICLES("emancipator.particles"),
     TAKE_ENTITIES("portalgun.take_entities.enabled"),
-    TAKE_ENTITIES_BLACKLIST("portalgun.take_entities.blacklist");
+    TAKE_ENTITIES_BLACKLIST("portalgun.take_entities.blacklist"),
+    TELEPORT_ENTITIES_BLACKLIST("portalgun.teleport_entities.blacklist");
 
     private static FileConfiguration fileConfiguration;
     private static HashMap<Config, Object> savedConfiguration;
@@ -92,6 +93,7 @@ public enum Config {
             loadPortalParticles();
             loadRestarterParticles();
             loadPickEntityBlacklist();
+            loadTeleportEntityBlacklist();
         } catch (IllegalArgumentException | NullPointerException ex) {
             throw new ConfigFileException(ex);
         }
@@ -116,11 +118,13 @@ public enum Config {
 
     private static void loadPickEntityBlacklist() {
         for (String name : Config.fileConfiguration.getStringList(Config.TAKE_ENTITIES_BLACKLIST.key)) {
-            try {
-                onPortalgunEntity.entityPickBlacklist.add(Class.forName("org.bukkit.entity." + name).asSubclass(Entity.class));
-            } catch (ClassNotFoundException | ClassCastException ex) {
-                PortalGun.plugin.printConsoleErrorMessage("Entity " + name + " not found!");
-            }
+            onPortalgunEntity.entityPickBlacklist.add(name.toLowerCase());
+        }
+    }
+
+    private static void loadTeleportEntityBlacklist() {
+        for (String name : Config.fileConfiguration.getStringList(Config.TELEPORT_ENTITIES_BLACKLIST.key)) {
+            PortalGun.entityTeleportBlacklist.add(name.toLowerCase());
         }
     }
 
@@ -246,6 +250,7 @@ public enum Config {
         c.put(Config.RESTARTER_PARTICLES.key, Config.getDefaultRestarterParticle());
         c.put(Config.TAKE_ENTITIES.key, true);
         c.put(Config.TAKE_ENTITIES_BLACKLIST.key, getDefaultPickEntitiesBlacklist());
+        c.put(Config.TELEPORT_ENTITIES_BLACKLIST.key, getDefaultTeleportEntitiesBlacklist());
 
         return c;
     }
@@ -260,6 +265,20 @@ public enum Config {
         r.add(EnderCrystal.class.getSimpleName());
         r.add(EnderDragon.class.getSimpleName());
         r.add(Wither.class.getSimpleName());
+
+        if (VersionController.version.compareTo(Version.MC_1_19) >= 0) r.add("Warden");
+
+        return r;
+    }
+
+    private static Collection<String> getDefaultTeleportEntitiesBlacklist() {
+        Collection<String> r = new ArrayList<>();
+
+        r.add(ItemFrame.class.getSimpleName());
+        r.add(EnderCrystal.class.getSimpleName());
+        r.add(EnderDragon.class.getSimpleName());
+        r.add(Wither.class.getSimpleName());
+
 
         if (VersionController.version.compareTo(Version.MC_1_19) >= 0) r.add("Warden");
 

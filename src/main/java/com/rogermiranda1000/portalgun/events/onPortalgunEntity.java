@@ -13,13 +13,13 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 public class onPortalgunEntity {
-    public static final Set<Class<? extends Entity>> entityPickBlacklist = new HashSet<>();
+    public static final Set<String> entityPickBlacklist = new HashSet<>();
     private static final HashMap<Player, Entity> pickedEntities = new HashMap<>();
     private static final float LAUNCH_VELOCITY_MULTIPLIER = 1.f,
                             PICKED_ENTITY_DISTANCE = 2.5f;
 
     public void onEntityPick(PlayerPickEvent event) {
-        if (entityPickBlacklist.contains(event.getEntityPicked().getClass())) {
+        if (entityPickBlacklist.contains(event.getEntityPicked().getType().getName())) {
             event.setCancelled(true);
             return;
         }
