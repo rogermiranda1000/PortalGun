@@ -176,11 +176,9 @@ public class PortalGun extends RogerPlugin {
         for (World world : Bukkit.getWorlds()) {
             for (Entity e : getEntities(world)) {
                 if (e instanceof Player) continue;
+                if (PortalGun.entityTeleportBlacklist.contains(e.getType().getName())) continue; // blacklisted entity
                 synchronized (PortalGun.teleportedEntities) {
                     if (PortalGun.teleportedEntities.containsKey(e)) continue;
-                }
-                synchronized (PortalGun.entityTeleportBlacklist) {
-                    if (PortalGun.entityTeleportBlacklist.contains(e.getType().getName())) continue;
                 }
 
                 final Location entityBlockLocation = e.getLocation().getBlock().getLocation();
