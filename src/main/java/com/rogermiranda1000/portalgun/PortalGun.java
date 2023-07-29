@@ -37,6 +37,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
     public static ItemStack botas;
     private static final int particleDelay = 2, pickedEntitiesDelay = 3;
     public static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
+    public static final Set<String> entityTeleportBlacklist = new HashSet<>();
     public static final int MAX_ENTITY_PICK_RANGE = 4; // TODO configurable
     public static boolean castBeam;
     public static Collection<String> blacklistedWorlds;
@@ -169,6 +170,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         for (World world : Bukkit.getWorlds()) {
             for (Entity e : getEntities(world)) {
                 if (e instanceof Player) continue;
+                if (PortalGun.entityTeleportBlacklist.contains(e.getType().getName())) continue; // blacklisted entity
                 synchronized (PortalGun.teleportedEntities) {
                     if (PortalGun.teleportedEntities.containsKey(e)) continue;
                 }
