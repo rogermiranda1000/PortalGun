@@ -24,12 +24,15 @@ import java.util.*;
 
 public enum Config {
     LANGUAGE("language"),
+    CLEAR_PREFIX("prefix.clear"),
+    ERROR_PREFIX("prefix.error"),
     RESOURCEPACK("resourcepack.use"),
     PORTALGUN_NAME("portalgun.name"),
     PORTALGUN_LORE("portalgun.lore"),
     MATERIAL("portalgun.material"),
     CUSTOM_MODEL_DATA("portalgun.custom_model_data"),
     DURABILITY("portalgun.durability"),
+    CAST_BEAM("portalgun.cast_beam"),
     DELETE_ON_DEATH("portals.remove_on_death"),
     REMOVE_ON_LEAVE("portals.remove_on_leave"),
     MAX_LENGHT("portals.placement_length"),
@@ -43,6 +46,9 @@ public enum Config {
     RESTARTER_PARTICLES("emancipator.particles"),
     TAKE_ENTITIES("portalgun.take_entities.enabled"),
     TAKE_ENTITIES_BLACKLIST("portalgun.take_entities.blacklist"),
+    BLACKLISTED_WORLDS("portals.blacklisted_worlds"),
+    WG_REGIONS("portals.only_allowed_worldguard_regions"),
+    BLACKLIST_WG_REGIONS("portals.denied_worldguard_regions"),
     TELEPORT_ENTITIES_BLACKLIST("portalgun.teleport_entities.blacklist");
 
     private static FileConfiguration fileConfiguration;
@@ -81,8 +87,15 @@ public enum Config {
         try {
             Config.loadValidBlocks();
 
+            PortalGun.clearPrefix = Config.fileConfiguration.getString(CLEAR_PREFIX.key);
+            PortalGun.errorPrefix = Config.fileConfiguration.getString(ERROR_PREFIX.key);
+
             PortalGun.useResourcePack = Config.fileConfiguration.getBoolean(RESOURCEPACK.key);
             PortalGun.takeEntities = Config.fileConfiguration.getBoolean(TAKE_ENTITIES.key);
+            PortalGun.castBeam = Config.fileConfiguration.getBoolean(CAST_BEAM.key);
+            PortalGun.blacklistedWorlds = Config.fileConfiguration.getStringList(BLACKLISTED_WORLDS.key);
+            PortalGun.wgRegions = (Config.fileConfiguration.getStringList(WG_REGIONS.key).isEmpty() ? null : Config.fileConfiguration.getStringList(WG_REGIONS.key));
+            PortalGun.blacklistedWgRegions = (Config.fileConfiguration.getStringList(BLACKLIST_WG_REGIONS.key).isEmpty() ? null : Config.fileConfiguration.getStringList(BLACKLIST_WG_REGIONS.key));
 
             Config.loadPortalgunMaterial(Config.fileConfiguration.getString(PORTALGUN_NAME.key), Config.fileConfiguration.getStringList(PORTALGUN_LORE.key),
                     Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
@@ -233,6 +246,8 @@ public enum Config {
         c.put(Config.LANGUAGE.key, "english");
         if (VersionController.version.compareTo(Version.MC_1_9) >= 0) c.put(Config.RESOURCEPACK.key, true);
         c.put(Config.MATERIAL.key, "IRON_HOE");
+        c.put(Config.CLEAR_PREFIX.key, "§6§l[PortalGun] §a");
+        c.put(Config.ERROR_PREFIX.key, "§6§l[PortalGun] §c");
         c.put(Config.PORTALGUN_NAME.key, "§6§lPortalGun");
         c.put(Config.PORTALGUN_LORE.key, new String[]{"With the PortalGun you can open portals."});
         if (VersionController.version.compareTo(Version.MC_1_14) >= 0) c.put(Config.CUSTOM_MODEL_DATA.key, 1);
@@ -249,7 +264,11 @@ public enum Config {
         c.put(Config.CREATE_SOUND.key, Config.getDefaultCreateSound());
         c.put(Config.RESTARTER_PARTICLES.key, Config.getDefaultRestarterParticle());
         c.put(Config.TAKE_ENTITIES.key, true);
+        c.put(Config.CAST_BEAM.key, true);
         c.put(Config.TAKE_ENTITIES_BLACKLIST.key, getDefaultPickEntitiesBlacklist());
+        c.put(Config.BLACKLISTED_WORLDS.key, new String[]{"my-safe-world"});
+        c.put(Config.WG_REGIONS.key, new String[]{});
+        c.put(Config.BLACKLIST_WG_REGIONS.key, new String[]{});
         c.put(Config.TELEPORT_ENTITIES_BLACKLIST.key, getDefaultTeleportEntitiesBlacklist());
 
         return c;

@@ -2,6 +2,7 @@ package com.rogermiranda1000.portalgun.portals;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -222,6 +223,18 @@ public abstract class Portal {
         if (p != null) {
             if (p.linked != null) p.linked.setLinked(null);
             for (Location l: p.calculateTeleportLocation()) Portal.portalsLocations.remove(l);
+
+            // TODO instead of searching the owner, add an attribute to the portal
+            for (Map.Entry<UUID,Portal[]> usersPortals : Portal.portals.entrySet()) {
+                int indexFound = -1;
+                for (int n = 0; n < usersPortals.getValue().length && indexFound == -1; n++) {
+                    if (p.equals(usersPortals.getValue()[n])) indexFound = n;
+                }
+                if (indexFound != -1) {
+                    usersPortals.getValue()[indexFound] = null; // remove the portal from the user's list
+                    break;
+                }
+            }
         }
     }
 
@@ -271,9 +284,13 @@ public abstract class Portal {
         return sb.toString();
     }
 
-    protected ParticleEntity getParticle() {
-        int pos = (this.isLeft ? 0 : 1); // left portal => pos 0
+    public static ParticleEntity getParticle(boolean isLeft) {
+        int pos = (isLeft ? 0 : 1); // left portal => pos 0
         return Portal.particles[pos];
+    }
+
+    public ParticleEntity getParticle() {
+        return Portal.getParticle(this.isLeft);
     }
 
     public static void setParticle(ParticleEntity particle, boolean leftPortal) {

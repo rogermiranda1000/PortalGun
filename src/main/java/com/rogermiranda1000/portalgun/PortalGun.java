@@ -1,42 +1,14 @@
 package com.rogermiranda1000.portalgun;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.scheduler.BukkitTask;
+import java.io.*;
+import java.util.*;
 
 import com.rogermiranda1000.helper.RogerPlugin;
 import com.rogermiranda1000.helper.SentryScheduler;
+import com.rogermiranda1000.helper.worldguard.RegionDelimiter;
+import com.rogermiranda1000.portalgun.api.PortalGunAccessibleMethods;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
-import com.rogermiranda1000.portalgun.events.onDead;
-import com.rogermiranda1000.portalgun.events.onLeave;
-import com.rogermiranda1000.portalgun.events.onMove;
-import com.rogermiranda1000.portalgun.events.onPlayerDamagesEntity;
-import com.rogermiranda1000.portalgun.events.onPlayerJoin;
-import com.rogermiranda1000.portalgun.events.onPortalgunEntity;
-import com.rogermiranda1000.portalgun.events.onUse;
+import com.rogermiranda1000.portalgun.events.*;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.FileManager;
 import com.rogermiranda1000.portalgun.files.Language;
@@ -46,12 +18,19 @@ import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
-
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.*;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.scheduler.BukkitTask;
 
-public class PortalGun extends RogerPlugin {
+public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods {
     public static PortalGun plugin;
 
+    public static String clearPrefix, errorPrefix;
     public static boolean useResourcePack, takeEntities;
     public static ItemStack item;
     public static ItemStack botas;
@@ -59,6 +38,9 @@ public class PortalGun extends RogerPlugin {
     public static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
     public static final Set<String> entityTeleportBlacklist = new HashSet<>();
     public static final int MAX_ENTITY_PICK_RANGE = 4; // TODO configurable
+    public static boolean castBeam;
+    public static Collection<String> blacklistedWorlds;
+    public static Collection<String> wgRegions, blacklistedWgRegions;
 
     private BukkitTask particleTask;
     private BukkitTask teleportTask;
@@ -68,6 +50,16 @@ public class PortalGun extends RogerPlugin {
         super(new onDead(), new onLeave(), new onMove(), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity());
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
+    }
+
+    @Override
+    public String getClearPrefix() {
+        return (PortalGun.clearPrefix == null || PortalGun.clearPrefix.length() == 0) ? super.getClearPrefix() : PortalGun.clearPrefix;
+    }
+
+    @Override
+    public String getErrorPrefix() {
+        return (PortalGun.errorPrefix == null || PortalGun.errorPrefix.length() == 0) ? super.getErrorPrefix() : PortalGun.errorPrefix;
     }
 
     @Override
@@ -92,9 +84,10 @@ public class PortalGun extends RogerPlugin {
         PortalGun.plugin = this;
 
         FileManager.loadFiles();
+        if (PortalGun.blacklistedWorlds.size() > 0) this.regionDelimiter.add(new WorldRegion(PortalGun.blacklistedWorlds));
         this.setCommandMessages(Language.USER_NO_PERMISSIONS.getText(), Language.HELP_UNKNOWN.getText());
 
-        super.setCommands(PortalGunCommands.commands); // @pre before super.onEnable() & after loading languages
+        super.setCommands(new PortalGunCommands(this.getClearPrefix(), this.getErrorPrefix()).commands); // @pre before super.onEnable() & after loading languages
     }
     @Override
     public void postOnEnable() {
@@ -176,7 +169,7 @@ public class PortalGun extends RogerPlugin {
         for (World world : Bukkit.getWorlds()) {
             for (Entity e : getEntities(world)) {
                 if (e instanceof Player) continue;
-                if (PortalGun.entityTeleportBlacklist.contains(e.getType().getName())) continue; // blacklisted entity
+                if (PortalGun.entityTeleportBlacklist.contains(e.getType().name().toLowerCase())) continue; // blacklisted entity
                 synchronized (PortalGun.teleportedEntities) {
                     if (PortalGun.teleportedEntities.containsKey(e)) continue;
                 }
@@ -253,5 +246,40 @@ public class PortalGun extends RogerPlugin {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean castPortal(Player p, boolean isLeft) {
+        return this.getListener(onUse.class).playerUsedPortalGun(p, isLeft);
+    }
+
+    @Override
+    public ArrayList<Portal> getPortals() {
+        return Portal.getPortals();
+    }
+
+    @Override
+    public void removePortal(Portal p) {
+        Portal.removePortal(p);
+    }
+
+    @Override
+    public void removePortals(Player p) {
+        Portal.removePortal(p);
+    }
+
+    public boolean canSpawnPortal(final Location loc) {
+        Boolean ret = null;
+        for (RegionDelimiter rd : this.regionDelimiter.get()) {
+            // TODO un-garbage this
+            if (!(rd instanceof WorldRegion)) {
+                // it's WG
+                if (PortalGun.wgRegions != null) ret = (ret == null ? true : ret) & rd.isInsideRegion(loc, PortalGun.wgRegions);
+                if (PortalGun.blacklistedWgRegions != null) ret = (ret == null ? true : ret) & !rd.isInsideRegion(loc, PortalGun.blacklistedWgRegions);
+            }
+            else ret = (ret == null ? true : ret) & rd.isInsideRegion(loc, null);
+        }
+        if (ret == null) ret = (PortalGun.wgRegions == null && PortalGun.blacklistedWorlds.isEmpty());
+        return ret;
     }
 }

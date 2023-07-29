@@ -19,7 +19,7 @@ public class onPortalgunEntity {
                             PICKED_ENTITY_DISTANCE = 2.5f;
 
     public void onEntityPick(PlayerPickEvent event) {
-        if (entityPickBlacklist.contains(event.getEntityPicked().getType().getName())) {
+        if (entityPickBlacklist.contains(event.getEntityPicked().getType().name().toLowerCase())) {
             event.setCancelled(true);
             return;
         }

@@ -1,4 +1,4 @@
-# PortalGun ![version](https://badges.spiget.org/resources/version/Version-green-44746.svg) ![downloads](https://badges.spiget.org/resources/downloads/Downloads-blue-44746.svg) ![rating](https://badges.spiget.org/resources/rating/Rating-blue-44746.svg)
+# PortalGun ![version](https://badges.spiget.org/resources/version/Version-green-44746.svg) ![downloads](https://badges.spiget.org/resources/downloads/Downloads-blue-44746.svg) ![rating](https://badges.spiget.org/resources/rating/Rating-blue-44746.svg) [![CodeFactor](https://www.codefactor.io/repository/github/rogermiranda1000/portalgun/badge)](https://www.codefactor.io/repository/github/rogermiranda1000/portalgun)
 [Spigot plugin page](https://www.spigotmc.org/resources/portalgun-1-8-1-16.44746/)
 
 ## Dependencies
