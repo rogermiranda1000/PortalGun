@@ -28,6 +28,9 @@ permissions:
     portalgun.emancipator:
         description: Get the emancipation block
         default: op
+    portalgun.companion:
+        description: Spawn a companion block
+        default: op
     portalgun.remove.others:
         description: Remove others' portals
         default: op

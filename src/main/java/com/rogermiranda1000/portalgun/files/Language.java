@@ -14,8 +14,10 @@ public enum Language {
     HELP_REMOVE("help.remove_portals"),
     HELP_REMOVE_OTHERS("help.remove_others_portals"),
     HELP_REMOVE_ALL("help.remove_all_portals"),
+    HELP_COMPANION("help.companion_cube"),
     HELP_REPORT("help.report"),
-    HELP_UNKNOWN("help.unknown_command"),
+    ERROR_UNKNOWN("error.unknown_command"),
+    ERROR_WORLD("error.unknown_world"),
     PORTAL_DENIED("portal.deny"),
     PORTAL_OPENED("portal.open"),
     PORTAL_COLLIDING("portal.collides"),
@@ -168,9 +170,11 @@ public enum Language {
         r.put(Language.HELP_REMOVE.key, "Delete your active portals.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Delete others' active portals.");
         r.put(Language.HELP_REMOVE_ALL.key, "Delete all the active portals.");
+        r.put(Language.HELP_COMPANION.key, "Spawn a companion cube.");
         r.put(Language.HELP_REPORT.key, "Send information about a problem. In the 'contact' zone set your email or discord so I can contact with you (if you don't want to set '-')");
         r.put(Language.USER_NOT_FOUND.key, "[player] not found.");
-        r.put(Language.HELP_UNKNOWN.key, "Unknown command.");
+        r.put(Language.ERROR_UNKNOWN.key, "Unknown command.");
+        r.put(Language.ERROR_WORLD.key, "Couldn't find the world [world].");
         r.put(Language.REPORT_SENT.key, "Report sent! Thanks for helping.");
         r.put(Language.REPORT_CONTACT_ERROR.key, "You need to put an email (something@website) or Discord (user#id) to contact. If you don't want to, then set '-'.");
 
@@ -203,7 +207,7 @@ public enum Language {
         r.put(Language.USER_NOT_FOUND.key, "El usuario [player] no se ha encontrado.");
         r.put(Language.USER_REMOVE_OTHERS.key, "Has eliminado los portales de [player].");
         r.put(Language.OTHER_USER_NO_PORTALS.key, "[player] no tiene portales abiertos.");
-        r.put(Language.HELP_UNKNOWN.key, "Comando desconocido.");
+        r.put(Language.ERROR_UNKNOWN.key, "Comando desconocido.");
         r.put(Language.REPORT_SENT.key, "Reporte enviado! Gracias por ayudar.");
         r.put(Language.REPORT_CONTACT_ERROR.key, "Has de poner un correo (algo@web) or Discord (usuario#id) para contactar. Si no quieres, entonces pon '-'.");
 
@@ -236,7 +240,7 @@ public enum Language {
         r.put(Language.USER_NOT_FOUND.key, "L'usuari [player] no s'ha trobat.");
         r.put(Language.USER_REMOVE_OTHERS.key, "Has eliminat els portals de [player].");
         r.put(Language.OTHER_USER_NO_PORTALS.key, "[player] no té portals oberts.");
-        r.put(Language.HELP_UNKNOWN.key, "Comanda desconeguda.");
+        r.put(Language.ERROR_UNKNOWN.key, "Comanda desconeguda.");
         r.put(Language.REPORT_SENT.key, "Report enviat! Gràcies per ajudar.");
         r.put(Language.REPORT_CONTACT_ERROR.key, "Has de posar un correu (algo@web) o Discord (usuari#id) per a contactar. Si no vols, posa '-'.");
 
@@ -265,7 +269,7 @@ public enum Language {
         r.put(Language.PORTAL_COLLIDING.key, "Nie możesz otworzyć dwóch portali na tym samym bloku!");
 
         r.put(Language.HELP_REMOVE.key, "Usuwa twoje aktywne portale.");
-        r.put(Language.HELP_UNKNOWN.key, "Nieznana komenda.");
+        r.put(Language.ERROR_UNKNOWN.key, "Nieznana komenda.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Usuń aktywne portale innych graczy.");
         r.put(Language.HELP_GET_GUN.key, "Zdobądź działo portalowe.");
         r.put(Language.HELP_GET_EMANCIPATOR.key, "Zdobądź blok wyzwoliciela.");
@@ -301,7 +305,7 @@ public enum Language {
         r.put(Language.PORTAL_COLLIDING.key, "Nemůžeš položit dva portály na stejný blok!");
 
         r.put(Language.HELP_REMOVE.key, "Odstraní tvé aktivní portály.");
-        r.put(Language.HELP_UNKNOWN.key, "Neznámý příkaz.");
+        r.put(Language.ERROR_UNKNOWN.key, "Neznámý příkaz.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Odstraní portály ostatních hráčů.");
         r.put(Language.HELP_GET_GUN.key, "Získáš Portálovou pistoli.");
         r.put(Language.HELP_GET_EMANCIPATOR.key, "Získáš emancipátorový blok.");
@@ -337,7 +341,7 @@ public enum Language {
         r.put(Language.PORTAL_COLLIDING.key, "Du kannst nicht beide Portale auf denselben Block setzen.");
 
         r.put(Language.HELP_REMOVE.key, "Loescht deine aktiven Portale.");
-        r.put(Language.HELP_UNKNOWN.key, "Unbekannter Befehl.");
+        r.put(Language.ERROR_UNKNOWN.key, "Unbekannter Befehl.");
         r.put(Language.HELP_REMOVE_OTHERS.key, "Delete others' active portals.");
         r.put(Language.HELP_GET_GUN.key, "Erhalte die PortalGun.");
         r.put(Language.HELP_GET_EMANCIPATOR.key, "Erhalte den emancipation block.");

@@ -1,12 +1,20 @@
 package com.rogermiranda1000.portalgun;
 
 import com.rogermiranda1000.helper.CustomCommand;
+import com.rogermiranda1000.portalgun.blocks.CompanionCubes;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.files.Language;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PortalGunCommands {
     public final CustomCommand[]commands;
@@ -66,6 +74,43 @@ public class PortalGunCommands {
                     // TODO: warn players (Language.OTHER_USER_REMOVE.getText({"player", player.getName()}))
                     Portal.removeAllPortals();
                     sender.sendMessage(clearPrefix + Language.USER_REMOVE_ALL.getText());
+                }),
+                // TODO world hint on VersionController
+                new CustomCommand("portalgun companion (\\S+ )?([\\d\\.]+) ([\\d\\.]+) ([\\d\\.]+)( (?:true)|(?:false))?", "portalgun.companion", true, "portalgun companion [world] [x] [y] [z] [keep old; true/false]", Language.HELP_COMPANION.getText(), (sender, args) -> {
+                    Pattern r = Pattern.compile("portalgun companion (\\S+ )?([\\d\\.]+) ([\\d\\.]+) ([\\d\\.]+)( (?:true)|(?:false))?");
+                    Matcher m = r.matcher("portalgun " + Arrays.stream(args).reduce((a,b) -> a + " " + b));
+                    if (!m.matches()) {
+                        sender.sendMessage(errorPrefix + Language.ERROR_UNKNOWN.getText());
+                        return;
+                    }
+
+                    // get the world
+                    World world;
+                    if (m.group(1) != null) {
+                        world = Bukkit.getWorld(m.group(1));
+                        if (world == null) {
+                            sender.sendMessage(errorPrefix + Language.ERROR_WORLD.getText(new String[]{"world", m.group(1)}));
+                            return;
+                        }
+                    }
+                    else {
+                        if (sender instanceof BlockCommandSender) {
+                            world = ((BlockCommandSender)sender).getBlock().getWorld();
+                        }
+                        else if (sender instanceof Player) {
+                            world = ((Player)sender).getWorld();
+                        }
+                        else {
+                            sender.sendMessage(errorPrefix + Language.ERROR_WORLD.getText(new String[]{"world", "null"}));
+                            return;
+                        }
+                    }
+
+                    // get the location & if desired remove
+                    Location toPlace = new Location(world, Double.parseDouble(m.group(2)), Double.parseDouble(m.group(3)), Double.parseDouble(m.group(4)));
+                    boolean removeOld = !"false".equals(m.group(5)); // by default, remove it
+
+                    CompanionCubes.spawnCompanionCube(toPlace, removeOld);
                 }),
                 new CustomCommand("portalgun report \\S+ .+", "portalgun.report", true, "portalgun report [contact] [report]", Language.HELP_REPORT.getText(), (sender, args) -> {
                     String contact = args[1];
