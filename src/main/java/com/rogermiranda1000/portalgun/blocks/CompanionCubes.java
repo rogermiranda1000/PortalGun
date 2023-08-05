@@ -1,16 +1,23 @@
 package com.rogermiranda1000.portalgun.blocks;
 
+import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.events.onUse;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -63,18 +70,43 @@ public class CompanionCubes implements Listener {
         // TODO play sound
     }
 
-    @EventHandler
-    public void onArmorStandInteract(PlayerArmorStandManipulateEvent e) {
-        if (!CompanionCubes.isCompanionCube(e.getRightClicked())) return;
-
-        // TODO would ArmorStand#addEquipmentLock do the trick?
-        e.setCancelled(true);
+    public static void clear() {
+        synchronized (CompanionCubes.companionCubes) {
+            for (Entity e : CompanionCubes.companionCubes) CompanionCubes.destroyCompanionCube(e);
+        }
     }
 
+    @EventHandler
+    public void onArmorStandInteract(PlayerArmorStandManipulateEvent e) {
+        System.out.println("interact");
+        if (!CompanionCubes.isCompanionCube(e.getRightClicked())) return;
+        System.out.println("+interact");
+
+        e.setCancelled(true);
+        // simulate a right click
+        PortalGun.plugin.getListener(onUse.class).onPlayerUse(new PlayerInteractEvent(
+                e.getPlayer(),
+                Action.RIGHT_CLICK_AIR,
+                null,null,null // not used
+        ));
+    }
+
+    // <1.9 doesn't have ArmorStand#setInvulnerable
     @EventHandler
     public void onEntityDamages(EntityDamageEvent e) {
         if (!CompanionCubes.isCompanionCube(e.getEntity())) return;
 
         e.setCancelled(true);
+        if (e instanceof EntityDamageByEntityEvent) {
+            EntityDamageByEntityEvent event = (EntityDamageByEntityEvent) e;
+            if (!(event.getDamager() instanceof Player)) return;
+
+            // simulate a left click
+            PortalGun.plugin.getListener(onUse.class).onPlayerUse(new PlayerInteractEvent(
+                    (Player)event.getDamager(),
+                    Action.LEFT_CLICK_AIR,
+                    null, null, null // not used
+            ));
+        }
     }
 }

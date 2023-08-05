@@ -227,6 +227,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         this.pickEntitiesTask.cancel();
 
         onPortalgunEntity.clear();
+        CompanionCubes.clear(); // TODO option to keep saved
 
         if (Config.PERSISTANT.getBoolean()) {
             getLogger().info("Saving portals...");
