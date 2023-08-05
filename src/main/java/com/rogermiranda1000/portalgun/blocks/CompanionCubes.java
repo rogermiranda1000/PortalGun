@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +21,7 @@ public class CompanionCubes implements Listener {
     private static final HashMap<Location,ArrayList<Entity>> oldCubes = new HashMap<>();
     private static final ArrayList<Entity> companionCubes = new ArrayList<>();
 
-    public static boolean isCompanionCube(Entity e) {
+    public static boolean isCompanionCube(@NotNull Entity e) {
         if (!e.getType().equals(EntityType.ARMOR_STAND)) return false;
 
         synchronized (CompanionCubes.companionCubes) {
