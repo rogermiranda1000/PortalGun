@@ -21,6 +21,8 @@ public class CompanionCubes implements Listener {
     private static final ArrayList<Entity> companionCubes = new ArrayList<>();
 
     public static boolean isCompanionCube(Entity e) {
+        if (!e.getType().equals(EntityType.ARMOR_STAND)) return false;
+
         synchronized (CompanionCubes.companionCubes) {
             return CompanionCubes.companionCubes.contains(e);
         }
