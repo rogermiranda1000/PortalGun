@@ -2,9 +2,6 @@ package com.rogermiranda1000.portalgun.blocks;
 
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.events.onUse;
-import com.rogermiranda1000.versioncontroller.Version;
-import com.rogermiranda1000.versioncontroller.VersionController;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
@@ -16,7 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -77,10 +74,8 @@ public class CompanionCubes implements Listener {
     }
 
     @EventHandler
-    public void onArmorStandInteract(PlayerArmorStandManipulateEvent e) {
-        System.out.println("interact");
+    public void onEntityInteract(PlayerInteractAtEntityEvent e) {
         if (!CompanionCubes.isCompanionCube(e.getRightClicked())) return;
-        System.out.println("+interact");
 
         e.setCancelled(true);
         // simulate a right click
