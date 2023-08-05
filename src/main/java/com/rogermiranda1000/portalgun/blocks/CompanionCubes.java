@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class CompanionCubes implements Listener {
     private static final HashMap<Location,ArrayList<Entity>> oldCubes = new HashMap<>();
@@ -69,7 +70,8 @@ public class CompanionCubes implements Listener {
 
     public static void clear() {
         synchronized (CompanionCubes.companionCubes) {
-            for (Entity e : CompanionCubes.companionCubes) CompanionCubes.destroyCompanionCube(e);
+            List<Entity> toDelete = new ArrayList<>(CompanionCubes.companionCubes);
+            for (Entity e : toDelete) CompanionCubes.destroyCompanionCube(e);
         }
     }
 

@@ -78,7 +78,8 @@ public class onPortalgunEntity {
 
     public static void clear() {
         synchronized (pickedEntitiesAndPicker) {
-            for (Player p : pickedEntitiesAndPicker.keySet()) removeEntity(p);
+            List<Player> toRemove = new ArrayList<>(pickedEntitiesAndPicker.keySet());
+            for (Player p : toRemove) removeEntity(p);
         }
     }
 

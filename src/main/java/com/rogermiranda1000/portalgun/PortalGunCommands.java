@@ -30,6 +30,7 @@ public class PortalGunCommands {
                     sender.sendMessage(ChatColor.GOLD + "  /portalgun remove " + ChatColor.GREEN + "- " + Language.HELP_REMOVE.getText());
                     sender.sendMessage(ChatColor.GOLD + "  /portalgun remove [player] " + ChatColor.GREEN + "- " + Language.HELP_REMOVE_OTHERS.getText());
                     sender.sendMessage(ChatColor.GOLD + "  /portalgun remove all " + ChatColor.GREEN + "- " + Language.HELP_REMOVE_ALL.getText());
+                    sender.sendMessage(ChatColor.GOLD + "  /portalgun companion [world] [x] [y] [z] [remove old; true/false] " + ChatColor.GREEN + "- " + Language.HELP_COMPANION.getText());
                     sender.sendMessage(ChatColor.GOLD + "  /portalgun report [contact/-] [report] " + ChatColor.GREEN + "- " + Language.HELP_REPORT.getText());
                 }),
                 new CustomCommand("portalgun", "portalgun.portalgun", false, "portalgun", Language.HELP_GET_GUN.getText(), (sender, args) -> {
@@ -78,13 +79,13 @@ public class PortalGunCommands {
                     sender.sendMessage(clearPrefix + Language.USER_REMOVE_ALL.getText());
                 }),
                 // TODO world hint on VersionController
-                new CustomCommand("portalgun companion \\S+ [\\d\\.]+ [\\d\\.]+ [\\d\\.]+ \\S+", "portalgun.companion", true, "portalgun companion [world] [x] [y] [z] [remove old; true/false]", Language.HELP_COMPANION.getText(), (sender, args) -> {
+                new CustomCommand("portalgun companion \\S+ [\\d\\.]+ [\\d\\.]+ [\\d\\.]+ \\S+", "portalgun.companion", true, "portalgun companion [world] [x] [y] [z] [true|false]", Language.HELP_COMPANION.getText(), (sender, args) -> {
                     spawnCompanionCube(clearPrefix, errorPrefix, sender, args);
                 }),
                 new CustomCommand("portalgun companion \\S+ [\\d\\.]+ [\\d\\.]+ [\\d\\.]+", "portalgun.companion", true, "portalgun companion [world] [x] [y] [z]", Language.HELP_COMPANION.getText(), (sender, args) -> {
                     spawnCompanionCube(clearPrefix, errorPrefix, sender, args);
                 }),
-                new CustomCommand("portalgun companion [\\d\\.]+ [\\d\\.]+ [\\d\\.]+ \\S+", "portalgun.companion", true, "portalgun companion [x] [y] [z] [remove old; true/false]", Language.HELP_COMPANION.getText(), (sender, args) -> {
+                new CustomCommand("portalgun companion [\\d\\.]+ [\\d\\.]+ [\\d\\.]+ \\S+", "portalgun.companion", true, "portalgun companion [x] [y] [z] [true|false]", Language.HELP_COMPANION.getText(), (sender, args) -> {
                     spawnCompanionCube(clearPrefix, errorPrefix, sender, args);
                 }),
                 new CustomCommand("portalgun companion [\\d\\.]+ [\\d\\.]+ [\\d\\.]+", "portalgun.companion", true, "portalgun companion [x] [y] [z]", Language.HELP_COMPANION.getText(), (sender, args) -> {
