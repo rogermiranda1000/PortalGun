@@ -1,6 +1,7 @@
 package com.rogermiranda1000.portalgun.events;
 
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.blocks.CompanionCubes;
 import com.rogermiranda1000.portalgun.utils.raycast.Ray;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
@@ -14,23 +15,31 @@ import java.util.*;
 
 public class onPortalgunEntity {
     public static final Set<String> entityPickBlacklist = new HashSet<>();
-    private static final HashMap<Player, Entity> pickedEntities = new HashMap<>();
+    private static final HashMap<Player, Entity> pickedEntitiesAndPicker = new HashMap<>();
     private static final float LAUNCH_VELOCITY_MULTIPLIER = 1.f,
                             PICKED_ENTITY_DISTANCE = 2.5f;
 
     public void onEntityPick(PlayerPickEvent event) {
-        if (entityPickBlacklist.contains(event.getEntityPicked().getType().name().toLowerCase())) {
+        String entityPickedName = event.getEntityPicked().getType().name().toLowerCase();
+        if (CompanionCubes.isCompanionCube(event.getEntityPicked())) entityPickedName = "COMPANION_CUBE";
+
+        if (entityPickBlacklist.contains(entityPickedName)) {
             event.setCancelled(true);
             return;
         }
 
         if (VersionController.version.compareTo(Version.MC_1_10) >= 0) event.getEntityPicked().setGravity(false);
-        pickedEntities.put(event.getPlayer(), event.getEntityPicked());
+        synchronized (pickedEntitiesAndPicker) {
+            pickedEntitiesAndPicker.put(event.getPlayer(), event.getEntityPicked());
+        }
         // TODO sound
     }
 
     public void launchEntity(Player p) {
-        Entity e = pickedEntities.remove(p);
+        Entity e;
+        synchronized (pickedEntitiesAndPicker) {
+            e = pickedEntitiesAndPicker.remove(p);
+        }
         if (VersionController.version.compareTo(Version.MC_1_10) >= 0) e.setGravity(true);
         e.setVelocity(e.getLocation().toVector().subtract(p.getLocation().toVector()).multiply(LAUNCH_VELOCITY_MULTIPLIER));
         // TODO sound
@@ -47,21 +56,30 @@ public class onPortalgunEntity {
 
     @Nullable
     public static Entity getEntityPicked(Player p) {
-        return pickedEntities.get(p);
+        synchronized (pickedEntitiesAndPicker) {
+            return pickedEntitiesAndPicker.get(p);
+        }
     }
 
     public static boolean isEntityPicked(Entity e) {
-        return pickedEntities.containsValue(e);
+        synchronized (pickedEntitiesAndPicker) {
+            return pickedEntitiesAndPicker.containsValue(e);
+        }
     }
 
     public static void removeEntity(Player p) {
-        Entity e = pickedEntities.remove(p);
+        Entity e;
+        synchronized (pickedEntitiesAndPicker) {
+            e = pickedEntitiesAndPicker.remove(p);
+        }
         if (e == null) return;
         if (VersionController.version.compareTo(Version.MC_1_10) >= 0) e.setGravity(true);
     }
 
     public static void clear() {
-        for (Player p : pickedEntities.keySet()) removeEntity(p);
+        synchronized (pickedEntitiesAndPicker) {
+            for (Player p : pickedEntitiesAndPicker.keySet()) removeEntity(p);
+        }
     }
 
     /**
@@ -151,9 +169,9 @@ public class onPortalgunEntity {
 
     public static void updatePickedEntities() {
         Set<Map.Entry<Player, Entity>> entities;
-        synchronized (pickedEntities) {
-            pickedEntities.entrySet().removeIf(e -> !e.getValue().isValid()); // Entity no loger exists
-            entities = pickedEntities.entrySet();
+        synchronized (pickedEntitiesAndPicker) {
+            pickedEntitiesAndPicker.entrySet().removeIf(e -> !e.getValue().isValid()); // Entity no loger exists
+            entities = pickedEntitiesAndPicker.entrySet();
         }
 
         for (Map.Entry<Player, Entity> e : entities) {
