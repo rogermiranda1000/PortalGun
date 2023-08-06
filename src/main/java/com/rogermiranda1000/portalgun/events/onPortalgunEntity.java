@@ -1,6 +1,7 @@
 package com.rogermiranda1000.portalgun.events;
 
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.blocks.CompanionCube;
 import com.rogermiranda1000.portalgun.blocks.CompanionCubes;
 import com.rogermiranda1000.portalgun.utils.raycast.Ray;
 import com.rogermiranda1000.versioncontroller.Version;
@@ -21,7 +22,19 @@ public class onPortalgunEntity {
 
     public void onEntityPick(PlayerPickEvent event) {
         String entityPickedName = event.getEntityPicked().getType().name().toLowerCase();
-        if (CompanionCubes.isCompanionCube(event.getEntityPicked())) entityPickedName = "COMPANION_CUBE";
+        CompanionCube cube;
+        if ((cube = CompanionCubes.getCompanionCube(event.getEntityPicked())) != null) {
+            // companion cube picked
+            if (!CompanionCubes.isCompanionCubeSkeleton(event.getEntityPicked())) {
+                // you have to pick the skeleton; simulate the event as you pick the other one
+                PlayerPickEvent e2 = new PlayerPickEvent(event.getPlayer(), cube.getCompanionCubeSkeleton());
+                this.onEntityPick(e2);
+                event.setCancelled(e2.isCancelled());
+                return;
+            }
+
+            entityPickedName = "COMPANION_CUBE";
+        }
 
         if (entityPickBlacklist.contains(entityPickedName)) {
             event.setCancelled(true);
@@ -179,10 +192,9 @@ public class onPortalgunEntity {
             Location expect = Ray.getPoint(e.getKey(), PICKED_ENTITY_DISTANCE),
                     newLocation = secureTeleport(e.getValue(), expect);
 
-            if (newLocation == expect) {
-                // grabbed objects face away from the player
-                newLocation.setYaw(e.getKey().getLocation().getYaw());
-            }
+            // grabbed objects face away from the player
+            newLocation.setYaw(e.getKey().getLocation().getYaw());
+
             Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> e.getValue().teleport(newLocation));
         }
     }

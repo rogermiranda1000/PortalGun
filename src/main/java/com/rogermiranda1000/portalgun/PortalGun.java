@@ -150,11 +150,12 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         this.particleTask = scheduler.runTaskTimer(this, PortalGun::playAllParticles, 0, PortalGun.particleDelay);
         // TODO: configuration "only players teleports"
         // Entities
-        this.teleportTask = scheduler.runTaskTimerAsynchronously(this, ()->{
+        this.teleportTask = scheduler.runTaskTimer(this, ()->{
             PortalGun.updateTeleportedEntities();
             PortalGun.teleportEntities();
+            CompanionCubes.updateCompanionCubes();
         }, 1, PortalGun.particleDelay*3);
-        this.pickEntitiesTask = scheduler.runTaskTimerAsynchronously(this, onPortalgunEntity::updatePickedEntities, 0, PortalGun.pickedEntitiesDelay);
+        this.pickEntitiesTask = scheduler.runTaskTimer(this, onPortalgunEntity::updatePickedEntities, 0, PortalGun.pickedEntitiesDelay);
     }
 
     private static void playAllParticles() {
@@ -183,14 +184,11 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
                 final Location destinyLocation = portal.getDestiny(portal.getLocationIndex(entityBlockLocation));
                 if (destinyLocation == null) continue;
 
-                Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> {
-                    if (portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) {
-                        synchronized (PortalGun.teleportedEntities) {
-                            PortalGun.teleportedEntities.put(e, destinyLocation);
-                        }
+                if (portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) {
+                    synchronized (PortalGun.teleportedEntities) {
+                        PortalGun.teleportedEntities.put(e, destinyLocation);
                     }
-                    return null;
-                });
+                }
             }
         }
     }
