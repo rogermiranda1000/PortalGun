@@ -7,6 +7,7 @@ import com.rogermiranda1000.helper.RogerPlugin;
 import com.rogermiranda1000.helper.SentryScheduler;
 import com.rogermiranda1000.helper.worldguard.RegionDelimiter;
 import com.rogermiranda1000.portalgun.api.PortalGunAccessibleMethods;
+import com.rogermiranda1000.portalgun.blocks.ThermalBeams;
 import com.rogermiranda1000.portalgun.cubes.Cubes;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.events.*;
@@ -51,6 +52,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         super(new onDead(), new onLeave(), new onMove(), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity(), new Cubes());
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
+        this.addCustomBlock(ThermalBeams.setInstance(new ThermalBeams(this)));
     }
 
     @Override
@@ -95,7 +97,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         ResetBlocks.getInstance().updateAllBlocks(); // @pre super.onEnable()
 
         // Load portals
-        if (Config.PERSISTANT.getBoolean()) {
+        if (Config.PERSISTENT.getBoolean()) {
             getLogger().info("Loading portals...");
             File file = new File(getDataFolder(), "portals.yml");
             if(file.exists()) {
@@ -164,6 +166,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         }
 
         ResetBlocks.getInstance().playAllParticles();
+        ThermalBeams.getInstance().playAllParticles();
     }
 
     // TODO: don't teleport Item Frames
@@ -227,7 +230,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         onPortalgunEntity.clear();
         Cubes.clear(); // TODO option to keep saved
 
-        if (Config.PERSISTANT.getBoolean()) {
+        if (Config.PERSISTENT.getBoolean()) {
             getLogger().info("Saving portals...");
             File file = new File(getDataFolder(), "portals.yml");
             BufferedWriter bw = null;

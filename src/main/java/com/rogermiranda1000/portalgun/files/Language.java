@@ -15,6 +15,9 @@ public enum Language {
     HELP_REMOVE_OTHERS("help.remove_others_portals"),
     HELP_REMOVE_ALL("help.remove_all_portals"),
     HELP_COMPANION("help.companion_cube"),
+    HELP_REDIRECTION("help.redirection_cube"),
+    HELP_GET_THERMAL_BEAM("help.get_thermal_beam"),
+    HELP_GET_THERMAL_RECEIVER("help.get_thermal_receiver"),
     HELP_REPORT("help.report"),
     ERROR_UNKNOWN("error.unknown_command"),
     ERROR_WORLD("error.unknown_world"),
@@ -177,6 +180,10 @@ public enum Language {
         r.put(Language.ERROR_WORLD.key, "Couldn't find the world [world].");
         r.put(Language.REPORT_SENT.key, "Report sent! Thanks for helping.");
         r.put(Language.REPORT_CONTACT_ERROR.key, "You need to put an email (something@website) or Discord (user#id) to contact. If you don't want to, then set '-'.");
+
+        r.put(Language.HELP_REDIRECTION.key, "Spawn a redirection cube.");
+        r.put(Language.HELP_GET_THERMAL_BEAM.key, "Get the Thermal Discouragement Beam block.");
+        r.put(Language.HELP_GET_THERMAL_RECEIVER.key, "Get the Thermal Discouragement Receiver block.");
 
         return r;
     }

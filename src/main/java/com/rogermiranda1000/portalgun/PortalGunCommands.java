@@ -1,6 +1,7 @@
 package com.rogermiranda1000.portalgun;
 
 import com.rogermiranda1000.helper.CustomCommand;
+import com.rogermiranda1000.portalgun.blocks.ThermalBeams;
 import com.rogermiranda1000.portalgun.cubes.CompanionCube;
 import com.rogermiranda1000.portalgun.cubes.Cube;
 import com.rogermiranda1000.portalgun.cubes.Cubes;
@@ -30,10 +31,13 @@ public class PortalGunCommands {
                     sender.sendMessage(ChatColor.GOLD + "  /portalgun " + ChatColor.GREEN + "- " + Language.HELP_GET_GUN.getText());
                     sender.sendMessage(ChatColor.GOLD + "  /portalgun boots " + ChatColor.GREEN + "- " + Language.HELP_GET_BOOTS.getText());
                     sender.sendMessage(ChatColor.GOLD + "  /portalgun emancipator " + ChatColor.GREEN + "- " + Language.HELP_GET_EMANCIPATOR.getText());
+                    sender.sendMessage(ChatColor.GOLD + "  /portalgun thermal_beam " + ChatColor.GREEN + "- " + Language.HELP_GET_THERMAL_BEAM.getText());
+                    sender.sendMessage(ChatColor.GOLD + "  /portalgun thermal_receiver " + ChatColor.GREEN + "- " + Language.HELP_GET_THERMAL_RECEIVER.getText());
                     sender.sendMessage(ChatColor.GOLD + "  /portalgun remove " + ChatColor.GREEN + "- " + Language.HELP_REMOVE.getText());
                     sender.sendMessage(ChatColor.GOLD + "  /portalgun remove [player] " + ChatColor.GREEN + "- " + Language.HELP_REMOVE_OTHERS.getText());
                     sender.sendMessage(ChatColor.GOLD + "  /portalgun remove all " + ChatColor.GREEN + "- " + Language.HELP_REMOVE_ALL.getText());
                     sender.sendMessage(ChatColor.GOLD + "  /portalgun companion [world] [x] [y] [z] [remove old; true/false] " + ChatColor.GREEN + "- " + Language.HELP_COMPANION.getText());
+                    sender.sendMessage(ChatColor.GOLD + "  /portalgun redirection [world] [x] [y] [z] [remove old; true/false] " + ChatColor.GREEN + "- " + Language.HELP_REDIRECTION.getText());
                     sender.sendMessage(ChatColor.GOLD + "  /portalgun report [contact/-] [report] " + ChatColor.GREEN + "- " + Language.HELP_REPORT.getText());
                 }),
                 new CustomCommand("portalgun", "portalgun.portalgun", false, "portalgun", Language.HELP_GET_GUN.getText(), (sender, args) -> {
@@ -52,6 +56,11 @@ public class PortalGunCommands {
                     Player player = (Player) sender;
                     player.getInventory().addItem(ResetBlocks.resetBlockItem);
                     player.sendMessage(clearPrefix + ChatColor.GREEN + Language.USER_GET_EMANCIPATOR.getText());
+                }),
+                new CustomCommand("portalgun thermal_beam", "portalgun.thermalbeam", false, "portalgun thermal_beam", Language.HELP_GET_THERMAL_BEAM.getText(), (sender, args) -> {
+                    Player player = (Player) sender;
+                    player.getInventory().addItem(ThermalBeams.thermalBeamItem);
+                    // TODO confirmation msg
                 }),
                 new CustomCommand("portalgun remove", "portalgun.remove", false, "portalgun remove", Language.HELP_REMOVE.getText(), (sender, args) -> {
                     Player player = (Player) sender;
@@ -94,16 +103,16 @@ public class PortalGunCommands {
                 new CustomCommand("portalgun companion [\\d\\.]+ [\\d\\.]+ [\\d\\.]+", "portalgun.companion", true, "portalgun companion [x] [y] [z]", Language.HELP_COMPANION.getText(), (sender, args) -> {
                     spawnCompanionCube(clearPrefix, errorPrefix, CompanionCube::new, sender, args);
                 }),
-                new CustomCommand("portalgun redirection \\S+ [\\d\\.]+ [\\d\\.]+ [\\d\\.]+ \\S+", "portalgun.redirection", true, "portalgun companion [world] [x] [y] [z] [true|false]", Language.HELP_COMPANION.getText(), (sender, args) -> {
+                new CustomCommand("portalgun redirection \\S+ [\\d\\.]+ [\\d\\.]+ [\\d\\.]+ \\S+", "portalgun.redirection", true, "portalgun redirection [world] [x] [y] [z] [true|false]", Language.HELP_REDIRECTION.getText(), (sender, args) -> {
                     spawnCompanionCube(clearPrefix, errorPrefix, RedirectionCube::new, sender, args);
                 }),
-                new CustomCommand("portalgun redirection \\S+ [\\d\\.]+ [\\d\\.]+ [\\d\\.]+", "portalgun.redirection", true, "portalgun companion [world] [x] [y] [z]", Language.HELP_COMPANION.getText(), (sender, args) -> {
+                new CustomCommand("portalgun redirection \\S+ [\\d\\.]+ [\\d\\.]+ [\\d\\.]+", "portalgun.redirection", true, "portalgun redirection [world] [x] [y] [z]", Language.HELP_REDIRECTION.getText(), (sender, args) -> {
                     spawnCompanionCube(clearPrefix, errorPrefix, RedirectionCube::new, sender, args);
                 }),
-                new CustomCommand("portalgun redirection [\\d\\.]+ [\\d\\.]+ [\\d\\.]+ \\S+", "portalgun.redirection", true, "portalgun companion [x] [y] [z] [true|false]", Language.HELP_COMPANION.getText(), (sender, args) -> {
+                new CustomCommand("portalgun redirection [\\d\\.]+ [\\d\\.]+ [\\d\\.]+ \\S+", "portalgun.redirection", true, "portalgun redirection [x] [y] [z] [true|false]", Language.HELP_REDIRECTION.getText(), (sender, args) -> {
                     spawnCompanionCube(clearPrefix, errorPrefix, RedirectionCube::new, sender, args);
                 }),
-                new CustomCommand("portalgun redirection [\\d\\.]+ [\\d\\.]+ [\\d\\.]+", "portalgun.redirection", true, "portalgun companion [x] [y] [z]", Language.HELP_COMPANION.getText(), (sender, args) -> {
+                new CustomCommand("portalgun redirection [\\d\\.]+ [\\d\\.]+ [\\d\\.]+", "portalgun.redirection", true, "portalgun redirection [x] [y] [z]", Language.HELP_REDIRECTION.getText(), (sender, args) -> {
                     spawnCompanionCube(clearPrefix, errorPrefix, RedirectionCube::new, sender, args);
                 }),
                 new CustomCommand("portalgun report \\S+ .+", "portalgun.report", true, "portalgun report [contact] [report]", Language.HELP_REPORT.getText(), (sender, args) -> {

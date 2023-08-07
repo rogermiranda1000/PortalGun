@@ -75,7 +75,7 @@ public class onUse implements Listener {
             return false;
         }
 
-        Block colliderBlock = getLookingBlock(player, Config.MAX_LENGHT.getInteger(), Portal.isEmptyBlock);
+        Block colliderBlock = getLookingBlock(player, Config.MAX_LENGTH.getInteger(), Portal.isEmptyBlock);
         if (colliderBlock == null) {
             player.sendMessage(PortalGun.plugin.getErrorPrefix() + Language.PORTAL_FAR.getText());
             return false;
