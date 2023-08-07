@@ -6,15 +6,14 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Stairs;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 public class DirectionGetter {
     public enum Direction {
-        EAST(0,1),
-        WEST(0,-1),
-        SOUTH(-1,0),
-        NORTH(1,0);
+        EAST(1,0),
+        WEST(-1,0),
+        SOUTH(0,1),
+        NORTH(0,-1);
 
         private final Vector facing;
         private Direction(Vector facing) {
