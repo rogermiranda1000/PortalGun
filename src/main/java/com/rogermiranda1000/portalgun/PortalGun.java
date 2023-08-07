@@ -7,6 +7,7 @@ import com.rogermiranda1000.helper.RogerPlugin;
 import com.rogermiranda1000.helper.SentryScheduler;
 import com.rogermiranda1000.helper.worldguard.RegionDelimiter;
 import com.rogermiranda1000.portalgun.api.PortalGunAccessibleMethods;
+import com.rogermiranda1000.portalgun.cubes.Cubes;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.events.*;
 import com.rogermiranda1000.portalgun.files.Config;
@@ -47,7 +48,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
     private BukkitTask pickEntitiesTask;
 
     public PortalGun() {
-        super(new onDead(), new onLeave(), new onMove(), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity());
+        super(new onDead(), new onLeave(), new onMove(), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity(), new Cubes());
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
     }
@@ -85,7 +86,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
 
         FileManager.loadFiles();
         if (PortalGun.blacklistedWorlds.size() > 0) this.regionDelimiter.add(new WorldRegion(PortalGun.blacklistedWorlds));
-        this.setCommandMessages(Language.USER_NO_PERMISSIONS.getText(), Language.HELP_UNKNOWN.getText());
+        this.setCommandMessages(Language.USER_NO_PERMISSIONS.getText(), Language.ERROR_UNKNOWN.getText());
 
         super.setCommands(new PortalGunCommands(this.getClearPrefix(), this.getErrorPrefix()).commands); // @pre before super.onEnable() & after loading languages
     }
@@ -149,11 +150,12 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         this.particleTask = scheduler.runTaskTimer(this, PortalGun::playAllParticles, 0, PortalGun.particleDelay);
         // TODO: configuration "only players teleports"
         // Entities
-        this.teleportTask = scheduler.runTaskTimerAsynchronously(this, ()->{
+        this.teleportTask = scheduler.runTaskTimer(this, ()->{
             PortalGun.updateTeleportedEntities();
             PortalGun.teleportEntities();
+            Cubes.updateCompanionCubes();
         }, 1, PortalGun.particleDelay*3);
-        this.pickEntitiesTask = scheduler.runTaskTimerAsynchronously(this, onPortalgunEntity::updatePickedEntities, 0, PortalGun.pickedEntitiesDelay);
+        this.pickEntitiesTask = scheduler.runTaskTimer(this, onPortalgunEntity::updatePickedEntities, 0, PortalGun.pickedEntitiesDelay);
     }
 
     private static void playAllParticles() {
@@ -182,14 +184,11 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
                 final Location destinyLocation = portal.getDestiny(portal.getLocationIndex(entityBlockLocation));
                 if (destinyLocation == null) continue;
 
-                Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> {
-                    if (portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) {
-                        synchronized (PortalGun.teleportedEntities) {
-                            PortalGun.teleportedEntities.put(e, destinyLocation);
-                        }
+                if (portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) {
+                    synchronized (PortalGun.teleportedEntities) {
+                        PortalGun.teleportedEntities.put(e, destinyLocation);
                     }
-                    return null;
-                });
+                }
             }
         }
     }
@@ -226,6 +225,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         this.pickEntitiesTask.cancel();
 
         onPortalgunEntity.clear();
+        Cubes.clear(); // TODO option to keep saved
 
         if (Config.PERSISTANT.getBoolean()) {
             getLogger().info("Saving portals...");

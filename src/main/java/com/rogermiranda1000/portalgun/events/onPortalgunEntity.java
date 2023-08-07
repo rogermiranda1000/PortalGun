@@ -1,6 +1,9 @@
 package com.rogermiranda1000.portalgun.events;
 
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.cubes.CompanionCube;
+import com.rogermiranda1000.portalgun.cubes.Cube;
+import com.rogermiranda1000.portalgun.cubes.Cubes;
 import com.rogermiranda1000.portalgun.utils.raycast.Ray;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
@@ -14,23 +17,43 @@ import java.util.*;
 
 public class onPortalgunEntity {
     public static final Set<String> entityPickBlacklist = new HashSet<>();
-    private static final HashMap<Player, Entity> pickedEntities = new HashMap<>();
+    private static final HashMap<Player, Entity> pickedEntitiesAndPicker = new HashMap<>();
     private static final float LAUNCH_VELOCITY_MULTIPLIER = 1.f,
                             PICKED_ENTITY_DISTANCE = 2.5f;
 
     public void onEntityPick(PlayerPickEvent event) {
-        if (entityPickBlacklist.contains(event.getEntityPicked().getType().name().toLowerCase())) {
+        String entityPickedName = event.getEntityPicked().getType().name().toLowerCase();
+        Cube cube;
+        if ((cube = Cubes.getCube(event.getEntityPicked())) != null) {
+            // companion cube picked
+            if (!Cubes.isCubeSkeleton(event.getEntityPicked())) {
+                // you have to pick the skeleton; simulate the event as you pick the other one
+                PlayerPickEvent e2 = new PlayerPickEvent(event.getPlayer(), cube.getSkeleton());
+                this.onEntityPick(e2);
+                event.setCancelled(e2.isCancelled());
+                return;
+            }
+
+            entityPickedName = "COMPANION_CUBE";
+        }
+
+        if (entityPickBlacklist.contains(entityPickedName)) {
             event.setCancelled(true);
             return;
         }
 
         if (VersionController.version.compareTo(Version.MC_1_10) >= 0) event.getEntityPicked().setGravity(false);
-        pickedEntities.put(event.getPlayer(), event.getEntityPicked());
+        synchronized (pickedEntitiesAndPicker) {
+            pickedEntitiesAndPicker.put(event.getPlayer(), event.getEntityPicked());
+        }
         // TODO sound
     }
 
     public void launchEntity(Player p) {
-        Entity e = pickedEntities.remove(p);
+        Entity e;
+        synchronized (pickedEntitiesAndPicker) {
+            e = pickedEntitiesAndPicker.remove(p);
+        }
         if (VersionController.version.compareTo(Version.MC_1_10) >= 0) e.setGravity(true);
         e.setVelocity(e.getLocation().toVector().subtract(p.getLocation().toVector()).multiply(LAUNCH_VELOCITY_MULTIPLIER));
         // TODO sound
@@ -47,21 +70,31 @@ public class onPortalgunEntity {
 
     @Nullable
     public static Entity getEntityPicked(Player p) {
-        return pickedEntities.get(p);
+        synchronized (pickedEntitiesAndPicker) {
+            return pickedEntitiesAndPicker.get(p);
+        }
     }
 
     public static boolean isEntityPicked(Entity e) {
-        return pickedEntities.containsValue(e);
+        synchronized (pickedEntitiesAndPicker) {
+            return pickedEntitiesAndPicker.containsValue(e);
+        }
     }
 
     public static void removeEntity(Player p) {
-        Entity e = pickedEntities.remove(p);
+        Entity e;
+        synchronized (pickedEntitiesAndPicker) {
+            e = pickedEntitiesAndPicker.remove(p);
+        }
         if (e == null) return;
         if (VersionController.version.compareTo(Version.MC_1_10) >= 0) e.setGravity(true);
     }
 
     public static void clear() {
-        for (Player p : pickedEntities.keySet()) removeEntity(p);
+        synchronized (pickedEntitiesAndPicker) {
+            List<Player> toRemove = new ArrayList<>(pickedEntitiesAndPicker.keySet());
+            for (Player p : toRemove) removeEntity(p);
+        }
     }
 
     /**
@@ -151,19 +184,18 @@ public class onPortalgunEntity {
 
     public static void updatePickedEntities() {
         Set<Map.Entry<Player, Entity>> entities;
-        synchronized (pickedEntities) {
-            pickedEntities.entrySet().removeIf(e -> !e.getValue().isValid()); // Entity no loger exists
-            entities = pickedEntities.entrySet();
+        synchronized (pickedEntitiesAndPicker) {
+            pickedEntitiesAndPicker.entrySet().removeIf(e -> !e.getValue().isValid()); // Entity no loger exists
+            entities = pickedEntitiesAndPicker.entrySet();
         }
 
         for (Map.Entry<Player, Entity> e : entities) {
             Location expect = Ray.getPoint(e.getKey(), PICKED_ENTITY_DISTANCE),
                     newLocation = secureTeleport(e.getValue(), expect);
 
-            if (newLocation == expect) {
-                // grabbed objects face away from the player
-                newLocation.setYaw(e.getKey().getLocation().getYaw());
-            }
+            // grabbed objects face away from the player
+            newLocation.setYaw(e.getKey().getLocation().getYaw());
+
             Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> e.getValue().teleport(newLocation));
         }
     }
