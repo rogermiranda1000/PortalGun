@@ -7,6 +7,7 @@ import com.rogermiranda1000.helper.blocks.file.BasicLocation;
 import com.rogermiranda1000.portalgun.utils.stairs.DirectionGetter;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.blocks.BlockType;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -49,7 +50,6 @@ public class ThermalBeams extends CustomBlock<ThermalBeam> {
     }
 
     public static final ItemStack thermalBeamItem = ThermalBeams.getThermalBeamItem();
-    private static final BlockType resetBlockType = VersionController.get().getObject(thermalBeamItem);
     private static final String id = "ThermalBeams";
 
     private static ItemStack getThermalBeamItem() {
@@ -62,7 +62,7 @@ public class ThermalBeams extends CustomBlock<ThermalBeam> {
     }
 
     public ThermalBeams(RogerPlugin plugin) {
-        super(plugin, ThermalBeams.id, e -> (BlockEvent.class.isAssignableFrom(e.getClass()) && VersionController.get().getObject(((BlockEvent)e).getBlock()).equals(ThermalBeams.resetBlockType)
+        super(plugin, ThermalBeams.id, e -> (BlockEvent.class.isAssignableFrom(e.getClass()) && ((BlockEvent)e).getBlock().getType().equals(ThermalBeams.thermalBeamItem.getType())
                 && (!BlockPlaceEvent.class.isAssignableFrom(e.getClass()) || VersionController.get().sameItem(((BlockPlaceEvent)e).getItemInHand(), ThermalBeams.thermalBeamItem))), false, true, new StoreThermalBeam());
     }
 
@@ -71,7 +71,9 @@ public class ThermalBeams extends CustomBlock<ThermalBeam> {
         Vector facing = new Vector(1,0,0);
         try {
             facing = DirectionGetter.getDirection(blockPlaceEvent.getBlock()).getFacingVector();
-        } catch (IllegalArgumentException ignore) {}
+        } catch (IllegalArgumentException ignore) {
+            Bukkit.getLogger().info(ignore.toString());
+        }
         return new ThermalBeam(blockPlaceEvent.getBlock().getLocation(), facing);
     }
 
