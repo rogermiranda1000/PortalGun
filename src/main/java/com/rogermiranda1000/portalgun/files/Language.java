@@ -210,6 +210,8 @@ public enum Language {
         r.put(Language.ERROR_UNKNOWN.key, "Comando desconocido.");
         r.put(Language.REPORT_SENT.key, "Reporte enviado! Gracias por ayudar.");
         r.put(Language.REPORT_CONTACT_ERROR.key, "Has de poner un correo (algo@web) or Discord (usuario#id) para contactar. Si no quieres, entonces pon '-'.");
+        r.put(Language.HELP_COMPANION.key, "Spawnea un cubo de compañia.");
+        r.put(Language.ERROR_WORLD.key, "No se ha encontrado el mundo [world].");
 
         return r;
     }
@@ -243,6 +245,8 @@ public enum Language {
         r.put(Language.ERROR_UNKNOWN.key, "Comanda desconeguda.");
         r.put(Language.REPORT_SENT.key, "Report enviat! Gràcies per ajudar.");
         r.put(Language.REPORT_CONTACT_ERROR.key, "Has de posar un correu (algo@web) o Discord (usuari#id) per a contactar. Si no vols, posa '-'.");
+        r.put(Language.HELP_COMPANION.key, "Spawneja un cub de companyia.");
+        r.put(Language.ERROR_WORLD.key, "No s'ha trobat el mon [world].");
 
         return r;
     }
@@ -280,6 +284,9 @@ public enum Language {
         r.put(Language.REPORT_SENT.key, "Raport wysłany! Dziękuję za pomoc.");
         r.put(Language.REPORT_CONTACT_ERROR.key, "Aby się skontaktować, musisz podać e-mail (something@website) lub Discord (user#id). Jeśli nie chcesz, ustaw '-'.");
 
+        r.put(Language.HELP_COMPANION.key, "Stwórz Kostkę Towarzysza.");
+        r.put(Language.ERROR_WORLD.key, "Świat [world] nie został znaleziony.");
+
         return r;
     }
 
@@ -316,6 +323,9 @@ public enum Language {
         r.put(Language.REPORT_SENT.key, "Hlášení odesláno! Díky za pomoc.");
         r.put(Language.REPORT_CONTACT_ERROR.key, "Chcete-li kontaktovat, musíte zadat e-mail (něco@web) nebo Discord (uživatele#ID). Pokud nechcete, nastavte '-'.");
 
+        r.put(Language.HELP_COMPANION.key, "Vytvořte Společenskou kostku.");
+        r.put(Language.ERROR_WORLD.key, "[world] world nenalezen.");
+
         return r;
     }
 
@@ -351,6 +361,9 @@ public enum Language {
 
         r.put(Language.REPORT_SENT.key, "Report gesendet. Danke fuer deine Hilfe.");
         r.put(Language.REPORT_CONTACT_ERROR.key, "Du must eine E-Mail (something@website) eingeben oder ein Discord (user#id) Benutzername. Wenn du es nicht willst, denn schreibe '-'.");
+
+        r.put(Language.HELP_COMPANION.key, "Erzeuge einen Gefährtenwürfel.");
+        r.put(Language.ERROR_WORLD.key, "Die [world]-Welt wurde nicht gefunden.");
 
         return r;
     }
