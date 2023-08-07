@@ -23,7 +23,7 @@ public class ThermalBeam {
                 this.location.getWorld(),
                 this.location.getBlockX() + 0.5f + direction.getX()/2,
                 this.location.getBlockY() + 0.5f,
-                this.location.getBlockZ() + 0.5f + direction.getX()/2
+                this.location.getBlockZ() + 0.5f + direction.getZ()/2
         );
     }
 
@@ -35,7 +35,6 @@ public class ThermalBeam {
     }
 
     public void playParticles() {
-        Bukkit.getLogger().info(this.direction.toString());
         if (LASER_PARTICLE == null) return;
 
         Location loc = this.particlesOrigin.clone().add(this.direction);

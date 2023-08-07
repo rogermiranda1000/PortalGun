@@ -71,9 +71,7 @@ public class ThermalBeams extends CustomBlock<ThermalBeam> {
         Vector facing = new Vector(1,0,0);
         try {
             facing = DirectionGetter.getDirection(blockPlaceEvent.getBlock()).getFacingVector();
-        } catch (IllegalArgumentException ignore) {
-            Bukkit.getLogger().info(ignore.toString());
-        }
+        } catch (IllegalArgumentException ignore) {}
         return new ThermalBeam(blockPlaceEvent.getBlock().getLocation(), facing);
     }
 
