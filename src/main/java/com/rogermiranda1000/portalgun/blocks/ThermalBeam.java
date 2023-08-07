@@ -1,30 +1,46 @@
 package com.rogermiranda1000.portalgun.blocks;
 
+import com.rogermiranda1000.portalgun.blocks.beam.Beam;
+import com.rogermiranda1000.portalgun.blocks.beam.BeamDisruptedEvent;
+import com.rogermiranda1000.portalgun.cubes.Cubes;
 import com.rogermiranda1000.versioncontroller.particles.ParticleEntity;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class ThermalBeam {
-    public static float MAX_DISTANCE = 45.f;
-    public static ParticleEntity LASER_PARTICLE;
+public class ThermalBeam implements BeamDisruptedEvent {
 
-    public final Location location;
-    public final Vector direction;
-    public final Location particlesOrigin;
+    private final Location location;
+    private final Vector direction;
+    private final Beam beam;
     @Nullable public ThermalReceiver powering;
 
     public ThermalBeam(Location location, Vector direction) {
         this.location = location;
         this.direction = direction;
 
-        this.particlesOrigin = new Location(
+        this.beam = new Beam(new Location(
                 this.location.getWorld(),
                 this.location.getBlockX() + 0.5f + direction.getX()/2,
                 this.location.getBlockY() + 0.5f,
                 this.location.getBlockZ() + 0.5f + direction.getZ()/2
-        );
+        ), this.direction, this);
+    }
+
+    @Override
+    public void onBeamDisrupted(Entity e) {
+        this.power(null); // de-power (if any being powered)
+        if (!Cubes.isCube(e)) {
+            // non-cube entity disrupted the laser; burn it
+            e.setFireTicks(20);
+        }
+    }
+
+    @Override
+    public void onBeamDisrupted(Block b) {
+        // TODO check if is ThermalReceiver
     }
 
     public void power(@Nullable ThermalReceiver receiver) {
@@ -35,12 +51,8 @@ public class ThermalBeam {
     }
 
     public void playParticles() {
-        if (LASER_PARTICLE == null) return;
-
-        Location loc = this.particlesOrigin.clone().add(this.direction);
-        LASER_PARTICLE.playParticle(loc.getWorld(), loc);
-
-        // TODO check if powering
+        this.beam.tick();
+        this.beam.playParticles();
     }
 
     public Location getPosition() {

@@ -4,6 +4,7 @@ import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.blocks.ResetBlock;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.blocks.ThermalBeam;
+import com.rogermiranda1000.portalgun.blocks.beam.Beam;
 import com.rogermiranda1000.portalgun.events.onPortalgunEntity;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.versioncontroller.Version;
@@ -105,7 +106,7 @@ public enum Config {
             PortalGun.wgRegions = (Config.fileConfiguration.getStringList(WG_REGIONS.key).isEmpty() ? null : Config.fileConfiguration.getStringList(WG_REGIONS.key));
             PortalGun.blacklistedWgRegions = (Config.fileConfiguration.getStringList(BLACKLIST_WG_REGIONS.key).isEmpty() ? null : Config.fileConfiguration.getStringList(BLACKLIST_WG_REGIONS.key));
 
-            ThermalBeam.MAX_DISTANCE = Config.BEAM_MAX_LENGTH.getFloat();
+            Beam.MAX_DISTANCE = Config.BEAM_MAX_LENGTH.getFloat();
 
             Config.loadPortalgunMaterial(Config.fileConfiguration.getString(PORTALGUN_NAME.key), Config.fileConfiguration.getStringList(PORTALGUN_LORE.key),
                     Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
@@ -171,7 +172,7 @@ public enum Config {
 
         String laserParticle = Config.fileConfiguration.getString(Config.BEAM_PARTICLE.key);
         try {
-            ThermalBeam.LASER_PARTICLE = VersionController.get().getParticle(laserParticle);
+            Beam.LASER_PARTICLE = VersionController.get().getParticle(laserParticle);
         } catch (IllegalArgumentException IAEx) {
             throw new IllegalArgumentException("Particle '" + laserParticle + "' does not exists.");
         }

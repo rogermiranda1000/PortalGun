@@ -161,7 +161,7 @@ public class onUse implements Listener {
         // raycasting
         BlockIterator iter = new BlockIterator(p, max);
         Block colliderBlock = iter.next();
-        while (emptyBlock.apply(colliderBlock) && iter.hasNext()) colliderBlock = iter.next(); // TODO: bloacklist blocks
+        while (emptyBlock.apply(colliderBlock) && iter.hasNext()) colliderBlock = iter.next(); // TODO: blacklist blocks
         if (!iter.hasNext()) return emptyBlock.apply(colliderBlock) ? null /* we reached the max distance */ : colliderBlock;
         return colliderBlock;
     }

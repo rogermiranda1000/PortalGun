@@ -7,10 +7,10 @@ import org.bukkit.Material;
 import org.bukkit.util.Vector;
 
 public class ThermalReceiver {
-    public final Location location;
-    public final Vector direction;
-    public BlockType block;
-    public boolean isPowered;
+    private final Location location;
+    private final Vector direction;
+    private BlockType block;
+    private boolean isPowered;
 
     public ThermalReceiver(Location location, Vector direction) {
         this.location = location;
