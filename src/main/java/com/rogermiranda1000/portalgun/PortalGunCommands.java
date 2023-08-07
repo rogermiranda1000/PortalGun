@@ -1,7 +1,8 @@
 package com.rogermiranda1000.portalgun;
 
 import com.rogermiranda1000.helper.CustomCommand;
-import com.rogermiranda1000.portalgun.blocks.CompanionCubes;
+import com.rogermiranda1000.portalgun.cubes.CompanionCube;
+import com.rogermiranda1000.portalgun.cubes.Cubes;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.files.Language;
 import com.rogermiranda1000.portalgun.portals.Portal;
@@ -14,7 +15,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -142,6 +142,6 @@ public class PortalGunCommands {
         Location toPlace = new Location(world, Double.parseDouble(m.group(2)), Double.parseDouble(m.group(3)), Double.parseDouble(m.group(4)));
         boolean removeOld = !"false".equals(m.group(5)); // by default, remove it
 
-        CompanionCubes.spawnCompanionCube(toPlace, removeOld);
+        Cubes.spawnCube(new CompanionCube(toPlace), removeOld);
     }
 }

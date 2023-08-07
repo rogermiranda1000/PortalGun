@@ -7,7 +7,7 @@ import com.rogermiranda1000.helper.RogerPlugin;
 import com.rogermiranda1000.helper.SentryScheduler;
 import com.rogermiranda1000.helper.worldguard.RegionDelimiter;
 import com.rogermiranda1000.portalgun.api.PortalGunAccessibleMethods;
-import com.rogermiranda1000.portalgun.blocks.CompanionCubes;
+import com.rogermiranda1000.portalgun.cubes.Cubes;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.events.*;
 import com.rogermiranda1000.portalgun.files.Config;
@@ -48,7 +48,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
     private BukkitTask pickEntitiesTask;
 
     public PortalGun() {
-        super(new onDead(), new onLeave(), new onMove(), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity(), new CompanionCubes());
+        super(new onDead(), new onLeave(), new onMove(), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity(), new Cubes());
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
     }
@@ -153,7 +153,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         this.teleportTask = scheduler.runTaskTimer(this, ()->{
             PortalGun.updateTeleportedEntities();
             PortalGun.teleportEntities();
-            CompanionCubes.updateCompanionCubes();
+            Cubes.updateCompanionCubes();
         }, 1, PortalGun.particleDelay*3);
         this.pickEntitiesTask = scheduler.runTaskTimer(this, onPortalgunEntity::updatePickedEntities, 0, PortalGun.pickedEntitiesDelay);
     }
@@ -225,7 +225,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         this.pickEntitiesTask.cancel();
 
         onPortalgunEntity.clear();
-        CompanionCubes.clear(); // TODO option to keep saved
+        Cubes.clear(); // TODO option to keep saved
 
         if (Config.PERSISTANT.getBoolean()) {
             getLogger().info("Saving portals...");

@@ -1,4 +1,4 @@
-package com.rogermiranda1000.portalgun.blocks;
+package com.rogermiranda1000.portalgun.cubes;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

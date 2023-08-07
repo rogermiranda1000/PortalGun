@@ -1,4 +1,4 @@
-package com.rogermiranda1000.portalgun.blocks;
+package com.rogermiranda1000.portalgun.cubes;
 
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
@@ -35,7 +35,7 @@ public abstract class Cube {
         return this.cubeSkeleton;
     }
 
-    public Cube spawn() {
+    Cube spawn() {
         this.cube = (ArmorStand)this.originalLocation.getWorld().spawnEntity(this.originalLocation, EntityType.ARMOR_STAND);
         this.cubeSkeleton = (ArmorStand)this.originalLocation.getWorld().spawnEntity(this.originalLocation, EntityType.ARMOR_STAND);
 
@@ -63,5 +63,9 @@ public abstract class Cube {
     public void tick() {
         if (this.cube == null) return;
         this.cube.teleport(this.cubeSkeleton.getLocation().add(0,ARMORSTAND_VERTICAL_OFFSET,0));
+    }
+
+    public Location getSpawnLocation() {
+        return this.originalLocation;
     }
 }

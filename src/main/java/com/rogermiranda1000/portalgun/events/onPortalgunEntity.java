@@ -1,8 +1,9 @@
 package com.rogermiranda1000.portalgun.events;
 
 import com.rogermiranda1000.portalgun.PortalGun;
-import com.rogermiranda1000.portalgun.blocks.CompanionCube;
-import com.rogermiranda1000.portalgun.blocks.CompanionCubes;
+import com.rogermiranda1000.portalgun.cubes.CompanionCube;
+import com.rogermiranda1000.portalgun.cubes.Cube;
+import com.rogermiranda1000.portalgun.cubes.Cubes;
 import com.rogermiranda1000.portalgun.utils.raycast.Ray;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
@@ -22,10 +23,10 @@ public class onPortalgunEntity {
 
     public void onEntityPick(PlayerPickEvent event) {
         String entityPickedName = event.getEntityPicked().getType().name().toLowerCase();
-        CompanionCube cube;
-        if ((cube = CompanionCubes.getCompanionCube(event.getEntityPicked())) != null) {
+        Cube cube;
+        if ((cube = Cubes.getCube(event.getEntityPicked())) != null) {
             // companion cube picked
-            if (!CompanionCubes.isCompanionCubeSkeleton(event.getEntityPicked())) {
+            if (!Cubes.isCubeSkeleton(event.getEntityPicked())) {
                 // you have to pick the skeleton; simulate the event as you pick the other one
                 PlayerPickEvent e2 = new PlayerPickEvent(event.getPlayer(), cube.getSkeleton());
                 this.onEntityPick(e2);
