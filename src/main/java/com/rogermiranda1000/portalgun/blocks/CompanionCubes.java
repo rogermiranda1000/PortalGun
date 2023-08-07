@@ -1,22 +1,16 @@
 package com.rogermiranda1000.portalgun.blocks;
 
 import com.rogermiranda1000.portalgun.PortalGun;
-import com.rogermiranda1000.portalgun.events.onPortalgunEntity;
 import com.rogermiranda1000.portalgun.events.onUse;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,7 +30,7 @@ public class CompanionCubes implements Listener {
         if (!e.getType().equals(EntityType.ARMOR_STAND)) return false;
 
         synchronized (CompanionCubes.companionCubes) {
-            return CompanionCubes.companionCubes.stream().anyMatch(c -> c.isCompanionCubeSkeleton(e));
+            return CompanionCubes.companionCubes.stream().anyMatch(c -> c.isSkeleton(e));
         }
     }
 
@@ -45,12 +39,12 @@ public class CompanionCubes implements Listener {
         if (!e.getType().equals(EntityType.ARMOR_STAND)) return null;
 
         synchronized (CompanionCubes.companionCubes) {
-            return CompanionCubes.companionCubes.stream().filter(c -> c.isCompanionCube(e)).findFirst().orElse(null);
+            return CompanionCubes.companionCubes.stream().filter(c -> c.isCube(e)).findFirst().orElse(null);
         }
     }
 
     public static void spawnCompanionCube(Location loc, boolean removeOld) {
-        CompanionCube cube = new CompanionCube(loc).spawn();
+        CompanionCube cube = (CompanionCube)new CompanionCube(loc).spawn();
         synchronized (CompanionCubes.companionCubes) {
             CompanionCubes.companionCubes.add(cube);
 
@@ -106,18 +100,6 @@ public class CompanionCubes implements Listener {
         if (!CompanionCubes.isCompanionCube(e.getEntity())) return;
 
         e.setCancelled(true);
-        /*if (e instanceof EntityDamageByEntityEvent) {
-            EntityDamageByEntityEvent event = (EntityDamageByEntityEvent) e;
-            if (!(event.getDamager() instanceof Player)) return;
-            Player player = ((Player) event.getDamager());
-
-            // simulate a left click
-            PortalGun.plugin.getListener(onUse.class).onPlayerUse(new PlayerInteractEvent(
-                    player,
-                    Action.LEFT_CLICK_AIR,
-                    null, null, null // not used
-            ));
-        }*/
     }
 
     public static void updateCompanionCubes() {

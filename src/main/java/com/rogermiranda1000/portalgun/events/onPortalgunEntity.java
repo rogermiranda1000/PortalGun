@@ -27,7 +27,7 @@ public class onPortalgunEntity {
             // companion cube picked
             if (!CompanionCubes.isCompanionCubeSkeleton(event.getEntityPicked())) {
                 // you have to pick the skeleton; simulate the event as you pick the other one
-                PlayerPickEvent e2 = new PlayerPickEvent(event.getPlayer(), cube.getCompanionCubeSkeleton());
+                PlayerPickEvent e2 = new PlayerPickEvent(event.getPlayer(), cube.getSkeleton());
                 this.onEntityPick(e2);
                 event.setCancelled(e2.isCancelled());
                 return;
