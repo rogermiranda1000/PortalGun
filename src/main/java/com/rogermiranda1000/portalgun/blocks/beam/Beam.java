@@ -8,9 +8,11 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Beam {
     public static class BeamStep {
@@ -28,6 +30,21 @@ public class Beam {
 
         public Vector getDirection() {
             return this.dir.clone();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return this.equals(o, 0);
+        }
+
+        public boolean equals(Object o, float marginRadius) {
+            if (o == this) return true;
+            if (!(o instanceof BeamStep)) return false;
+
+            BeamStep that = (BeamStep)o;
+            Vector l1 = this.getLocation().add(this.getDirection()).toVector(),
+                    l2 = that.getLocation().add(that.getDirection()).toVector();
+            return (l1.subtract(l2).length() <= marginRadius);
         }
     }
     public static ParticleEntity LASER_PARTICLE;
@@ -48,52 +65,71 @@ public class Beam {
         this.onBeamDisrupted = callback;
 
         this.trails = new ArrayList<>();
-        this.validationTrailIndex = 0;
+        this.validationTrailIndex = 1;
     }
 
     private static int getMaxTrailElementsUntilMaxSize() {
         return (int)Math.ceil(MAX_DISTANCE / STEP_SIZE);
     }
 
+    @Nullable
+    private static BeamStep calculateNext(BeamStep last, @Nullable BeamDisruptedEvent callback) {
+        Location nextLocation = last.getLocation().add(last.getDirection().multiply(STEP_SIZE));
+        Vector nextDirection = last.getDirection();
+
+        // TODO check for portal collision
+
+        Block nextLocationBlock = nextLocation.getBlock();
+        if (!Portal.isEmptyBlock.apply(nextLocationBlock)) {
+            if (callback != null) callback.onBeamDisrupted(nextLocationBlock);
+            return null;
+        }
+
+        Entity collidingWith = nextLocation.getWorld().getNearbyEntities(nextLocation, 0.25f, 1f, 0.25f)
+                .stream().findFirst().orElse(null);
+        RedirectionCube redirectionCube = null;
+        if (collidingWith != null && (redirectionCube = Cubes.getCube(collidingWith, RedirectionCube.class)) == null) {
+            if (callback != null) callback.onBeamDisrupted(collidingWith);
+            return null;
+        }
+        if (redirectionCube != null) {
+            // hitted by a redirection cube
+            float yaw = collidingWith.getLocation().getYaw();
+            nextDirection = Beam.yawToVector(yaw);
+        }
+
+        return new BeamStep(nextLocation, nextDirection);
+    }
+
     public void tick() {
         for (int iteration = 0; iteration < ITERATIONS_PER_TICK; iteration++) {
             // validate old beams
-            if (this.validationTrailIndex >= this.trails.size()) this.validationTrailIndex = 0;
+            if (this.validationTrailIndex >= this.trails.size()) this.validationTrailIndex = 1;
             else {
+                BeamStep lastChecked = this.trails.get(this.validationTrailIndex-1),
+                        currentlyChecking = this.trails.get(this.validationTrailIndex);
+                BeamStep next = Beam.calculateNext(lastChecked, null);
 
+                if (!currentlyChecking.equals(next, 0.05f)) {
+                    // the trail has changed; remove all elements from this point to the last
+                    this.trails = this.trails.subList(0, this.validationTrailIndex-1);
+                }
+
+                this.validationTrailIndex++;
             }
 
 
             // increase beam
-            if (this.trails.size() == 0) {
+            if (this.trails.isEmpty()) {
                 this.trails.add(new BeamStep(this.originLocation, this.originDirection));
             }
             else {
                 BeamStep last = this.trails.get(this.trails.size()-1);
-                Location nextLocation = last.getLocation().add(last.getDirection().multiply(STEP_SIZE));
-                Vector nextDirection = last.getDirection();
-
-                Block nextLocationBlock = nextLocation.getBlock();
-                if (!Portal.isEmptyBlock.apply(nextLocationBlock) || this.trails.size() >= getMaxTrailElementsUntilMaxSize()) {
-                    this.onBeamDisrupted.onBeamDisrupted(nextLocationBlock);
-                    return;
+                BeamStep next = Beam.calculateNext(last, this.onBeamDisrupted);
+                if (next != null) {
+                    if (this.trails.size() < getMaxTrailElementsUntilMaxSize()) this.trails.add(next);
+                    else this.onBeamDisrupted.onBeamDisrupted(next.getLocation().getBlock());
                 }
-
-                Entity collidingWith = this.originLocation.getWorld().getNearbyEntities(this.originLocation, 0.25f, 1f, 0.25f)
-                                                .stream().findFirst().orElse(null);
-                RedirectionCube redirectionCube = null;
-                if (collidingWith != null && (redirectionCube = Cubes.getCube(collidingWith, RedirectionCube.class)) == null) {
-                    this.onBeamDisrupted.onBeamDisrupted(collidingWith);
-                    return;
-                }
-                if (redirectionCube != null) {
-                    // hitted by a redirection cube
-                    float yaw = collidingWith.getLocation().getYaw();
-                    nextDirection = Beam.yawToVector(yaw);
-                }
-
-                BeamStep next = new BeamStep(nextLocation, nextDirection);
-                this.trails.add(next);
             }
         }
     }
