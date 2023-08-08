@@ -50,7 +50,7 @@ public class Beam {
     public static ParticleEntity LASER_PARTICLE;
     public static float MAX_DISTANCE = 45.f;
     public static final float STEP_SIZE = 0.3f;
-    private static final int ITERATIONS_PER_TICK = 5;
+    private static final int ITERATIONS_PER_TICK = 10;
 
     private final Location originLocation;
     private final Vector originDirection;
@@ -94,8 +94,13 @@ public class Beam {
         }
         if (redirectionCube != null) {
             // hitted by a redirection cube
-            float yaw = collidingWith.getLocation().getYaw();
-            nextDirection = Beam.yawToVector(yaw);
+            double distance = nextLocation.clone().subtract(collidingWith.getLocation()).toVector()
+                                    .setY(0) // ignore height
+                                    .length();
+            if (distance < 0.3f) { // it needs to be in the center (otherwise it will get redirected at the beginning)
+                float yaw = collidingWith.getLocation().getYaw();
+                nextDirection = Beam.yawToVector(yaw);
+            }
         }
 
         return new BeamStep(nextLocation, nextDirection);
@@ -110,7 +115,7 @@ public class Beam {
                         currentlyChecking = this.trails.get(this.validationTrailIndex);
                 BeamStep next = Beam.calculateNext(lastChecked, null);
 
-                if (!currentlyChecking.equals(next, 0.05f)) {
+                if (!currentlyChecking.equals(next, 0.001f)) {
                     // the trail has changed; remove all elements from this point to the last
                     this.trails = this.trails.subList(0, this.validationTrailIndex-1);
                 }
