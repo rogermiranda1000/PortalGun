@@ -8,6 +8,7 @@ import com.rogermiranda1000.helper.SentryScheduler;
 import com.rogermiranda1000.helper.worldguard.RegionDelimiter;
 import com.rogermiranda1000.portalgun.api.PortalGunAccessibleMethods;
 import com.rogermiranda1000.portalgun.blocks.ThermalBeams;
+import com.rogermiranda1000.portalgun.blocks.ThermalReceivers;
 import com.rogermiranda1000.portalgun.cubes.Cubes;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.events.*;
@@ -53,6 +54,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
         this.addCustomBlock(ThermalBeams.setInstance(new ThermalBeams(this)));
+        this.addCustomBlock(ThermalReceivers.setInstance(new ThermalReceivers(this)));
     }
 
     @Override
@@ -229,6 +231,11 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
 
         onPortalgunEntity.clear();
         Cubes.clear(); // TODO option to keep saved
+
+        // as we read the stair value to get the direction, and we set all the powered blocks to
+        // redstone, if they get saved they will lose their direction; power them off before closing
+        ThermalBeams.getInstance().removeAllBlocksArtificially(); // as they may re-activate the block again, disable them first
+        ThermalReceivers.getInstance().unpowerAll();
 
         if (Config.PERSISTENT.getBoolean()) {
             getLogger().info("Saving portals...");

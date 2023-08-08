@@ -2,6 +2,7 @@ package com.rogermiranda1000.portalgun;
 
 import com.rogermiranda1000.helper.CustomCommand;
 import com.rogermiranda1000.portalgun.blocks.ThermalBeams;
+import com.rogermiranda1000.portalgun.blocks.ThermalReceivers;
 import com.rogermiranda1000.portalgun.cubes.CompanionCube;
 import com.rogermiranda1000.portalgun.cubes.Cube;
 import com.rogermiranda1000.portalgun.cubes.Cubes;
@@ -60,6 +61,11 @@ public class PortalGunCommands {
                 new CustomCommand("portalgun thermal_beam", "portalgun.thermalbeam", false, "portalgun thermal_beam", Language.HELP_GET_THERMAL_BEAM.getText(), (sender, args) -> {
                     Player player = (Player) sender;
                     player.getInventory().addItem(ThermalBeams.thermalBeamItem);
+                    // TODO confirmation msg
+                }),
+                new CustomCommand("portalgun thermal_receiver", "portalgun.thermalreceiver", false, "portalgun thermal_receiver", Language.HELP_GET_THERMAL_RECEIVER.getText(), (sender, args) -> {
+                    Player player = (Player) sender;
+                    player.getInventory().addItem(ThermalReceivers.thermalReceiverItem);
                     // TODO confirmation msg
                 }),
                 new CustomCommand("portalgun remove", "portalgun.remove", false, "portalgun remove", Language.HELP_REMOVE.getText(), (sender, args) -> {

@@ -3,7 +3,6 @@ package com.rogermiranda1000.portalgun.blocks;
 import com.rogermiranda1000.portalgun.blocks.beam.Beam;
 import com.rogermiranda1000.portalgun.blocks.beam.BeamDisruptedEvent;
 import com.rogermiranda1000.portalgun.cubes.Cubes;
-import com.rogermiranda1000.versioncontroller.particles.ParticleEntity;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -40,7 +39,11 @@ public class ThermalBeam implements BeamDisruptedEvent {
 
     @Override
     public void onBeamDisrupted(Block b) {
-        // TODO check if is ThermalReceiver
+        ThermalReceiver receiver = ThermalReceivers.getInstance().getBlock(b.getLocation());
+        if (receiver == null) return; // not a thermal receiver
+
+        // TODO check if coming from the right angle
+        this.power(receiver);
     }
 
     public void power(@Nullable ThermalReceiver receiver) {

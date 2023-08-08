@@ -1,5 +1,7 @@
 package com.rogermiranda1000.portalgun.blocks.beam;
 
+import com.rogermiranda1000.portalgun.blocks.ThermalReceiver;
+import com.rogermiranda1000.portalgun.blocks.ThermalReceivers;
 import com.rogermiranda1000.portalgun.cubes.Cubes;
 import com.rogermiranda1000.portalgun.cubes.RedirectionCube;
 import com.rogermiranda1000.portalgun.portals.Portal;
@@ -12,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class Beam {
     public static class BeamStep {
