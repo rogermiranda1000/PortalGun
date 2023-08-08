@@ -40,7 +40,11 @@ public class ThermalBeam implements BeamDisruptedEvent {
     @Override
     public void onBeamDisrupted(Block b) {
         ThermalReceiver receiver = ThermalReceivers.getInstance().getBlock(b.getLocation());
-        if (receiver == null) return; // not a thermal receiver
+        if (receiver == null) {
+            // not a thermal receiver
+            this.power(null); // just in case they were powering something
+            return;
+        }
 
         // TODO check if coming from the right angle
         this.power(receiver);

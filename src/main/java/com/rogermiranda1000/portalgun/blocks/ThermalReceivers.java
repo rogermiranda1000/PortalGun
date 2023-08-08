@@ -49,7 +49,7 @@ public class ThermalReceivers extends CustomBlock<ThermalReceiver> {
     }
 
     public static final ItemStack thermalReceiverItem = ThermalReceivers.getThermalReceiverItem();
-    private static final String id = "ThermalBeams";
+    private static final String id = "ThermalReceiver";
 
     private static ItemStack getThermalReceiverItem() {
         ItemStack r = new ItemStack(Material.QUARTZ_STAIRS);
