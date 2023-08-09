@@ -15,13 +15,12 @@ public class CeilingPortal extends TopPortal implements Cloneable {
     }
 
     public Location []calculateTeleportLocation() {
-        Location l = this.getPosition().add(0.f, -2.f, 0.f);
-        Location l2 = this.getPosition().add(0.f, -1.f, 0.f);
+        Location l = this.getPosition().add(0.f, -1.f, 0.f);
+        Location l2 = this.getPosition().add(0.f, -2.f, 0.f);
 
         return new Location[] {
                 l,
                 this.direction.getOpposite().addOneBlock(l.clone()),
-                // TODO: other portals? (by default 0 pos)
                 l2,
                 this.direction.getOpposite().addOneBlock(l2.clone())
         };
