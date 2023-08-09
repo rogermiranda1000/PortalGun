@@ -313,8 +313,8 @@ public abstract class Portal {
 
     /* TELEPORT */
     private static float getYaw(float playerYaw, Direction p1, Direction p2) {
-        if (!Direction.aligned(p1, p2)) playerYaw += (p2.getValue() - p1.getValue());
-        else if (p1 == p2) playerYaw += 180.f;
+        if (p1 == p2) playerYaw += 180.f;
+        // otherwise keep the same vector
 
         return playerYaw % 360;
     }
@@ -346,6 +346,7 @@ public abstract class Portal {
 
         Location destiny = this.getDestiny(this.getLocationIndex(in.getLocation().getBlock().getLocation()));
         Vector direction = this.linked.direction.getVector();
+        // TODO consider direction with `y` variation
 
         return new Trajectory(destiny, direction);
     }
