@@ -87,7 +87,7 @@ public class Beam {
         }
 
         Entity collidingWith = nextLocation.getWorld().getNearbyEntities(nextLocation, 0.25f, 1f, 0.25f)
-                .stream().findFirst().orElse(null);
+                .stream().filter(e -> !ThermalReceivers.getInstance().isDecorate(e)).findFirst().orElse(null);
         RedirectionCube redirectionCube = null;
         if (collidingWith != null && (redirectionCube = Cubes.getCube(collidingWith, RedirectionCube.class)) == null) {
             if (callback != null) callback.onBeamDisrupted(collidingWith);

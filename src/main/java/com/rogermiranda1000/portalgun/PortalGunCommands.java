@@ -171,7 +171,7 @@ public class PortalGunCommands {
 
         // get the location & if desired remove
         Location toPlace = new Location(world, Double.parseDouble(m.group(2)), Double.parseDouble(m.group(3)), Double.parseDouble(m.group(4)));
-        boolean removeOld = !"false".equals(m.group(5).trim()); // by default, remove it
+        boolean removeOld = !" false".equals(m.group(5)); // by default, remove it
 
         Cubes.spawnCube(generator.apply(toPlace), removeOld);
     }

@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -20,6 +21,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 public class ThermalReceivers extends CustomBlock<ThermalReceiver> {
@@ -40,7 +42,9 @@ public class ThermalReceivers extends CustomBlock<ThermalReceiver> {
                     Block block = loc.getWorld().getBlockAt(loc);
                     facing = DirectionGetter.getDirection(block).getFacingVector();
                 } catch (IllegalArgumentException | NullPointerException ignore) {}
-                return new ThermalReceiver(loc, facing);
+                ThermalReceiver thermalReceiver = new ThermalReceiver(loc, facing);
+                thermalReceiver.decorate();
+                return thermalReceiver;
             };
         }
 
@@ -71,18 +75,29 @@ public class ThermalReceivers extends CustomBlock<ThermalReceiver> {
         try {
             facing = DirectionGetter.getDirection(blockPlaceEvent.getBlock()).getFacingVector();
         } catch (IllegalArgumentException ignore) {}
-        // TODO spawn armor stand
-        return new ThermalReceiver(blockPlaceEvent.getBlock().getLocation(), facing);
+        ThermalReceiver thermalReceiver = new ThermalReceiver(blockPlaceEvent.getBlock().getLocation(), facing);
+        thermalReceiver.decorate();
+        return thermalReceiver;
     }
 
     @Override
-    public boolean onCustomBlockBreak(BlockBreakEvent blockBreakEvent, ThermalReceiver thermalBeam) {
-        // TODO delete armor stand
+    public boolean onCustomBlockBreak(BlockBreakEvent blockBreakEvent, ThermalReceiver thermalReceiver) {
+        thermalReceiver.destroy();
         return false;
+    }
+
+    public void destroyAll() {
+        this.getAllBlocks(e -> e.getKey().destroy());
     }
 
     public void unpowerAll() {
         this.getAllBlocks(e -> e.getKey().forceUnpower());
+    }
+
+    public boolean isDecorate(final Entity entity) {
+        final AtomicBoolean matches = new AtomicBoolean(false);
+        this.getAllBlocks(e -> matches.set(e.getKey().isDecorate(entity) || matches.get()));
+        return matches.get();
     }
 
     @Override
@@ -93,7 +108,6 @@ public class ThermalReceivers extends CustomBlock<ThermalReceiver> {
                 && !blockType.equals(Material.REDSTONE_BLOCK)) return null; // not a receiver
         return super.getBlock(loc);
     }
-
 
     private static ThermalReceivers instance = null;
     public static ThermalReceivers setInstance(ThermalReceivers instance) {

@@ -3,6 +3,7 @@ package com.rogermiranda1000.portalgun.events;
 import com.rogermiranda1000.portalgun.Direction;
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
+import com.rogermiranda1000.portalgun.blocks.ThermalReceivers;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.Language;
 import com.rogermiranda1000.portalgun.portals.CeilingPortal;
@@ -61,7 +62,7 @@ public class onUse implements Listener {
         if (PortalGun.takeEntities && player.hasPermission("portalgun.entities") && !leftClick) {
             // maybe the player is facing an entity?
             Entity facing = getLookingEntity(player, PortalGun.MAX_ENTITY_PICK_RANGE, Portal.isEmptyBlock);
-            if (facing != null) {
+            if (facing != null && !ThermalReceivers.getInstance().isDecorate(facing)) {
                 PlayerPickEvent ppe = new PlayerPickEvent(player, facing);
                 this.onEntityPick.onEntityPick(ppe);
                 if (!ppe.isCancelled()) return true;
