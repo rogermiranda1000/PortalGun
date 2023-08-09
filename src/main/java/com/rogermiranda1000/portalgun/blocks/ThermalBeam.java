@@ -2,7 +2,9 @@ package com.rogermiranda1000.portalgun.blocks;
 
 import com.rogermiranda1000.portalgun.blocks.beam.Beam;
 import com.rogermiranda1000.portalgun.blocks.beam.BeamDisruptedEvent;
+import com.rogermiranda1000.portalgun.blocks.beam.CachedBeamDisruptedEvent;
 import com.rogermiranda1000.portalgun.cubes.Cubes;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -25,11 +27,12 @@ public class ThermalBeam implements BeamDisruptedEvent {
                 this.location.getBlockX() + 0.5f + direction.getX()/2,
                 this.location.getBlockY() + 0.5f,
                 this.location.getBlockZ() + 0.5f + direction.getZ()/2
-        ), this.direction, this);
+        ), this.direction, new CachedBeamDisruptedEvent(this));
     }
 
     @Override
     public void onBeamDisrupted(Entity e) {
+        Bukkit.getLogger().info("Entity disrupted event");
         this.power(null); // de-power (if any being powered)
         if (!Cubes.isCube(e)) {
             // non-cube entity disrupted the laser; burn it
@@ -40,6 +43,7 @@ public class ThermalBeam implements BeamDisruptedEvent {
     @Override
     public void onBeamDisrupted(Block b) {
         ThermalReceiver receiver = ThermalReceivers.getInstance().getBlock(b.getLocation());
+        Bukkit.getLogger().info("Block disrupted event; receiver: " + String.valueOf(receiver));
         if (receiver == null) {
             // not a thermal receiver
             this.power(null); // just in case they were powering something
