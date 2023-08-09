@@ -31,7 +31,7 @@ public class ThermalBeam implements BeamDisruptedEvent {
     }
 
     @Override
-    public void onBeamDisrupted(Entity e) {
+    public void onBeamDisrupted(Entity e, Location hit) {
         this.power(null); // de-power (if any being powered)
         if (!Cubes.isCube(e)) {
             // non-cube entity disrupted the laser; burn it
@@ -40,7 +40,7 @@ public class ThermalBeam implements BeamDisruptedEvent {
     }
 
     @Override
-    public void onBeamDisrupted(Block b) {
+    public void onBeamDisrupted(Block b, Location hit) {
         ThermalReceiver receiver = ThermalReceivers.getInstance().getBlock(b.getLocation());
         if (receiver == null) {
             // not a thermal receiver
@@ -48,7 +48,15 @@ public class ThermalBeam implements BeamDisruptedEvent {
             return;
         }
 
-        // TODO check if coming from the right angle
+        // end vector - (center of the block)
+        Vector hitVector = hit.toVector().subtract(receiver.getPosition().toVector()).subtract(new Vector(0.5f,0.5f,0.5f));
+        if (hitVector.length() > 0 && hitVector.normalize()/*.multiply(-1)*/
+                                            .dot(receiver.getDirection()) < Math.cos(Math.toRadians(45))) { // for some reason, checking if the angle is < and I don't multiply by -1, it makes it check if it is >
+            // not the right face of the receiver
+            this.power(null); // just in case they were powering something
+            return;
+        }
+
         this.power(receiver);
     }
 

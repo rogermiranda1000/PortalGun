@@ -82,7 +82,7 @@ public class Beam {
 
         Block nextLocationBlock = nextLocation.getBlock();
         if (!Portal.isEmptyBlock.apply(nextLocationBlock)) {
-            if (callback != null) callback.onBeamDisrupted(nextLocationBlock);
+            if (callback != null) callback.onBeamDisrupted(nextLocationBlock, nextLocation);
             return null;
         }
 
@@ -90,7 +90,7 @@ public class Beam {
                 .stream().filter(e -> !ThermalReceivers.getInstance().isDecorate(e)).findFirst().orElse(null);
         RedirectionCube redirectionCube = null;
         if (collidingWith != null && (redirectionCube = Cubes.getCube(collidingWith, RedirectionCube.class)) == null) {
-            if (callback != null) callback.onBeamDisrupted(collidingWith);
+            if (callback != null) callback.onBeamDisrupted(collidingWith, nextLocation);
             return null;
         }
         if (redirectionCube != null) {
@@ -134,7 +134,7 @@ public class Beam {
                 BeamStep next = Beam.calculateNext(last, this.onBeamDisrupted);
                 if (next != null) {
                     if (this.trails.size() < getMaxTrailElementsUntilMaxSize()) this.trails.add(next);
-                    else this.onBeamDisrupted.onBeamDisrupted(next.getLocation().getBlock());
+                    else this.onBeamDisrupted.onBeamDisrupted(next.getLocation().getBlock(), next.getLocation());
                 }
             }
         }
