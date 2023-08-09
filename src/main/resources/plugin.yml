@@ -31,6 +31,15 @@ permissions:
     portalgun.companion:
         description: Spawn a companion block
         default: op
+    portalgun.redirection:
+        description: Spawn a redirection block
+        default: op
+    portalgun.thermalbeam:
+        description: Get the thermal beam block
+        default: op
+    portalgun.thermalreceiver:
+        description: Get the thermal receiver block
+        default: op
     portalgun.remove.others:
         description: Remove others' portals
         default: op

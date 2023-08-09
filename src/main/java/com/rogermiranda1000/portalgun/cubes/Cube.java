@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class Cube {
-    private static final float ARMORSTAND_VERTICAL_OFFSET = -1.3f;
+    public static final float ARMORSTAND_VERTICAL_OFFSET = -1.3f;
     private final Location originalLocation;
     @Nullable
     private ArmorStand cube;
