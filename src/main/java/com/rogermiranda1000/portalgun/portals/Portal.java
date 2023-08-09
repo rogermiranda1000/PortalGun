@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
+import com.rogermiranda1000.portalgun.utils.raycast.Trajectory;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -124,6 +125,10 @@ public abstract class Portal {
 
     public void setLinked(Portal l) {
         this.linked = l;
+    }
+
+    public Portal getLinked() {
+        return this.linked;
     }
 
     public static Portal getPortal(Location loc) {
@@ -327,6 +332,15 @@ public abstract class Portal {
         Bukkit.getScheduler().runTaskLater(PortalGun.plugin, ()->e.setVelocity(newVelocity), 1L);
 
         return true;
+    }
+
+    public Trajectory getNewTrajectory(Trajectory in) {
+        if (this.linked == null) return in;
+
+        Location destiny = this.getDestiny(this.getLocationIndex(in.getLocation().getBlock().getLocation()));
+        Vector direction = this.linked.direction.getVector();
+
+        return new Trajectory(destiny, direction);
     }
 
     public boolean teleportToDestiny(Entity e, Vector velocity, short index) {

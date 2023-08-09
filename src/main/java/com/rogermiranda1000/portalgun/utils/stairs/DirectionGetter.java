@@ -9,6 +9,7 @@ import org.bukkit.block.data.type.Stairs;
 import org.bukkit.util.Vector;
 
 public class DirectionGetter {
+    // TODO migrate to portalgun.Direction
     public enum Direction {
         EAST(1,0),
         WEST(-1,0),
