@@ -82,13 +82,15 @@ public class ThermalReceivers extends CustomBlock<ThermalReceiver> {
     }
 
     public void unpowerAll() {
-        this.getAllBlocks(e -> e.getKey().unpower());
+        this.getAllBlocks(e -> e.getKey().forceUnpower());
     }
 
     @Override
     @Nullable
     public synchronized ThermalReceiver getBlock(Location loc) {
-        if (!loc.getBlock().getType().equals(ThermalReceivers.thermalReceiverItem.getType())) return null; // not a receiver
+        Material blockType = loc.getBlock().getType();
+        if (!blockType.equals(ThermalReceivers.thermalReceiverItem.getType())
+                && !blockType.equals(Material.REDSTONE_BLOCK)) return null; // not a receiver
         return super.getBlock(loc);
     }
 

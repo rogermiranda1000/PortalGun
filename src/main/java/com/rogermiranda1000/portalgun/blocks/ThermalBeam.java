@@ -32,7 +32,6 @@ public class ThermalBeam implements BeamDisruptedEvent {
 
     @Override
     public void onBeamDisrupted(Entity e) {
-        Bukkit.getLogger().info("Entity disrupted event");
         this.power(null); // de-power (if any being powered)
         if (!Cubes.isCube(e)) {
             // non-cube entity disrupted the laser; burn it
@@ -43,7 +42,6 @@ public class ThermalBeam implements BeamDisruptedEvent {
     @Override
     public void onBeamDisrupted(Block b) {
         ThermalReceiver receiver = ThermalReceivers.getInstance().getBlock(b.getLocation());
-        Bukkit.getLogger().info("Block disrupted event; receiver: " + String.valueOf(receiver));
         if (receiver == null) {
             // not a thermal receiver
             this.power(null); // just in case they were powering something

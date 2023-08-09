@@ -10,22 +10,27 @@ public class ThermalReceiver {
     private final Location location;
     private final Vector direction;
     private BlockType block;
-    private boolean isPowered;
+    private int poweredBy;
 
     public ThermalReceiver(Location location, Vector direction) {
         this.location = location;
         this.direction = direction;
-        this.isPowered = false;
+        this.poweredBy = 0;
         this.block = VersionController.get().getObject(location.getBlock());
     }
 
     public void power() {
-        this.isPowered = true;
+        this.poweredBy++;
         this.location.getBlock().setType(Material.REDSTONE_BLOCK);
     }
 
     public void unpower() {
-        this.isPowered = false;
+        this.poweredBy--;
+        if (this.poweredBy <= 0) this.block.setType(this.location.getBlock());
+    }
+
+    public void forceUnpower() {
+        this.poweredBy = 0;
         this.block.setType(this.location.getBlock());
     }
 
