@@ -85,8 +85,8 @@ public class Beam {
         if (!Portal.isEmptyBlock.apply(nextLocationBlock)) {
             // colliding with a block
             Portal p;
-            Bukkit.getLogger().info(String.valueOf(Portal.getPortal(nextLocationBlock.getLocation()) != null));
-            if ((p = Portal.getPortal(nextLocationBlock.getLocation())) != null) {
+            // were there a portal before collide?
+            if ((p = Portal.getPortal(last.getLocation().getBlock().getLocation())) != null) {
                 // colliding with a portal
                 Trajectory in = new Trajectory(last.getLocation(), nextDirection);
                 Trajectory trajectory = p.getNewTrajectory(in);
