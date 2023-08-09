@@ -98,28 +98,28 @@ public class PortalGunCommands {
                 }),
                 // TODO world hint on VersionController
                 new CustomCommand("portalgun companion \\S+ [\\d\\.]+ [\\d\\.]+ [\\d\\.]+ \\S+", "portalgun.companion", true, "portalgun companion [world] [x] [y] [z] [true|false]", Language.HELP_COMPANION.getText(), (sender, args) -> {
-                    spawnCompanionCube(clearPrefix, errorPrefix, CompanionCube::new, sender, args);
+                    spawnCube(clearPrefix, errorPrefix, CompanionCube::new, sender, args);
                 }),
                 new CustomCommand("portalgun companion \\S+ [\\d\\.]+ [\\d\\.]+ [\\d\\.]+", "portalgun.companion", true, "portalgun companion [world] [x] [y] [z]", Language.HELP_COMPANION.getText(), (sender, args) -> {
-                    spawnCompanionCube(clearPrefix, errorPrefix, CompanionCube::new, sender, args);
+                    spawnCube(clearPrefix, errorPrefix, CompanionCube::new, sender, args);
                 }),
                 new CustomCommand("portalgun companion [\\d\\.]+ [\\d\\.]+ [\\d\\.]+ \\S+", "portalgun.companion", true, "portalgun companion [x] [y] [z] [true|false]", Language.HELP_COMPANION.getText(), (sender, args) -> {
-                    spawnCompanionCube(clearPrefix, errorPrefix, CompanionCube::new, sender, args);
+                    spawnCube(clearPrefix, errorPrefix, CompanionCube::new, sender, args);
                 }),
                 new CustomCommand("portalgun companion [\\d\\.]+ [\\d\\.]+ [\\d\\.]+", "portalgun.companion", true, "portalgun companion [x] [y] [z]", Language.HELP_COMPANION.getText(), (sender, args) -> {
-                    spawnCompanionCube(clearPrefix, errorPrefix, CompanionCube::new, sender, args);
+                    spawnCube(clearPrefix, errorPrefix, CompanionCube::new, sender, args);
                 }),
                 new CustomCommand("portalgun redirection \\S+ [\\d\\.]+ [\\d\\.]+ [\\d\\.]+ \\S+", "portalgun.redirection", true, "portalgun redirection [world] [x] [y] [z] [true|false]", Language.HELP_REDIRECTION.getText(), (sender, args) -> {
-                    spawnCompanionCube(clearPrefix, errorPrefix, RedirectionCube::new, sender, args);
+                    spawnCube(clearPrefix, errorPrefix, RedirectionCube::new, sender, args);
                 }),
                 new CustomCommand("portalgun redirection \\S+ [\\d\\.]+ [\\d\\.]+ [\\d\\.]+", "portalgun.redirection", true, "portalgun redirection [world] [x] [y] [z]", Language.HELP_REDIRECTION.getText(), (sender, args) -> {
-                    spawnCompanionCube(clearPrefix, errorPrefix, RedirectionCube::new, sender, args);
+                    spawnCube(clearPrefix, errorPrefix, RedirectionCube::new, sender, args);
                 }),
                 new CustomCommand("portalgun redirection [\\d\\.]+ [\\d\\.]+ [\\d\\.]+ \\S+", "portalgun.redirection", true, "portalgun redirection [x] [y] [z] [true|false]", Language.HELP_REDIRECTION.getText(), (sender, args) -> {
-                    spawnCompanionCube(clearPrefix, errorPrefix, RedirectionCube::new, sender, args);
+                    spawnCube(clearPrefix, errorPrefix, RedirectionCube::new, sender, args);
                 }),
                 new CustomCommand("portalgun redirection [\\d\\.]+ [\\d\\.]+ [\\d\\.]+", "portalgun.redirection", true, "portalgun redirection [x] [y] [z]", Language.HELP_REDIRECTION.getText(), (sender, args) -> {
-                    spawnCompanionCube(clearPrefix, errorPrefix, RedirectionCube::new, sender, args);
+                    spawnCube(clearPrefix, errorPrefix, RedirectionCube::new, sender, args);
                 }),
                 new CustomCommand("portalgun report \\S+ .+", "portalgun.report", true, "portalgun report [contact] [report]", Language.HELP_REPORT.getText(), (sender, args) -> {
                     String contact = args[1];
@@ -138,8 +138,8 @@ public class PortalGunCommands {
         };
     }
 
-    private static void spawnCompanionCube(String clearPrefix, String errorPrefix, Function<Location, Cube> generator,
-                                           CommandSender sender, @NotNull String[] args) {
+    private static void spawnCube(String clearPrefix, String errorPrefix, Function<Location, Cube> generator,
+                                  CommandSender sender, @NotNull String[] args) {
         Pattern r = Pattern.compile("portalgun \\S+ (\\S+ )?([\\d\\.]+) ([\\d\\.]+) ([\\d\\.]+)( (?:true)|(?:false))?");
         Matcher m = r.matcher("portalgun " + String.join(" ", args));
         if (!m.matches()) {
@@ -150,7 +150,7 @@ public class PortalGunCommands {
         // get the world
         World world;
         if (m.group(1) != null) {
-            world = Bukkit.getWorld(m.group(1));
+            world = Bukkit.getWorld(m.group(1).trim());
             if (world == null) {
                 sender.sendMessage(errorPrefix + Language.ERROR_WORLD.getText(new String[]{"world", m.group(1)}));
                 return;
@@ -171,7 +171,7 @@ public class PortalGunCommands {
 
         // get the location & if desired remove
         Location toPlace = new Location(world, Double.parseDouble(m.group(2)), Double.parseDouble(m.group(3)), Double.parseDouble(m.group(4)));
-        boolean removeOld = !"false".equals(m.group(5)); // by default, remove it
+        boolean removeOld = !"false".equals(m.group(5).trim()); // by default, remove it
 
         Cubes.spawnCube(generator.apply(toPlace), removeOld);
     }
