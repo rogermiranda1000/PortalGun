@@ -5,11 +5,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
 public enum Direction {
-    N(0,-1, 0.f),
+    N(0,1, 0.f),
     NE,
     E(1,0, 90.f),
     SE,
-    S(0,1, 180.f),
+    S(0,-1, 180.f),
     SW,
     W(-1,0, 270.f),
     NW;
@@ -70,10 +70,7 @@ public enum Direction {
     }
 
     public Location addOneBlock(Location loc) {
-        loc.add(0.f, 0.f, this == Direction.N ? 1.f:0.f);
-        loc.add(0.f, 0.f, this == Direction.S ? -1.f:0.f);
-        loc.add(this == Direction.E ? 1.f:0.f, 0.f, 0.f);
-        loc.add(this == Direction.W ? -1.f:0.f, 0.f, 0.f);
+        loc.add(this.vector);
         return loc;
     }
 
