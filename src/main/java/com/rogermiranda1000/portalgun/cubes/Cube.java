@@ -35,6 +35,10 @@ public abstract class Cube {
         return this.cubeSkeleton;
     }
 
+    public Location getCubeCenter() {
+        return this.cubeSkeleton.getLocation().clone().add(0, 0.4f, 0);
+    }
+
     Cube spawn() {
         this.cube = (ArmorStand)this.originalLocation.getWorld().spawnEntity(this.originalLocation, EntityType.ARMOR_STAND);
         this.cubeSkeleton = (ArmorStand)this.originalLocation.getWorld().spawnEntity(this.originalLocation, EntityType.ARMOR_STAND);

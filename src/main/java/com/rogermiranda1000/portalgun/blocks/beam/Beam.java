@@ -1,11 +1,12 @@
 package com.rogermiranda1000.portalgun.blocks.beam;
 
-import com.rogermiranda1000.portalgun.blocks.ThermalReceiver;
 import com.rogermiranda1000.portalgun.blocks.ThermalReceivers;
 import com.rogermiranda1000.portalgun.cubes.Cubes;
 import com.rogermiranda1000.portalgun.cubes.RedirectionCube;
 import com.rogermiranda1000.portalgun.portals.Portal;
+import com.rogermiranda1000.portalgun.utils.raycast.Trajectory;
 import com.rogermiranda1000.versioncontroller.particles.ParticleEntity;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -82,8 +83,24 @@ public class Beam {
 
         Block nextLocationBlock = nextLocation.getBlock();
         if (!Portal.isEmptyBlock.apply(nextLocationBlock)) {
-            if (callback != null) callback.onBeamDisrupted(nextLocationBlock, nextLocation);
-            return null;
+            // colliding with a block
+            Portal p;
+            // were there a portal before collide?
+            if ((p = Portal.getPortal(last.getLocation().getBlock().getLocation())) != null) {
+                // colliding with a portal
+                Trajectory in = new Trajectory(last.getLocation(), nextDirection);
+                Trajectory trajectory = p.getNewTrajectory(in);
+                if (trajectory == in) p = null; // not really opened
+                else {
+                    nextLocation = trajectory.getLocation();
+                    nextDirection = trajectory.getDirection();
+                }
+            }
+            if (p == null) {
+                // no portal; stop
+                if (callback != null) callback.onBeamDisrupted(nextLocationBlock, nextLocation);
+                return null;
+            }
         }
 
         Entity collidingWith = nextLocation.getWorld().getNearbyEntities(nextLocation, 0.25f, 1f, 0.25f)
@@ -95,8 +112,7 @@ public class Beam {
         }
         if (redirectionCube != null) {
             // hitted by a redirection cube
-            double distance = nextLocation.clone().subtract(collidingWith.getLocation()).toVector()
-                                    .setY(0) // ignore height
+            double distance = nextLocation.clone().subtract(redirectionCube.getCubeCenter()).toVector()
                                     .length();
             if (distance < 0.3f) { // it needs to be in the center (otherwise it will get redirected at the beginning)
                 float yaw = collidingWith.getLocation().getYaw();
