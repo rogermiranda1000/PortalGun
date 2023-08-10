@@ -97,34 +97,37 @@ public class ResetBlocks extends CustomBlock<ResetBlock> implements Listener {
         });
     }
 
-    public void recalculateDisabled(Location eventOrigin) {
-        final ArrayList<Set<ResetBlock>> candidates = new ArrayList<>();
-        this.blocks.search(ResetBlocks.powerBlockInfluence(eventOrigin)).forEach(e -> {
-            Set<ResetBlock> toAdd = new HashSet<>();
-            toAdd.add(e.value());
-            candidates.add(toAdd);
-        });
-        //this.getAllValues().stream().filter(ResetBlock::isDisabled);
+    private void recalculateDisabled(Location eventOrigin) {
+        HashSet<ResetBlock> updatedBlocks = this.disabling.remove(eventOrigin);
+        if (updatedBlocks == null) return; // shouldn't happen
+
+        for (ResetBlock rb : updatedBlocks) {
+            boolean stillPowered = this.disabling.values().stream().anyMatch(set -> set.contains(rb));
+            if (!stillPowered) rb.enable();
+        }
     }
 
     private HashMap<Location,HashSet<ResetBlock>> disabling = new HashMap<>();
-    public void disableBlock(Location eventOrigin, ResetBlock block) {
-        Location blockLocation = block.getPosition();
+    private void disableBlock(Location eventOrigin, ResetBlock block) {
+        if (!this.disabling.containsKey(eventOrigin)) this.disabling.put(eventOrigin, new HashSet<>());
 
         block.disable();
+        boolean updated = this.disabling.get(eventOrigin).add(block);
 
-        // propagate on adjacent blocks
-        Location []adjacents = new Location[]{
-                blockLocation.clone().add(1,0,0),
-                blockLocation.clone().add(-1,0,0),
-                blockLocation.clone().add(0,0,1),
-                blockLocation.clone().add(0,0,-1),
-        };
-        for (Location adjacent : adjacents) {
-            ResetBlock toDisable = this.getBlock(adjacent);
-            if (toDisable == null || toDisable.isDisabled()) continue;
+        if (updated) {
+            // propagate on adjacent blocks
+            Location[] adjacents = new Location[]{
+                    block.getPosition().clone().add(1, 0, 0),
+                    block.getPosition().clone().add(-1, 0, 0),
+                    block.getPosition().clone().add(0, 0, 1),
+                    block.getPosition().clone().add(0, 0, -1),
+            };
+            for (Location adjacent : adjacents) {
+                ResetBlock toDisable = this.getBlock(adjacent);
+                if (toDisable == null) continue; // not a ResetBlock
 
-            this.disableBlock(eventOrigin, toDisable);
+                this.disableBlock(eventOrigin, toDisable);
+            }
         }
     }
 
@@ -138,27 +141,17 @@ public class ResetBlocks extends CustomBlock<ResetBlock> implements Listener {
         return region;
     }
 
-    /**
-     * The inverse of `powerBlockInfluence`
-     */
-    private static Rectangle poweredByInfluence(Location loc) {
-        Location min = loc.clone().subtract(1, 0, 1),
-                max = loc.clone().add(1, 1, 1);
-        Rectangle region = Rectangle.create(
-                CustomBlock.getPointWithMargin(min).mins(),
-                CustomBlock.getPointWithMargin(max).maxes()
-        );
-        return region;
-    }
-
     @EventHandler
     public void onBlockRedstoneEvent(BlockRedstoneEvent evt) {
         final Location loc = evt.getBlock().getLocation();
 
+        // NOTE: this event won't be called if a block breaks, so if the redstone breaks the portal won't re-open
         if (evt.getNewCurrent() == 0) this.recalculateDisabled(loc);
         else {
             // search a rectangle in the powered block;
-            this.blocks.search(ResetBlocks.powerBlockInfluence(loc)).forEach(e -> disableBlock(loc, e.value()));
+            synchronized(this) {
+                this.blocks.search(ResetBlocks.powerBlockInfluence(loc)).forEach(e -> disableBlock(loc, e.value()));
+            }
         }
     }
 
