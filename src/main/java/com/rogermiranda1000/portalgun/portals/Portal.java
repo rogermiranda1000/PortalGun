@@ -6,8 +6,7 @@ import java.util.function.Function;
 import com.github.davidmoten.rtreemulti.Entry;
 import com.github.davidmoten.rtreemulti.RTree;
 import com.github.davidmoten.rtreemulti.geometry.Point;
-import com.github.davidmoten.rtreemulti.geometry.Rectangle;
-import com.rogermiranda1000.portalgun.utils.RTreeConverter;
+import com.rogermiranda1000.helper.blocks.CustomBlock;
 import com.rogermiranda1000.portalgun.utils.raycast.Trajectory;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -133,7 +132,7 @@ public abstract class Portal {
     }
 
     public synchronized static Portal getPortal(Location loc) {
-        Iterator<Entry<Portal,Point>> matches = Portal.portalsLocations.search(RTreeConverter.getPointWithMargin(loc)).iterator();
+        Iterator<Entry<Portal,Point>> matches = Portal.portalsLocations.search(CustomBlock.getPointWithMargin(loc)).iterator();
         if (!matches.hasNext()) return null;
         return matches.next().value();
     }
@@ -212,7 +211,7 @@ public abstract class Portal {
             }
         }
 
-        for (Location tp : p.calculateTeleportLocation()) Portal.portalsLocations = Portal.portalsLocations.add(p, RTreeConverter.getPoint(tp));
+        for (Location tp : p.calculateTeleportLocation()) Portal.portalsLocations = Portal.portalsLocations.add(p, CustomBlock.getPoint(tp));
         userPortals[pos] = p;
     }
 
@@ -324,8 +323,8 @@ public abstract class Portal {
         Vector inApproach = in.getApproachVector(),
                 outApproach = out.getApproachVector();
 
-        if (inApproach.clone().subtract(outApproach).length() <= RTreeConverter.EPSILON) vector = vector.multiply(-1); // same vector
-        else if (inApproach.clone().multiply(-1).subtract(outApproach).length() > RTreeConverter.EPSILON) { // not equals and not opposite
+        if (inApproach.clone().subtract(outApproach).length() <= CustomBlock.EPSILON) vector = vector.multiply(-1); // same vector
+        else if (inApproach.clone().multiply(-1).subtract(outApproach).length() > CustomBlock.EPSILON) { // not equals and not opposite
             double deltaTheta = -(out.direction.getValue() - in.direction.getValue()),
                     deltaPhi = (outApproach.getY() - inApproach.getY()) * 90.f;
             vector = vector.rotateAroundZ(Math.toRadians(deltaPhi));
