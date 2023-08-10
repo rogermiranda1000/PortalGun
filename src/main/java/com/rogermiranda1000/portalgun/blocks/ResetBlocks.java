@@ -1,16 +1,23 @@
 package com.rogermiranda1000.portalgun.blocks;
 
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
+import com.github.davidmoten.rtreemulti.Entry;
+import com.github.davidmoten.rtreemulti.geometry.Point;
+import com.github.davidmoten.rtreemulti.geometry.Rectangle;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +29,7 @@ import com.rogermiranda1000.helper.blocks.file.BasicLocation;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.blocks.BlockType;
 
-public class ResetBlocks extends CustomBlock<ResetBlock> {
+public class ResetBlocks extends CustomBlock<ResetBlock> implements Listener {
     public static class StoreResetBlock implements ComplexStoreConversion<ResetBlock, BasicLocation> {
         public StoreResetBlock() {}
 
@@ -88,6 +95,71 @@ public class ResetBlocks extends CustomBlock<ResetBlock> {
         this.getAllBlocks(e -> {
             if (e.getValue().getChunk().isLoaded()) e.getKey().playParticles(ResetBlocks.generator);
         });
+    }
+
+    public void recalculateDisabled(Location eventOrigin) {
+        final ArrayList<Set<ResetBlock>> candidates = new ArrayList<>();
+        this.blocks.search(ResetBlocks.powerBlockInfluence(eventOrigin)).forEach(e -> {
+            Set<ResetBlock> toAdd = new HashSet<>();
+            toAdd.add(e.value());
+            candidates.add(toAdd);
+        });
+        //this.getAllValues().stream().filter(ResetBlock::isDisabled);
+    }
+
+    private HashMap<Location,HashSet<ResetBlock>> disabling = new HashMap<>();
+    public void disableBlock(Location eventOrigin, ResetBlock block) {
+        Location blockLocation = block.getPosition();
+
+        block.disable();
+
+        // propagate on adjacent blocks
+        Location []adjacents = new Location[]{
+                blockLocation.clone().add(1,0,0),
+                blockLocation.clone().add(-1,0,0),
+                blockLocation.clone().add(0,0,1),
+                blockLocation.clone().add(0,0,-1),
+        };
+        for (Location adjacent : adjacents) {
+            ResetBlock toDisable = this.getBlock(adjacent);
+            if (toDisable == null || toDisable.isDisabled()) continue;
+
+            this.disableBlock(eventOrigin, toDisable);
+        }
+    }
+
+    private static Rectangle powerBlockInfluence(Location loc) {
+        Location min = loc.clone().subtract(1, 1, 1),
+                max = loc.clone().add(1, 0, 1);
+        Rectangle region = Rectangle.create(
+                CustomBlock.getPointWithMargin(min).mins(),
+                CustomBlock.getPointWithMargin(max).maxes()
+        );
+        return region;
+    }
+
+    /**
+     * The inverse of `powerBlockInfluence`
+     */
+    private static Rectangle poweredByInfluence(Location loc) {
+        Location min = loc.clone().subtract(1, 0, 1),
+                max = loc.clone().add(1, 1, 1);
+        Rectangle region = Rectangle.create(
+                CustomBlock.getPointWithMargin(min).mins(),
+                CustomBlock.getPointWithMargin(max).maxes()
+        );
+        return region;
+    }
+
+    @EventHandler
+    public void onBlockRedstoneEvent(BlockRedstoneEvent evt) {
+        final Location loc = evt.getBlock().getLocation();
+
+        if (evt.getNewCurrent() == 0) this.recalculateDisabled(loc);
+        else {
+            // search a rectangle in the powered block;
+            this.blocks.search(ResetBlocks.powerBlockInfluence(loc)).forEach(e -> disableBlock(loc, e.value()));
+        }
     }
 
     private static ResetBlocks instance = null;

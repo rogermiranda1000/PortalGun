@@ -17,9 +17,11 @@ public class ResetBlock {
 
     private final Location position;
     private ResetBlock top, bottom;
+    private boolean disabled;
 
     protected ResetBlock(Location position) {
         this.position = new Location(position.getWorld(), position.getBlockX()+0.5f, position.getBlockY(), position.getBlockZ()+0.5f);
+        this.disabled = false;
     }
 
     /**
@@ -66,6 +68,8 @@ public class ResetBlock {
     }
 
     public boolean insideRegion(Location loc) {
+        if (this.disabled) return false;
+
         int height = this.getZoneHeight();
         if (height == 0) return false;
 
@@ -85,6 +89,18 @@ public class ResetBlock {
         this.bottom = bottom;
     }
 
+    public void disable() {
+        this.disabled = true;
+    }
+
+    public void enable() {
+        this.disabled = false;
+    }
+
+    public boolean isDisabled() {
+        return this.disabled;
+    }
+
     public static void setParticle(ParticleEntity particle) {
         ResetBlock.particle = particle;
     }
@@ -94,6 +110,8 @@ public class ResetBlock {
     }
 
     public void playParticles(Random generator) {
+        if (this.disabled) return;
+
         int height = this.getZoneHeight();
         if (height == 0 || ResetBlock.particle == null) return;
 
