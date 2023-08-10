@@ -6,6 +6,7 @@ import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.blocks.ThermalBeam;
 import com.rogermiranda1000.portalgun.blocks.beam.Beam;
 import com.rogermiranda1000.portalgun.events.onPortalgunEntity;
+import com.rogermiranda1000.portalgun.events.onUse;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
@@ -80,12 +81,11 @@ public enum Config {
     }
 
     public int getInteger() {
-        return (int)this.getObject();
+        return ((Number)this.getObject()).intValue();
     }
 
     private float getFloat() {
-        if (this.getObject() instanceof Integer) return ((Integer)this.getObject()).floatValue();
-        return (float)this.getObject();
+        return ((Number)this.getObject()).floatValue();
     }
 
     public Sound getSound() throws IllegalArgumentException {
@@ -113,6 +113,9 @@ public enum Config {
                     Config.fileConfiguration.contains(DURABILITY.key) ? Config.fileConfiguration.getInt(DURABILITY.key) : null);
 
             Language.loadHashMap(Config.fileConfiguration.getString(LANGUAGE.key));
+
+            onUse.MAX_LENGTH = Config.MAX_LENGTH.getInteger();
+            onUse.CREATE_SOUND = Config.CREATE_SOUND.getSound();
 
             loadPortalParticles();
             loadRestarterParticles();
