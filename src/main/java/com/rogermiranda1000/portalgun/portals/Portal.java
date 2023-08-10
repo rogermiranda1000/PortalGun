@@ -357,13 +357,19 @@ public abstract class Portal {
     }
 
     public Trajectory getNewTrajectory(Trajectory in) {
+        // This function is the result of many try-error combinations, feel free to make it more understandable.
+        
         if (this.linked == null) return in;
         if (in.getDirection().normalize().dot(this.getApproachVector()) <= 0.f) return in; // not approaching (extracted from `onMove`)
 
-        Location destiny = this.getDestiny(this.getLocationIndex(in.getLocation().getBlock().getLocation()));
-        Vector destinyOffset = Portal.getVector(in.getLocation().getBlock().getLocation().toVector().subtract(in.getLocation().toVector()),
+        Vector destinyOffset = Portal.getVector(this.particleLocations[0].toVector().subtract(in.getLocation().toVector()),
                 this, this.linked);
-        destiny = destiny.add(destinyOffset);
+        if (!this.linked.direction.equals(this.direction)) {
+            // for some reason is 1 block offset
+            // TODO some top/bottom portal are odd
+            destinyOffset = destinyOffset.add(Portal.getVector(new Vector(0,-1,0), this, this.linked));
+        }
+        Location destiny = this.linked.particleLocations[0].clone().add(destinyOffset);
 
         Vector direction = Portal.getVector(in.getDirection(), this, this.linked);
 
