@@ -112,12 +112,9 @@ public class Beam {
         }
         if (redirectionCube != null) {
             // hitted by a redirection cube
-            Vector distanceVector = nextLocation.clone().subtract(redirectionCube.getSkeleton().getLocation()).toVector();
-            boolean cubeHeightRegion = (distanceVector.getY() >= 0f && distanceVector.getY() < 1f);
-            double distance = distanceVector.clone()
-                                    .setY(0) // ignore height
+            double distance = nextLocation.clone().subtract(redirectionCube.getCubeCenter()).toVector()
                                     .length();
-            if (distance < 0.3f && cubeHeightRegion) { // it needs to be in the center (otherwise it will get redirected at the beginning)
+            if (distance < 0.3f) { // it needs to be in the center (otherwise it will get redirected at the beginning)
                 float yaw = collidingWith.getLocation().getYaw();
                 nextDirection = Beam.yawToVector(yaw);
             }
