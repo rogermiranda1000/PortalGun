@@ -119,11 +119,12 @@ public class ResetBlocks extends CustomBlock<ResetBlock> implements Listener {
             block.disable();
 
             // propagate on adjacent blocks
+            Location blockPosition = block.getPosition().getBlock().getLocation();
             Location[] adjacents = new Location[]{
-                    block.getPosition().clone().add(1, 0, 0),
-                    block.getPosition().clone().add(-1, 0, 0),
-                    block.getPosition().clone().add(0, 0, 1),
-                    block.getPosition().clone().add(0, 0, -1)
+                    blockPosition.clone().add(1, 0, 0),
+                    blockPosition.clone().add(-1, 0, 0),
+                    blockPosition.clone().add(0, 0, 1),
+                    blockPosition.clone().add(0, 0, -1)
             };
             for (Location adjacent : adjacents) {
                 ResetBlock toDisable = this.getBlock(adjacent);
