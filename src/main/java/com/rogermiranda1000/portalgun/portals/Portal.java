@@ -361,6 +361,9 @@ public abstract class Portal {
         if (in.getDirection().normalize().dot(this.getApproachVector()) <= 0.f) return in; // not approaching (extracted from `onMove`)
 
         Location destiny = this.getDestiny(this.getLocationIndex(in.getLocation().getBlock().getLocation()));
+        Vector destinyOffset = Portal.getVector(in.getLocation().getBlock().getLocation().toVector().subtract(in.getLocation().toVector()),
+                this, this.linked);
+        destiny = destiny.add(destinyOffset);
 
         Vector direction = Portal.getVector(in.getDirection(), this, this.linked);
 
