@@ -144,4 +144,18 @@ public class ResetBlock {
                 ", bottom=" + ((bottom == null) ? "null" : bottom.position.toString()) +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ResetBlock)) return false;
+
+        ResetBlock that = (ResetBlock) o;
+        return this.position.equals(that.position);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.position.hashCode();
+    }
 }

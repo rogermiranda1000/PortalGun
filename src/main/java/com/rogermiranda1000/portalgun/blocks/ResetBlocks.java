@@ -101,6 +101,8 @@ public class ResetBlocks extends CustomBlock<ResetBlock> implements Listener {
         HashSet<ResetBlock> updatedBlocks = this.disabling.remove(eventOrigin);
         if (updatedBlocks == null) return; // shouldn't happen
 
+        // don't make assumptions; they may be powered on multiple points
+        // (if the power origin is the same it will be called again, and then they will be enabled)
         for (ResetBlock rb : updatedBlocks) {
             boolean stillPowered = this.disabling.values().stream().anyMatch(set -> set.contains(rb));
             if (!stillPowered) rb.enable();
@@ -111,16 +113,17 @@ public class ResetBlocks extends CustomBlock<ResetBlock> implements Listener {
     private void disableBlock(Location eventOrigin, ResetBlock block) {
         if (!this.disabling.containsKey(eventOrigin)) this.disabling.put(eventOrigin, new HashSet<>());
 
-        block.disable();
         boolean updated = this.disabling.get(eventOrigin).add(block);
 
         if (updated) {
+            block.disable();
+
             // propagate on adjacent blocks
             Location[] adjacents = new Location[]{
                     block.getPosition().clone().add(1, 0, 0),
                     block.getPosition().clone().add(-1, 0, 0),
                     block.getPosition().clone().add(0, 0, 1),
-                    block.getPosition().clone().add(0, 0, -1),
+                    block.getPosition().clone().add(0, 0, -1)
             };
             for (Location adjacent : adjacents) {
                 ResetBlock toDisable = this.getBlock(adjacent);
@@ -142,11 +145,11 @@ public class ResetBlocks extends CustomBlock<ResetBlock> implements Listener {
     }
 
     @EventHandler
-    public void onBlockRedstoneEvent(BlockRedstoneEvent evt) {
-        final Location loc = evt.getBlock().getLocation();
+    public void onBlockRedstoneEvent(BlockRedstoneEvent event) {
+        final Location loc = event.getBlock().getLocation();
 
-        // NOTE: this event won't be called if a block breaks, so if the redstone breaks the portal won't re-open
-        if (evt.getNewCurrent() == 0) this.recalculateDisabled(loc);
+        // NOTE: this event won't be called if a redstone dust breaks, so in that case the portal won't re-open
+        if (event.getNewCurrent() == 0) this.recalculateDisabled(loc);
         else {
             // search a rectangle in the powered block;
             synchronized(this) {
