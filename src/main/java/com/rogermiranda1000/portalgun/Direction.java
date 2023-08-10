@@ -3,6 +3,9 @@ package com.rogermiranda1000.portalgun;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 
 public enum Direction {
     N(0,1, 0.f),
@@ -46,6 +49,9 @@ public enum Direction {
 
         return dir;
     }
+    public static Direction getDirection(@NotNull final Vector v) {
+        return Arrays.stream(Direction.values()).filter(dir -> v.equals(dir.vector)).findFirst().orElse(null);
+    }
     public static Direction getDirection(Entity e) {
         return Direction.getDirection(e.getLocation().getYaw());
     }
@@ -72,9 +78,5 @@ public enum Direction {
     public Location addOneBlock(Location loc) {
         loc.add(this.vector);
         return loc;
-    }
-
-    public Vector addingVector() {
-        return addOneBlock(new Location(null, 0.f, 0.f, 0.f)).toVector();
     }
 }

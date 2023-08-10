@@ -14,7 +14,7 @@ public abstract class TopPortal extends Portal {
         Location loc = this.getPosition();
         double angle= (2.D * Math.PI) * (double)currentParticle/(double)Portal.iterations;
 
-        Vector dir = this.direction.addingVector();
+        Vector dir = this.direction.getVector();
         Vector perpendicular = dir.clone().crossProduct(new Vector(0.f, 1.f, 0.f)).normalize();
         // TODO: why?
         if (this.direction == Direction.N || this.direction == Direction.W) perpendicular.multiply(-1);

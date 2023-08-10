@@ -13,10 +13,10 @@ public class Trajectory {
     }
 
     public Location getLocation() {
-        return this.location;
+        return this.location.clone();
     }
 
     public Vector getDirection() {
-        return this.direction;
+        return this.direction.clone();
     }
 }

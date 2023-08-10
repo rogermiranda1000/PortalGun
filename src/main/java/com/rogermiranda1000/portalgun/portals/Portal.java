@@ -313,10 +313,25 @@ public abstract class Portal {
 
     /* TELEPORT */
     private static float getYaw(float playerYaw, Direction p1, Direction p2) {
-        if (p1 == p2) playerYaw += 180.f;
-        // otherwise keep the same vector
+        if (!Direction.aligned(p1, p2)) playerYaw += (p2.getValue() - p1.getValue());
+        else if (p1 == p2) playerYaw += 180.f;
 
         return playerYaw % 360;
+    }
+
+    // based on `Portal.getYaw`
+    private static Vector getVector(Vector vector, Portal in, Portal out) {
+        Vector inApproach = in.getApproachVector(),
+                outApproach = out.getApproachVector();
+
+        if (inApproach.clone().subtract(outApproach).length() <= RTreeConverter.EPSILON) vector = vector.multiply(-1); // same vector
+        else if (inApproach.clone().multiply(-1).subtract(outApproach).length() > RTreeConverter.EPSILON) { // not equals and not opposite
+            double deltaTheta = -(out.direction.getValue() - in.direction.getValue()),
+                    deltaPhi = (outApproach.getY() - inApproach.getY()) * 90.f;
+            vector = vector.rotateAroundZ(Math.toRadians(deltaPhi));
+            vector = vector.rotateAroundY(Math.toRadians(deltaTheta));
+        }
+        return vector;
     }
 
     // TODO: Pitch
@@ -343,10 +358,11 @@ public abstract class Portal {
 
     public Trajectory getNewTrajectory(Trajectory in) {
         if (this.linked == null) return in;
+        if (in.getDirection().normalize().dot(this.getApproachVector()) <= 0.f) return in; // not approaching (extracted from `onMove`)
 
         Location destiny = this.getDestiny(this.getLocationIndex(in.getLocation().getBlock().getLocation()));
-        Vector direction = this.linked.direction.getVector();
-        // TODO consider direction with `y` variation
+
+        Vector direction = Portal.getVector(in.getDirection(), this, this.linked);
 
         return new Trajectory(destiny, direction);
     }

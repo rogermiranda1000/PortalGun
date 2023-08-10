@@ -38,6 +38,6 @@ public class WallPortal extends Portal implements Cloneable {
     }
 
     public Vector getApproachVector() {
-        return this.direction.addingVector().multiply(-1.f);
+        return this.direction.getVector().multiply(-1.f);
     }
 }
