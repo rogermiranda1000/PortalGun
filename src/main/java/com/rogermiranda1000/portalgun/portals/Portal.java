@@ -358,7 +358,7 @@ public abstract class Portal {
 
     public Trajectory getNewTrajectory(Trajectory in) {
         // This function is the result of many try-error combinations, feel free to make it more understandable.
-        
+
         if (this.linked == null) return in;
         if (in.getDirection().normalize().dot(this.getApproachVector()) <= 0.f) return in; // not approaching (extracted from `onMove`)
 
