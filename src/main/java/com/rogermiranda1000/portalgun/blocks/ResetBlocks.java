@@ -1,16 +1,23 @@
 package com.rogermiranda1000.portalgun.blocks;
 
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
+import com.github.davidmoten.rtreemulti.Entry;
+import com.github.davidmoten.rtreemulti.geometry.Point;
+import com.github.davidmoten.rtreemulti.geometry.Rectangle;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +29,7 @@ import com.rogermiranda1000.helper.blocks.file.BasicLocation;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.blocks.BlockType;
 
-public class ResetBlocks extends CustomBlock<ResetBlock> {
+public class ResetBlocks extends CustomBlock<ResetBlock> implements Listener {
     public static class StoreResetBlock implements ComplexStoreConversion<ResetBlock, BasicLocation> {
         public StoreResetBlock() {}
 
@@ -88,6 +95,68 @@ public class ResetBlocks extends CustomBlock<ResetBlock> {
         this.getAllBlocks(e -> {
             if (e.getValue().getChunk().isLoaded()) e.getKey().playParticles(ResetBlocks.generator);
         });
+    }
+
+    private void recalculateDisabled(Location eventOrigin) {
+        HashSet<ResetBlock> updatedBlocks = this.disabling.remove(eventOrigin);
+        if (updatedBlocks == null) return; // shouldn't happen
+
+        // don't make assumptions; they may be powered on multiple points
+        // (if the power origin is the same it will be called again, and then they will be enabled)
+        for (ResetBlock rb : updatedBlocks) {
+            boolean stillPowered = this.disabling.values().stream().anyMatch(set -> set.contains(rb));
+            if (!stillPowered) rb.enable();
+        }
+    }
+
+    private HashMap<Location,HashSet<ResetBlock>> disabling = new HashMap<>();
+    private void disableBlock(Location eventOrigin, ResetBlock block) {
+        if (!this.disabling.containsKey(eventOrigin)) this.disabling.put(eventOrigin, new HashSet<>());
+
+        boolean updated = this.disabling.get(eventOrigin).add(block);
+
+        if (updated) {
+            block.disable();
+
+            // propagate on adjacent blocks
+            Location blockPosition = block.getPosition().getBlock().getLocation();
+            Location[] adjacents = new Location[]{
+                    blockPosition.clone().add(1, 0, 0),
+                    blockPosition.clone().add(-1, 0, 0),
+                    blockPosition.clone().add(0, 0, 1),
+                    blockPosition.clone().add(0, 0, -1)
+            };
+            for (Location adjacent : adjacents) {
+                ResetBlock toDisable = this.getBlock(adjacent);
+                if (toDisable == null) continue; // not a ResetBlock
+
+                this.disableBlock(eventOrigin, toDisable);
+            }
+        }
+    }
+
+    private static Rectangle powerBlockInfluence(Location loc) {
+        Location min = loc.clone().subtract(1, 1, 1),
+                max = loc.clone().add(1, 0, 1);
+        Rectangle region = Rectangle.create(
+                CustomBlock.getPointWithMargin(min).mins(),
+                CustomBlock.getPointWithMargin(max).maxes()
+        );
+        return region;
+    }
+
+    @EventHandler
+    public void onBlockRedstoneEvent(BlockRedstoneEvent event) {
+        final Location loc = event.getBlock().getLocation();
+
+        // NOTE: this event won't be called if a redstone dust breaks, so in that case the portal won't re-open
+        if (event.getNewCurrent() == 0) this.recalculateDisabled(loc);
+        else {
+            // search a rectangle in the powered block;
+            synchronized(this) {
+                this.blocks.search(ResetBlocks.powerBlockInfluence(loc)).forEach(e -> disableBlock(loc, e.value()));
+            }
+        }
     }
 
     private static ResetBlocks instance = null;

@@ -51,7 +51,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
     private BukkitTask pickEntitiesTask;
 
     public PortalGun() {
-        super(new onDead(), new onLeave(), new onMove(), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity(), new Cubes(), new ThermalReceiverGuard());
+        super(new onDead(), new onLeave(), new onMove(new onEmancipator()), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity(), new Cubes(), new ThermalReceiverGuard());
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
         this.addCustomBlock(ThermalBeams.setInstance(new ThermalBeams(this)));
@@ -159,6 +159,8 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
             PortalGun.updateTeleportedEntities();
             PortalGun.teleportEntities();
             Cubes.updateCompanionCubes();
+
+            PortalGun.checkForEntitiesInEmancipationGrid();
         }, 1, PortalGun.particleDelay*3);
         this.pickEntitiesTask = scheduler.runTaskTimer(this, onPortalgunEntity::updatePickedEntities, 0, PortalGun.pickedEntitiesDelay);
     }
@@ -170,6 +172,18 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
 
         ResetBlocks.getInstance().playAllParticles();
         ThermalBeams.getInstance().playAllParticles();
+    }
+
+    private static void checkForEntitiesInEmancipationGrid() {
+        onEmancipator emancipatorGridEvent = PortalGun.plugin.getListener(onMove.class).getEmancipatorGridEvent();
+
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity e : getEntities(world)) {
+                if (ResetBlocks.getInstance().insideResetBlock(e.getLocation())) {
+                    emancipatorGridEvent.onEntityGoesThroughEmancipationGrid(e);
+                }
+            }
+        }
     }
 
     // TODO: don't teleport Item Frames
