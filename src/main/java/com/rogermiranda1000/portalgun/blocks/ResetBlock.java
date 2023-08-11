@@ -1,6 +1,7 @@
 package com.rogermiranda1000.portalgun.blocks;
 
 import com.rogermiranda1000.versioncontroller.particles.ParticleEntity;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
 import java.util.Random;
@@ -80,11 +81,13 @@ public class ResetBlock {
     }
 
     private void setTop(ResetBlock top) {
+        if (this.equals(top)) return;
         //if (top != null) System.out.println(this.position.toString() + " new top: " + top.getPosition().toString());
         this.top = top;
     }
 
     private void setBottom(ResetBlock bottom) {
+        if (this.equals(bottom)) return;
         //if (bottom != null) System.out.println(this.position.toString() + " new bottom: " + bottom.getPosition().toString());
         this.bottom = bottom;
     }
