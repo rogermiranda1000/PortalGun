@@ -1,16 +1,17 @@
-package com.rogermiranda1000.portalgun.refactored.cubes;
+package com.rogermiranda1000.portalgun.refactored.portal.cubes;
 
 import com.rogermiranda1000.portalgun.cubes.Cube;
 import com.rogermiranda1000.portalgun.refactored.geometry.Line;
 import com.rogermiranda1000.portalgun.refactored.geometry.Vector;
-import com.rogermiranda1000.portalgun.refactored.portals.TrajectoryInfluencer;
+import com.rogermiranda1000.portalgun.refactored.portal.TrajectoryInfluenced;
+import com.rogermiranda1000.portalgun.refactored.portal.TrajectoryInfluencer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class RedirectionCube extends Cube implements TrajectoryInfluencer<Double> {
+public class RedirectionCube extends Cube implements TrajectoryInfluencer {
     public RedirectionCube(@NotNull Location spawnAt) {
         super(spawnAt);
     }
@@ -21,10 +22,7 @@ public class RedirectionCube extends Cube implements TrajectoryInfluencer<Double
     }
 
     @Override
-    public Line<Double> getNewTrajectory(Vector<Double> in) {
-        return new Line<>(
-                new Double[]{},
-                new Double[]{}
-        );
+    public boolean modifyTrajectory(TrajectoryInfluenced influenced) {
+
     }
 }

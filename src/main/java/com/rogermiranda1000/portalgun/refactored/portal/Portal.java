@@ -1,10 +1,10 @@
-package com.rogermiranda1000.portalgun.refactored.portals;
+package com.rogermiranda1000.portalgun.refactored.portal;
 
 import com.rogermiranda1000.portalgun.refactored.geometry.DelimitedPlane;
 import com.rogermiranda1000.portalgun.refactored.geometry.Line;
 import com.rogermiranda1000.portalgun.refactored.geometry.Vector;
 
-public class Portal extends DelimitedPlane<Integer> implements TrajectoryInfluencer<Integer> {
+public class Portal extends DelimitedPlane<Integer> implements TrajectoryInfluencer {
     /**
      * Portal-like portal
      * @param margin World position: world_msb,world_lsb,x,y,z
@@ -14,13 +14,8 @@ public class Portal extends DelimitedPlane<Integer> implements TrajectoryInfluen
         super(margin, normal, new Integer[]{0,0,1,2,0} /* Portal shape */);
     }
 
-    /**
-     * Modifies the trajectory of an incoming object
-     * @param in Incidence vector
-     * @return New position and trajectory of the incoming object
-     */
     @Override
-    public Line<Integer> getNewTrajectory(Vector<Double> in) {
+    public boolean modifyTrajectory(TrajectoryInfluenced influenced) {
 
     }
 }
