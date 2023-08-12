@@ -22,7 +22,7 @@ public class RedirectionCube extends Cube implements TrajectoryInfluencer {
     }
 
     @Override
-    public boolean modifyTrajectory(TrajectoryInfluenced influenced) {
-
+    public Line<Double> modifyTrajectory(Line<Double> trajectory) {
+        return trajectory;
     }
 }

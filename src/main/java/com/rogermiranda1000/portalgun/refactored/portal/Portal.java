@@ -2,9 +2,8 @@ package com.rogermiranda1000.portalgun.refactored.portal;
 
 import com.rogermiranda1000.portalgun.refactored.geometry.DelimitedPlane;
 import com.rogermiranda1000.portalgun.refactored.geometry.Line;
-import com.rogermiranda1000.portalgun.refactored.geometry.Vector;
 
-public class Portal extends DelimitedPlane<Integer> implements TrajectoryInfluencer {
+public class Portal extends DelimitedPlane<Integer> implements EntityTrajectoryInfluencer {
     /**
      * Portal-like portal
      * @param margin World position: world_msb,world_lsb,x,y,z
@@ -15,7 +14,7 @@ public class Portal extends DelimitedPlane<Integer> implements TrajectoryInfluen
     }
 
     @Override
-    public boolean modifyTrajectory(TrajectoryInfluenced influenced) {
-
+    public Line<Double> modifyTrajectory(Line<Double> trajectory) {
+        return trajectory;
     }
 }

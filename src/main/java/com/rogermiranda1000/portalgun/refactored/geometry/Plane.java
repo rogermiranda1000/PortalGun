@@ -2,7 +2,7 @@ package com.rogermiranda1000.portalgun.refactored.geometry;
 
 import org.jetbrains.annotations.Nullable;
 
-public class Plane <T extends Number> {
+public class Plane <T extends Number> extends GeometricForm<T> {
     private final Vector<T> point;
     private final Vector<Double> normal;
 
@@ -27,6 +27,7 @@ public class Plane <T extends Number> {
      * @return Point where the line intersects (null if none)
      * @param <O> Point numeric precision type
      */
+    @Override
     @Nullable
     public <O extends Number> Vector<Double> getIntersectionPoint(Line<O> line) {
 

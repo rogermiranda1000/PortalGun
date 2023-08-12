@@ -19,4 +19,14 @@ public class Line <T extends Number> {
     public Vector<Double> getDirection() {
         return this.direction;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Line)) return false;
+
+        Line<?> that = (Line<?>) o;
+        if (!this.point.equals(that.point)) return false; // this will also validate if they are same numeric type
+        return this.direction.equals(that.direction);
+    }
 }
