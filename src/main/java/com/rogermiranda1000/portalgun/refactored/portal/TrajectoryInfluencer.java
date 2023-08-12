@@ -9,5 +9,5 @@ public interface TrajectoryInfluencer {
      * @param trajectory Old trajectory
      * @return New trajectory (if it's the same )
      */
-    public Line<Double> modifyTrajectory(Line<Double> trajectory);
+    public Line modifyTrajectory(Line trajectory);
 }

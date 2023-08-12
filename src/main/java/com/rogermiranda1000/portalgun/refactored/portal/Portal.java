@@ -14,7 +14,7 @@ public class Portal extends DelimitedPlane implements EntityTrajectoryInfluencer
     }
 
     @Override
-    public Line<Double> modifyTrajectory(Line<Double> trajectory) {
+    public Line modifyTrajectory(Line trajectory) {
         return trajectory;
     }
 }

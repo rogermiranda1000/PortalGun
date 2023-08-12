@@ -24,6 +24,6 @@ public class DelimitedPlane extends Plane {
     @Override
     @Nullable
     public Vector getIntersectionPoint(Line line) {
-
+        return super.getIntersectionPoint(line); // TODO
     }
 }

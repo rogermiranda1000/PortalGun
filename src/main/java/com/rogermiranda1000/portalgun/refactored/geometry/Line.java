@@ -1,26 +1,29 @@
 package com.rogermiranda1000.portalgun.refactored.geometry;
 
-import java.util.Arrays;
-
-public class Line {
+public class Line implements Cloneable {
     private final Vector point;
     private final Vector direction;
 
-
     public Line(double []point, double []direction) {
-        if (point.length < direction.length) throw new IllegalArgumentException("Point dimension must be higher or equals than the direction");
-        else if (point.length > direction.length) direction = Arrays.copyOf(direction, point.length); // set the remaining as 0
+        this(new Vector(point), new Vector(direction));
+    }
 
-        this.point = new Vector(point);
-        this.direction = new Vector(direction);
+    public Line(Vector point, Vector direction) {
+        if (point.getDimension() < direction.getDimension()) throw new IllegalArgumentException("Point dimension must be higher or equals than the direction");
+        else if (point.getDimension() > direction.getDimension()) direction = direction.setDimension(point.getDimension()); // set the remaining as 0
+
+        if (direction.isZero()) throw new IllegalArgumentException("Direction can't be zero");
+
+        this.point = point.clone();
+        this.direction = direction.clone().normalize();
     }
 
     public Vector getPoint() {
-        return this.point;
+        return this.point.clone();
     }
 
     public Vector getDirection() {
-        return this.direction;
+        return this.direction.clone();
     }
 
     @Override
@@ -31,5 +34,10 @@ public class Line {
         Line that = (Line) o;
         if (!this.point.equals(that.point)) return false; // this will also validate if they are same numeric type
         return this.direction.equals(that.direction);
+    }
+
+    @Override
+    public Line clone() {
+        return new Line(this.point, this.direction);
     }
 }

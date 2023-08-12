@@ -9,7 +9,7 @@ public class MinecraftPortal extends Portal {
      * @param position World position
      * @param normal Out vector
      */
-    public MinecraftPortal(Location position, Double[] normal) {
-        super(new Long[]{}, normal);
+    public MinecraftPortal(Location position, double[] normal) {
+        super(new double[]{}, normal);
     }
 }

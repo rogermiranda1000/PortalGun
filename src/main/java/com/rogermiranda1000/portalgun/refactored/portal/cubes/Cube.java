@@ -75,13 +75,13 @@ public abstract class Cube implements TrajectoryInfluenced {
         return this.originalLocation;
     }
 
-    public void setTrajectory(Line<Double> t) {
+    public void setTrajectory(Line t) {
         ArmorStand skeleton = this.getSkeleton();
-        skeleton.teleport();
-        skeleton.getLocation().setDirection();
+        /*skeleton.teleport();
+        skeleton.getLocation().setDirection();*/
     }
 
-    public Line<Double> getCurrentTrajectory() {
-
+    public Line getCurrentTrajectory() {
+        return null;
     }
 }

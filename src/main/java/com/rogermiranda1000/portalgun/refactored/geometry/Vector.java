@@ -3,34 +3,39 @@ package com.rogermiranda1000.portalgun.refactored.geometry;
 
 import org.jetbrains.annotations.NotNull;
 
-/**
- * An immutable Rn vector
- */
-public class Vector {
-    private final double []vector;
+import java.util.Arrays;
 
-    @SuppressWarnings("ConstantConditions")
+/**
+ * An Rn vector
+ */
+public class Vector implements Cloneable {
+    private double []vector;
+
     public Vector(double ...vector) throws IllegalArgumentException {
-        this.vector = vector;
+        this.vector = vector.clone();
     }
 
     public int getDimension() {
         return this.vector.length;
     }
 
-    public double []getVector() {
-        return this.vector;
+    public Vector setDimension(int size) {
+        this.vector = Arrays.copyOf(this.vector, size);
+        return this;
     }
 
     public double length() throws ArithmeticException {
         return Math.sqrt(this.lengthSquared());
     }
 
-    @SuppressWarnings("ConstantConditions")
     public double lengthSquared() {
         double sum = 0;
         for (double e : this.vector) sum += e*e;
         return sum;
+    }
+
+    public boolean isZero() {
+        return this.lengthSquared() == 0.f;
     }
 
     public boolean isNormalized() {
@@ -55,26 +60,29 @@ public class Vector {
     public Vector add(Vector v) {
         if (this.getDimension() != v.getDimension()) throw new IllegalArgumentException("Dimensions must be equals");
 
-        double []result = new double[this.getDimension()];
-        for (int n = 0; n < this.getDimension(); n++) result[n] = this.getComponent(n) + v.getComponent(n);
-        return new Vector(result);
+        for (int n = 0; n < this.getDimension(); n++) this.setComponent(n, this.getComponent(n) * v.getComponent(n));
+        return this;
     }
 
     public Vector multiply(double amount) {
-        double []result = new double[this.getDimension()];
-        for (int n = 0; n < this.getDimension(); n++) result[n] = this.getComponent(n) * amount;
-        return new Vector(result);
+        for (int n = 0; n < this.getDimension(); n++) this.setComponent(n, this.getComponent(n) * amount);
+        return this;
     }
 
     public Vector divide(double amount) {
-        double []result = new double[this.getDimension()];
-        for (int n = 0; n < this.getDimension(); n++) result[n] = this.getComponent(n) / amount;
-        return new Vector(result);
+        for (int n = 0; n < this.getDimension(); n++) this.setComponent(n, this.getComponent(n) / amount);
+        return this;
     }
 
     public double getComponent(int index) throws IndexOutOfBoundsException {
         if (this.getDimension() <= index) throw new IndexOutOfBoundsException("Can't access index " + index + " for a " + this.getDimension() + " dimensions vector!");
         return this.vector[index];
+    }
+
+    public Vector setComponent(int index, double value) throws IndexOutOfBoundsException {
+        if (this.getDimension() <= index) throw new IndexOutOfBoundsException("Can't access index " + index + " for a " + this.getDimension() + " dimensions vector!");
+        this.vector[index] = value;
+        return this;
     }
 
     public double x() throws IndexOutOfBoundsException {
@@ -104,5 +112,10 @@ public class Vector {
             if (this.vector[n] != that.vector[n]) return false; // not equals
         }
         return true; // all equals
+    }
+
+    @Override
+    public Vector clone() {
+        return new Vector(this.vector);
     }
 }
