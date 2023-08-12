@@ -2,7 +2,7 @@ package com.rogermiranda1000.portalgun.refactored.geometry;
 
 import org.jetbrains.annotations.Nullable;
 
-public abstract class GeometricForm <T extends Number> {
+public abstract class GeometricForm {
     @Nullable
-    public abstract <O extends Number> Vector<Double> getIntersectionPoint(Line<O> line);
+    public abstract Vector getIntersectionPoint(Line line);
 }

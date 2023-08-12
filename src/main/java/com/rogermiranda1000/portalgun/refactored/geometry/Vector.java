@@ -1,44 +1,24 @@
 package com.rogermiranda1000.portalgun.refactored.geometry;
 
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 
-public class Vector <T extends Number> {
-    private final T []vector;
-    @Nullable
-    private final Class<T> vectorType;
+/**
+ * An immutable Rn vector
+ */
+public class Vector {
+    private final double []vector;
 
-    @SafeVarargs
     @SuppressWarnings("ConstantConditions")
-    public Vector(T ...vector) throws IllegalArgumentException {
-        this.vectorType = Vector.getType(vector);
-
-        // set the vector (0 if null)
+    public Vector(double ...vector) throws IllegalArgumentException {
         this.vector = vector;
-        for (int n = 0; n < this.vector.length; n++) {
-            // vectorType won't be null, because to be null `this.vector.length` needs to be 0 (so it won't enter the loop)
-            if (this.vector[n] == null) this.vector[n] = this.vectorType.cast(0);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Nullable
-    private static <O extends Number> Class<O> getType(O []vector) throws IllegalArgumentException {
-        if (vector.length == 0) return null; // no elements
-        for (O e : vector) {
-            if (e != null) return (Class<O>) e.getClass();
-        }
-
-        // all elements are null
-        throw new IllegalArgumentException("At least one element needs to be !=null");
     }
 
     public int getDimension() {
         return this.vector.length;
     }
 
-    public T []getVector() {
+    public double []getVector() {
         return this.vector;
     }
 
@@ -47,48 +27,65 @@ public class Vector <T extends Number> {
     }
 
     @SuppressWarnings("ConstantConditions")
-    public double lengthSquared() throws ArithmeticException {
-        if (this.getDimension() == 0) throw new ArithmeticException("Trying to get length of zero-dimension vector");
+    public double lengthSquared() {
         double sum = 0;
-        for (T e : this.vector) sum += e.doubleValue()*e.doubleValue();
+        for (double e : this.vector) sum += e*e;
         return sum;
     }
 
-    public boolean isNormalized() throws ArithmeticException {
+    public boolean isNormalized() {
         return Math.abs(this.lengthSquared() - 1.0) < getEpsilon();
     }
 
-    public Vector<? extends Number> normalize(boolean modifyTypeIfNeeded) throws ArithmeticException {
-        if (this.isNormalized()) return this; // Vector<T>
-        if (!modifyTypeIfNeeded && !Double.class.equals(this.vectorType)) throw new ArithmeticException("Unable to get a normalized vector");
+    public Vector normalize() {
+        if (this.isNormalized()) return this;
 
         double length = this.length();
-        Double []parameters = new Double[this.getDimension()];
-        for (int n = 0; n < this.getDimension(); n++) {
-            parameters[n] = new Double(this.vector[n].doubleValue() / length);
-        }
-        return new Vector<>(parameters); // Vector<Double>
+        return this.divide(length);
     }
 
-    @SuppressWarnings("unchecked")
-    public Vector<T> normalize() throws ArithmeticException {
-        return (Vector<T>) this.normalize(false);
+    public double dot(@NotNull Vector v) {
+        if (this.getDimension() != v.getDimension()) throw new IllegalArgumentException("Dimensions must be equals");
+
+        double dot = 0;
+        for (int n = 0; n < this.getDimension(); n++) dot += this.getComponent(n)*v.getComponent(n);
+        return dot;
     }
 
-    public T getComponent(int index) throws IndexOutOfBoundsException {
+    public Vector add(Vector v) {
+        if (this.getDimension() != v.getDimension()) throw new IllegalArgumentException("Dimensions must be equals");
+
+        double []result = new double[this.getDimension()];
+        for (int n = 0; n < this.getDimension(); n++) result[n] = this.getComponent(n) + v.getComponent(n);
+        return new Vector(result);
+    }
+
+    public Vector multiply(double amount) {
+        double []result = new double[this.getDimension()];
+        for (int n = 0; n < this.getDimension(); n++) result[n] = this.getComponent(n) * amount;
+        return new Vector(result);
+    }
+
+    public Vector divide(double amount) {
+        double []result = new double[this.getDimension()];
+        for (int n = 0; n < this.getDimension(); n++) result[n] = this.getComponent(n) / amount;
+        return new Vector(result);
+    }
+
+    public double getComponent(int index) throws IndexOutOfBoundsException {
         if (this.getDimension() <= index) throw new IndexOutOfBoundsException("Can't access index " + index + " for a " + this.getDimension() + " dimensions vector!");
         return this.vector[index];
     }
 
-    public T x() throws IndexOutOfBoundsException {
+    public double x() throws IndexOutOfBoundsException {
         return this.getComponent(0);
     }
 
-    public T y() throws IndexOutOfBoundsException {
+    public double y() throws IndexOutOfBoundsException {
         return this.getComponent(1);
     }
 
-    public T z() throws IndexOutOfBoundsException {
+    public double z() throws IndexOutOfBoundsException {
         return this.getComponent(2);
     }
 
@@ -101,10 +98,10 @@ public class Vector <T extends Number> {
         if (this == o) return true;
         if (!(o instanceof Vector)) return false;
 
-        Vector<?> that = (Vector<?>) o;
-        if (this.getDimension() != that.getDimension() || !Objects.equals(this.vectorType, that.vectorType)) return false;
+        Vector that = (Vector) o;
+        if (this.getDimension() != that.getDimension()) return false;
         for (int n = 0; n < this.getDimension(); n++) {
-            if (!this.vector[n].equals(that.vector[n])) return false; // not equals
+            if (this.vector[n] != that.vector[n]) return false; // not equals
         }
         return true; // all equals
     }

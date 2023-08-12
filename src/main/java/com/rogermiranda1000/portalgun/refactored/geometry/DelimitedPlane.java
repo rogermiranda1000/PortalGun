@@ -2,8 +2,10 @@ package com.rogermiranda1000.portalgun.refactored.geometry;
 
 import org.jetbrains.annotations.Nullable;
 
-public class DelimitedPlane <T extends Number> extends Plane<T> {
-    private final T[] dimensions;
+import java.util.Arrays;
+
+public class DelimitedPlane extends Plane {
+    private final double[] dimensions;
 
     /**
      * Non-infinite plane
@@ -11,16 +13,17 @@ public class DelimitedPlane <T extends Number> extends Plane<T> {
      * @param normal Rotation of the plane
      * @param dimensions Components added to `margin` after applying the normal to form the delimited plane
      */
-    public DelimitedPlane(T[] margin, Double[] normal, T[] dimensions) {
+    public DelimitedPlane(double[] margin, double[] normal, double[] dimensions) {
         super(margin, normal);
 
-        if (margin.length != dimensions.length) throw new IllegalArgumentException("The margin and the dimensions of the plane must be the same");
+        if (margin.length < dimensions.length) throw new IllegalArgumentException("Point dimension must be higher or equals than the dimensions");
+        else if (margin.length > dimensions.length) dimensions = Arrays.copyOf(dimensions, margin.length); // set the remaining as 0
         this.dimensions = dimensions;
     }
 
     @Override
     @Nullable
-    public <O extends Number> Vector<Double> getIntersectionPoint(Line<O> line) {
+    public Vector getIntersectionPoint(Line line) {
 
     }
 }
