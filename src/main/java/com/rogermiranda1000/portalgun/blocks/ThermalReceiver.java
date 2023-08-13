@@ -21,7 +21,7 @@ public class ThermalReceiver {
     private ArmorStand decorate;
 
     public ThermalReceiver(Location location, Vector direction) {
-        if (!direction.isNormalized()) throw new IllegalArgumentException("Direction must be unitary");
+        //if (!direction.isNormalized()) throw new IllegalArgumentException("Direction must be unitary");
 
         this.location = location;
         this.direction = direction;
