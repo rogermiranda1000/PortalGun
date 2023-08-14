@@ -25,7 +25,8 @@ public abstract class Cube {
     }
 
     public boolean isCube(@NotNull Entity e) {
-        return e.equals(cube) || e.equals(cubeSkeleton);
+        if (this.cube == null) return false;
+        return e.equals(this.cube.getEntity()) || e.equals(this.cubeSkeleton);
     }
 
     public boolean isSkeleton(@NotNull Entity e) {
