@@ -73,7 +73,8 @@ public class onPortalgunEntity {
     @Nullable
     public static Entity getEntityPicked(Player p) {
         synchronized (pickedEntitiesAndPicker) {
-            return pickedEntitiesAndPicker.get(p).getEntity();
+            EntityWrapper e = pickedEntitiesAndPicker.get(p);
+            return (e == null) ? null : e.getEntity();
         }
     }
 
