@@ -7,6 +7,7 @@ import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
 import com.rogermiranda1000.versioncontroller.VersionController;
 
+import com.rogermiranda1000.versioncontroller.entities.EntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -59,7 +60,7 @@ public class onMove implements Listener {
             }
         }
 
-        if(portal.teleportToDestiny(player, VersionController.get().getVelocity(e), destiny)) {
+        if(portal.teleportToDestiny(player, EntityWrapper.getVelocity(e), destiny)) {
             synchronized (PortalGun.teleportedEntities) {
                 PortalGun.teleportedEntities.put(player, destiny);
             }

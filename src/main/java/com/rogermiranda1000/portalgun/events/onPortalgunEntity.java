@@ -7,6 +7,7 @@ import com.rogermiranda1000.portalgun.cubes.Cubes;
 import com.rogermiranda1000.portalgun.utils.raycast.Ray;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
+import com.rogermiranda1000.versioncontroller.entities.EntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -17,7 +18,7 @@ import java.util.*;
 
 public class onPortalgunEntity {
     public static final Set<String> entityPickBlacklist = new HashSet<>();
-    private static final HashMap<Player, Entity> pickedEntitiesAndPicker = new HashMap<>();
+    private static final HashMap<Player, EntityWrapper> pickedEntitiesAndPicker = new HashMap<>();
     private static final float LAUNCH_VELOCITY_MULTIPLIER = 1.f,
                             PICKED_ENTITY_DISTANCE = 2.5f;
 
@@ -42,20 +43,21 @@ public class onPortalgunEntity {
             return;
         }
 
-        if (VersionController.version.compareTo(Version.MC_1_10) >= 0) event.getEntityPicked().setGravity(false);
+        EntityWrapper e = new EntityWrapper(event.getEntityPicked());
+        e.disableGravity();
         synchronized (pickedEntitiesAndPicker) {
-            pickedEntitiesAndPicker.put(event.getPlayer(), event.getEntityPicked());
+            pickedEntitiesAndPicker.put(event.getPlayer(), e);
         }
         // TODO sound
     }
 
     public void launchEntity(Player p) {
-        Entity e;
+        EntityWrapper e;
         synchronized (pickedEntitiesAndPicker) {
             e = pickedEntitiesAndPicker.remove(p);
         }
-        if (VersionController.version.compareTo(Version.MC_1_10) >= 0) e.setGravity(true);
-        e.setVelocity(e.getLocation().toVector().subtract(p.getLocation().toVector()).multiply(LAUNCH_VELOCITY_MULTIPLIER));
+        e.enableGravity();
+        e.getEntity().setVelocity(e.getEntity().getLocation().toVector().subtract(p.getLocation().toVector()).multiply(LAUNCH_VELOCITY_MULTIPLIER));
         // TODO sound
     }
 
@@ -71,7 +73,7 @@ public class onPortalgunEntity {
     @Nullable
     public static Entity getEntityPicked(Player p) {
         synchronized (pickedEntitiesAndPicker) {
-            return pickedEntitiesAndPicker.get(p);
+            return pickedEntitiesAndPicker.get(p).getEntity();
         }
     }
 
@@ -82,12 +84,12 @@ public class onPortalgunEntity {
     }
 
     public static void removeEntity(Player p) {
-        Entity e;
+        EntityWrapper e;
         synchronized (pickedEntitiesAndPicker) {
             e = pickedEntitiesAndPicker.remove(p);
         }
         if (e == null) return;
-        if (VersionController.version.compareTo(Version.MC_1_10) >= 0) e.setGravity(true);
+        e.enableGravity();
     }
 
     public static void clear() {
@@ -183,20 +185,20 @@ public class onPortalgunEntity {
     }
 
     public static void updatePickedEntities() {
-        Set<Map.Entry<Player, Entity>> entities;
+        Set<Map.Entry<Player, EntityWrapper>> entities;
         synchronized (pickedEntitiesAndPicker) {
-            pickedEntitiesAndPicker.entrySet().removeIf(e -> !e.getValue().isValid()); // Entity no loger exists
+            pickedEntitiesAndPicker.entrySet().removeIf(e -> !e.getValue().getEntity().isValid()); // Entity no loger exists
             entities = pickedEntitiesAndPicker.entrySet();
         }
 
-        for (Map.Entry<Player, Entity> e : entities) {
+        for (Map.Entry<Player, EntityWrapper> e : entities) {
             Location expect = Ray.getPoint(e.getKey(), PICKED_ENTITY_DISTANCE),
-                    newLocation = secureTeleport(e.getValue(), expect);
+                    newLocation = secureTeleport(e.getValue().getEntity(), expect);
 
             // grabbed objects face away from the player
             newLocation.setYaw(e.getKey().getLocation().getYaw());
 
-            Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> e.getValue().teleport(newLocation));
+            e.getValue().setLocation(newLocation);
         }
     }
 }

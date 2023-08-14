@@ -1,7 +1,8 @@
 package com.rogermiranda1000.portalgun.utils.raycast;
 
 import com.rogermiranda1000.versioncontroller.VersionController;
-import com.rogermiranda1000.versioncontroller.entities.BoundingBox;
+import com.rogermiranda1000.versioncontroller.entities.EntityWrapper;
+import com.rogermiranda1000.versioncontroller.entities.bounds.BoundingBox;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -32,7 +33,7 @@ public class AABB {
     }
 
     private AABB(Entity e) {
-        BoundingBox boundingBox = VersionController.get().getBoundingBox(e);
+        BoundingBox boundingBox = new EntityWrapper(e).getBoundingBox();
         this.min = boundingBox.getMin();
         this.max = boundingBox.getMax();
     }
