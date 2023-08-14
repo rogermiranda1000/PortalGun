@@ -2,6 +2,7 @@ package com.rogermiranda1000.portalgun.cubes;
 
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
+import com.rogermiranda1000.versioncontroller.entities.EntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -13,7 +14,7 @@ public abstract class Cube {
     public static final float ARMORSTAND_VERTICAL_OFFSET = -1.3f;
     private final Location originalLocation;
     @Nullable
-    private ArmorStand cube;
+    private EntityWrapper cube;
     /**
      * To make the computations easier, `companionCubeSkeleton` would be the one moved, while only showing `companionCube`.
      */
@@ -40,12 +41,13 @@ public abstract class Cube {
     }
 
     Cube spawn() {
-        this.cube = (ArmorStand)this.originalLocation.getWorld().spawnEntity(this.originalLocation, EntityType.ARMOR_STAND);
+        ArmorStand cube = (ArmorStand)this.originalLocation.getWorld().spawnEntity(this.originalLocation, EntityType.ARMOR_STAND);
         this.cubeSkeleton = (ArmorStand)this.originalLocation.getWorld().spawnEntity(this.originalLocation, EntityType.ARMOR_STAND);
 
-        if (VersionController.version.compareTo(Version.MC_1_10) >= 0) this.cube.setGravity(false);
-        this.cube.setVisible(false);
-        this.applyTexture(this.cube);
+        this.cube = new EntityWrapper(cube);
+        this.cube.disableGravity();
+        cube.setVisible(false);
+        this.applyTexture(cube);
 
         this.cubeSkeleton.setVisible(false);
 
@@ -58,15 +60,16 @@ public abstract class Cube {
         if (this.cube == null) return;
 
         // TODO check if isValid?
-        this.cube.remove();
+        this.cube.getEntity().remove();
         this.cubeSkeleton.remove();
 
-        this.cube = this.cubeSkeleton = null;
+        this.cube = null;
+        this.cubeSkeleton = null;
     }
 
     public void tick() {
         if (this.cube == null) return;
-        this.cube.teleport(this.cubeSkeleton.getLocation().add(0,ARMORSTAND_VERTICAL_OFFSET,0));
+        this.cube.setLocation(this.cubeSkeleton.getLocation().add(0,ARMORSTAND_VERTICAL_OFFSET,0));
     }
 
     public Location getSpawnLocation() {

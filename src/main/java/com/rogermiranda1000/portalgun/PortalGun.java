@@ -22,6 +22,7 @@ import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
+import com.rogermiranda1000.versioncontroller.entities.EntityWrapper;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
@@ -204,7 +205,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
                 final Location destinyLocation = portal.getDestiny(portal.getLocationIndex(entityBlockLocation));
                 if (destinyLocation == null) continue;
 
-                if (portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) {
+                if (portal.teleportToDestiny(e, new EntityWrapper(e).getVelocity(), destinyLocation)) {
                     synchronized (PortalGun.teleportedEntities) {
                         PortalGun.teleportedEntities.put(e, destinyLocation);
                     }

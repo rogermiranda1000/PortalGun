@@ -4,6 +4,7 @@ import com.rogermiranda1000.portalgun.cubes.Cube;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.blocks.BlockType;
+import com.rogermiranda1000.versioncontroller.entities.EntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
@@ -39,7 +40,7 @@ public class ThermalReceiver {
                 this.location.getBlockZ() + 0.5f + direction.getZ()/4
         );
         this.decorate = (ArmorStand)spawnAt.getWorld().spawnEntity(spawnAt, EntityType.ARMOR_STAND);
-        if (VersionController.version.compareTo(Version.MC_1_10) >= 0) this.decorate.setGravity(false); // TODO what if <1.9? will it fall?
+        new EntityWrapper(this.decorate).disableGravity();
         this.decorate.setVisible(false);
         this.decorate.setHelmet(new ItemStack(Material.GLASS)); // TODO custom texture
     }
