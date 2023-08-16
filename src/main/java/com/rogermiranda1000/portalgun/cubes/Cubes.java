@@ -64,7 +64,7 @@ public class Cubes implements Listener {
 
             // remove old (if desired)
             if (removeOld) {
-                ArrayList<Cube> olds = oldCubes.get(loc);
+                ArrayList<Cube> olds = Cubes.oldCubes.get(loc);
                 if (olds != null) {
                     olds = new ArrayList<>(olds);
                     for (Cube oldCube : olds) {
@@ -73,14 +73,15 @@ public class Cubes implements Listener {
                             Cubes.destroyCompanionCube(oldCube);
                         }
                     }
+                    Cubes.oldCubes.remove(loc);
                 }
             }
 
             // add to remove cache
-            ArrayList<Cube> olds = oldCubes.get(loc);
+            ArrayList<Cube> olds = Cubes.oldCubes.get(loc);
             if (olds == null) {
                 olds = new ArrayList<>();
-                oldCubes.put(loc, olds);
+                Cubes.oldCubes.put(loc, olds);
             }
             olds.add(cube);
         }
