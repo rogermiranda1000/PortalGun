@@ -53,7 +53,9 @@ public class Cubes implements Listener {
 
     @Nullable
     public static <T extends Cube> T getCube(final @NotNull Entity e, Class<T> cls) throws ClassCastException {
-        return cls.cast(Cubes.getCube(e));
+        Cube c = Cubes.getCube(e);
+        if (!cls.isInstance(c)) return null;
+        return cls.cast(c);
     }
 
     public static void spawnCube(Cube c, boolean removeOld) {
