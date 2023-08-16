@@ -3,16 +3,32 @@ package com.rogermiranda1000.portalgun;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 
 public enum Direction {
-    N,
+    N(0,1, 0.f),
     NE,
-    E,
+    E(1,0, 90.f),
     SE,
-    S,
+    S(0,-1, 180.f),
     SW,
-    W,
+    W(-1,0, 270.f),
     NW;
+
+    private final Vector vector;
+    private final Float angle;
+
+    private Direction(float x, float z, float angle) {
+        this.vector = new Vector(x, 0.f, z);
+        this.angle = angle;
+    }
+
+    private Direction() {
+        this.vector = null;
+        this.angle = null;
+    }
 
     /**
      * @param rotation entity's yaw
@@ -33,6 +49,9 @@ public enum Direction {
 
         return dir;
     }
+    public static Direction getDirection(@NotNull final Vector v) {
+        return Arrays.stream(Direction.values()).filter(dir -> v.equals(dir.vector)).findFirst().orElse(null);
+    }
     public static Direction getDirection(Entity e) {
         return Direction.getDirection(e.getLocation().getYaw());
     }
@@ -49,32 +68,15 @@ public enum Direction {
     }
 
     public float getValue() {
-        float r = 0.f; // N
+        return this.angle;
+    }
 
-        switch (this) {
-            case E:
-                r = 90.f;
-                break;
-            case S:
-                r = 180.f;
-                break;
-            case W:
-                r = 270.f;
-                break;
-        }
-
-        return r;
+    public Vector getVector() {
+        return this.vector.clone();
     }
 
     public Location addOneBlock(Location loc) {
-        loc.add(0.f, 0.f, this == Direction.N ? 1.f:0.f);
-        loc.add(0.f, 0.f, this == Direction.S ? -1.f:0.f);
-        loc.add(this == Direction.E ? 1.f:0.f, 0.f, 0.f);
-        loc.add(this == Direction.W ? -1.f:0.f, 0.f, 0.f);
+        loc.add(this.vector);
         return loc;
-    }
-
-    public Vector addingVector() {
-        return addOneBlock(new Location(null, 0.f, 0.f, 0.f)).toVector();
     }
 }

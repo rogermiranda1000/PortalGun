@@ -3,7 +3,10 @@ package com.rogermiranda1000.portalgun.files;
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.blocks.ResetBlock;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
+import com.rogermiranda1000.portalgun.blocks.ThermalBeam;
+import com.rogermiranda1000.portalgun.blocks.beam.Beam;
 import com.rogermiranda1000.portalgun.events.onPortalgunEntity;
+import com.rogermiranda1000.portalgun.events.onUse;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
@@ -35,11 +38,11 @@ public enum Config {
     CAST_BEAM("portalgun.cast_beam"),
     DELETE_ON_DEATH("portals.remove_on_death"),
     REMOVE_ON_LEAVE("portals.remove_on_leave"),
-    MAX_LENGHT("portals.placement_length"),
+    MAX_LENGTH("portals.placement_length"),
     WHITELIST_BLOCKS("portals.whitelist_blocks"),
     WHITELISTED_BLOCKS("portals.whitelisted_blocks"),
     ONLY_YOUR_PORTALS("portals.use_only_yours"),
-    PERSISTANT("portals.save"),
+    PERSISTENT("portals.save"),
     PARTICLES("portals.particles"),
     CREATE_SOUND("portals.create_sound"),
     TELEPORT_SOUND("portals.teleport_sound"),
@@ -49,7 +52,9 @@ public enum Config {
     BLACKLISTED_WORLDS("portals.blacklisted_worlds"),
     WG_REGIONS("portals.only_allowed_worldguard_regions"),
     BLACKLIST_WG_REGIONS("portals.denied_worldguard_regions"),
-    TELEPORT_ENTITIES_BLACKLIST("portalgun.teleport_entities.blacklist");
+    TELEPORT_ENTITIES_BLACKLIST("portalgun.teleport_entities.blacklist"),
+    BEAM_MAX_LENGTH("beam.max_length"),
+    BEAM_PARTICLE("beam.particle");
 
     private static FileConfiguration fileConfiguration;
     private static HashMap<Config, Object> savedConfiguration;
@@ -76,7 +81,11 @@ public enum Config {
     }
 
     public int getInteger() {
-        return (int)this.getObject();
+        return ((Number)this.getObject()).intValue();
+    }
+
+    private float getFloat() {
+        return ((Number)this.getObject()).floatValue();
     }
 
     public Sound getSound() throws IllegalArgumentException {
@@ -97,11 +106,16 @@ public enum Config {
             PortalGun.wgRegions = (Config.fileConfiguration.getStringList(WG_REGIONS.key).isEmpty() ? null : Config.fileConfiguration.getStringList(WG_REGIONS.key));
             PortalGun.blacklistedWgRegions = (Config.fileConfiguration.getStringList(BLACKLIST_WG_REGIONS.key).isEmpty() ? null : Config.fileConfiguration.getStringList(BLACKLIST_WG_REGIONS.key));
 
+            Beam.MAX_DISTANCE = Config.BEAM_MAX_LENGTH.getFloat();
+
             Config.loadPortalgunMaterial(Config.fileConfiguration.getString(PORTALGUN_NAME.key), Config.fileConfiguration.getStringList(PORTALGUN_LORE.key),
                     Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
                     Config.fileConfiguration.contains(DURABILITY.key) ? Config.fileConfiguration.getInt(DURABILITY.key) : null);
 
             Language.loadHashMap(Config.fileConfiguration.getString(LANGUAGE.key));
+
+            onUse.MAX_LENGTH = Config.MAX_LENGTH.getInteger();
+            onUse.CREATE_SOUND = Config.CREATE_SOUND.getSound();
 
             loadPortalParticles();
             loadRestarterParticles();
@@ -157,6 +171,13 @@ public enum Config {
             Portal.setParticle(VersionController.get().getParticle(particles.get(1)), false);
         } catch (IllegalArgumentException IAEx) {
             throw new IllegalArgumentException("Particle '" + particles.get(1) + "' does not exists.");
+        }
+
+        String laserParticle = Config.fileConfiguration.getString(Config.BEAM_PARTICLE.key);
+        try {
+            Beam.LASER_PARTICLE = VersionController.get().getParticle(laserParticle);
+        } catch (IllegalArgumentException IAEx) {
+            throw new IllegalArgumentException("Particle '" + laserParticle + "' does not exists.");
         }
     }
 
@@ -252,11 +273,14 @@ public enum Config {
         c.put(Config.PORTALGUN_LORE.key, new String[]{"With the PortalGun you can open portals."});
         if (VersionController.version.compareTo(Version.MC_1_14) >= 0) c.put(Config.CUSTOM_MODEL_DATA.key, 1);
         else if (VersionController.version.compareTo(Version.MC_1_9) >= 0) c.put(Config.DURABILITY.key, 1);
-        c.put(Config.MAX_LENGHT.key, 80);
+        c.put(Config.MAX_LENGTH.key, 80);
+        c.put(Config.BEAM_MAX_LENGTH.key, 45);
         c.put(Config.PARTICLES.key, Config.getDefaultParticles());
+        c.put(Config.BEAM_PARTICLE.key, "FLAME");
+        // TODO config laser hurt player
         c.put(Config.REMOVE_ON_LEAVE.key, true);
         c.put(Config.DELETE_ON_DEATH.key, false);
-        c.put(Config.PERSISTANT.key, false);
+        c.put(Config.PERSISTENT.key, false);
         c.put(Config.ONLY_YOUR_PORTALS.key, false);
         c.put(Config.WHITELIST_BLOCKS.key, false);
         c.put(Config.WHITELISTED_BLOCKS.key, Config.getDefaultBlocks());

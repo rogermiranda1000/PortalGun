@@ -1,6 +1,7 @@
 package com.rogermiranda1000.portalgun.blocks;
 
 import com.rogermiranda1000.versioncontroller.particles.ParticleEntity;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
 import java.util.Random;
@@ -17,9 +18,11 @@ public class ResetBlock {
 
     private final Location position;
     private ResetBlock top, bottom;
+    private boolean disabled;
 
     protected ResetBlock(Location position) {
         this.position = new Location(position.getWorld(), position.getBlockX()+0.5f, position.getBlockY(), position.getBlockZ()+0.5f);
+        this.disabled = false;
     }
 
     /**
@@ -66,6 +69,8 @@ public class ResetBlock {
     }
 
     public boolean insideRegion(Location loc) {
+        if (this.disabled) return false;
+
         int height = this.getZoneHeight();
         if (height == 0) return false;
 
@@ -76,13 +81,27 @@ public class ResetBlock {
     }
 
     private void setTop(ResetBlock top) {
+        if (this.equals(top)) return;
         //if (top != null) System.out.println(this.position.toString() + " new top: " + top.getPosition().toString());
         this.top = top;
     }
 
     private void setBottom(ResetBlock bottom) {
+        if (this.equals(bottom)) return;
         //if (bottom != null) System.out.println(this.position.toString() + " new bottom: " + bottom.getPosition().toString());
         this.bottom = bottom;
+    }
+
+    public void disable() {
+        this.disabled = true;
+    }
+
+    public void enable() {
+        this.disabled = false;
+    }
+
+    public boolean isDisabled() {
+        return this.disabled;
     }
 
     public static void setParticle(ParticleEntity particle) {
@@ -94,6 +113,8 @@ public class ResetBlock {
     }
 
     public void playParticles(Random generator) {
+        if (this.disabled) return;
+
         int height = this.getZoneHeight();
         if (height == 0 || ResetBlock.particle == null) return;
 
@@ -125,5 +146,19 @@ public class ResetBlock {
                 ", top=" + ((top == null) ? "null" : top.position.toString()) +
                 ", bottom=" + ((bottom == null) ? "null" : bottom.position.toString()) +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ResetBlock)) return false;
+
+        ResetBlock that = (ResetBlock) o;
+        return this.position.equals(that.position);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.position.hashCode();
     }
 }

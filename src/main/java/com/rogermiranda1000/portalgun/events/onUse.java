@@ -3,7 +3,7 @@ package com.rogermiranda1000.portalgun.events;
 import com.rogermiranda1000.portalgun.Direction;
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
-import com.rogermiranda1000.portalgun.files.Config;
+import com.rogermiranda1000.portalgun.blocks.ThermalReceivers;
 import com.rogermiranda1000.portalgun.files.Language;
 import com.rogermiranda1000.portalgun.portals.CeilingPortal;
 import com.rogermiranda1000.portalgun.portals.FloorPortal;
@@ -14,6 +14,7 @@ import com.rogermiranda1000.portalgun.utils.raycast.Ray;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.particles.ParticleEntity;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -31,7 +32,10 @@ public class onUse implements Listener {
     /**
      * How many blocks will the bean advance before playing a particle
      */
-    private static final float BEAN_STEPS = 0.2f;
+    private static final float BEAM_STEPS = 0.2f;
+    
+    public static int MAX_LENGTH;
+    public static Sound CREATE_SOUND;
 
     private final onPortalgunEntity onEntityPick;
     public onUse(onPortalgunEntity onEntityPickEvent) {
@@ -61,7 +65,7 @@ public class onUse implements Listener {
         if (PortalGun.takeEntities && player.hasPermission("portalgun.entities") && !leftClick) {
             // maybe the player is facing an entity?
             Entity facing = getLookingEntity(player, PortalGun.MAX_ENTITY_PICK_RANGE, Portal.isEmptyBlock);
-            if (facing != null) {
+            if (facing != null && !ThermalReceivers.getInstance().isDecorate(facing)) {
                 PlayerPickEvent ppe = new PlayerPickEvent(player, facing);
                 this.onEntityPick.onEntityPick(ppe);
                 if (!ppe.isCancelled()) return true;
@@ -75,14 +79,14 @@ public class onUse implements Listener {
             return false;
         }
 
-        Block colliderBlock = getLookingBlock(player, Config.MAX_LENGHT.getInteger(), Portal.isEmptyBlock);
+        Block colliderBlock = getLookingBlock(player, onUse.MAX_LENGTH, Portal.isEmptyBlock);
         if (colliderBlock == null) {
             player.sendMessage(PortalGun.plugin.getErrorPrefix() + Language.PORTAL_FAR.getText());
             return false;
         }
 
         if (ResetBlocks.getInstance().insideResetBlock(colliderBlock.getLocation())) {
-            player.playSound(player.getLocation(), Config.CREATE_SOUND.getSound(), 3.0F, 0.5F);
+            player.playSound(player.getLocation(), onUse.CREATE_SOUND, 3.0F, 0.5F);
             // TODO fail animation
             return false;
         }
@@ -107,7 +111,7 @@ public class onUse implements Listener {
         }
 
         Portal.setPortal(player, p);
-        player.playSound(player.getLocation(), Config.CREATE_SOUND.getSound(), 3.0F, 0.5F);
+        player.playSound(player.getLocation(), onUse.CREATE_SOUND, 3.0F, 0.5F);
         PortalGun.plugin.getLogger().info( Language.PORTAL_OPENED.getText (
                 new String[] {"player", player.getName()},
                 new String[] {"pos", colliderBlock.getWorld().getName() + " > " + colliderBlock.getX() + ", " + colliderBlock.getY() + ", " + colliderBlock.getZ()}
@@ -117,7 +121,7 @@ public class onUse implements Listener {
     }
 
     private static void castBeam(Location start, Location target, ParticleEntity particle) {
-        Vector direction = start.getDirection().normalize().multiply(onUse.BEAN_STEPS);
+        Vector direction = start.getDirection().normalize().multiply(onUse.BEAM_STEPS);
         double startToTargetSquaredDistance = start.distanceSquared(target);
 
         Location bean = start.clone();
@@ -161,7 +165,7 @@ public class onUse implements Listener {
         // raycasting
         BlockIterator iter = new BlockIterator(p, max);
         Block colliderBlock = iter.next();
-        while (emptyBlock.apply(colliderBlock) && iter.hasNext()) colliderBlock = iter.next(); // TODO: bloacklist blocks
+        while (emptyBlock.apply(colliderBlock) && iter.hasNext()) colliderBlock = iter.next(); // TODO: blacklist blocks
         if (!iter.hasNext()) return emptyBlock.apply(colliderBlock) ? null /* we reached the max distance */ : colliderBlock;
         return colliderBlock;
     }

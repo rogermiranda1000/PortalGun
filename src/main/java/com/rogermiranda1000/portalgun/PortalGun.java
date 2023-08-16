@@ -7,6 +7,10 @@ import com.rogermiranda1000.helper.RogerPlugin;
 import com.rogermiranda1000.helper.SentryScheduler;
 import com.rogermiranda1000.helper.worldguard.RegionDelimiter;
 import com.rogermiranda1000.portalgun.api.PortalGunAccessibleMethods;
+import com.rogermiranda1000.portalgun.blocks.ThermalBeams;
+import com.rogermiranda1000.portalgun.blocks.ThermalReceiverGuard;
+import com.rogermiranda1000.portalgun.blocks.ThermalReceivers;
+import com.rogermiranda1000.portalgun.cubes.Cubes;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.events.*;
 import com.rogermiranda1000.portalgun.files.Config;
@@ -18,6 +22,7 @@ import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
+import com.rogermiranda1000.versioncontroller.entities.EntityWrapper;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
@@ -47,9 +52,11 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
     private BukkitTask pickEntitiesTask;
 
     public PortalGun() {
-        super(new onDead(), new onLeave(), new onMove(), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity());
+        super(new onDead(), new onLeave(), new onMove(new onEmancipator()), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity(), new Cubes(), new ThermalReceiverGuard());
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
+        this.addCustomBlock(ThermalBeams.setInstance(new ThermalBeams(this)));
+        this.addCustomBlock(ThermalReceivers.setInstance(new ThermalReceivers(this)));
     }
 
     @Override
@@ -85,7 +92,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
 
         FileManager.loadFiles();
         if (PortalGun.blacklistedWorlds.size() > 0) this.regionDelimiter.add(new WorldRegion(PortalGun.blacklistedWorlds));
-        this.setCommandMessages(Language.USER_NO_PERMISSIONS.getText(), Language.HELP_UNKNOWN.getText());
+        this.setCommandMessages(Language.USER_NO_PERMISSIONS.getText(), Language.ERROR_UNKNOWN.getText());
 
         super.setCommands(new PortalGunCommands(this.getClearPrefix(), this.getErrorPrefix()).commands); // @pre before super.onEnable() & after loading languages
     }
@@ -94,7 +101,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         ResetBlocks.getInstance().updateAllBlocks(); // @pre super.onEnable()
 
         // Load portals
-        if (Config.PERSISTANT.getBoolean()) {
+        if (Config.PERSISTENT.getBoolean()) {
             getLogger().info("Loading portals...");
             File file = new File(getDataFolder(), "portals.yml");
             if(file.exists()) {
@@ -149,11 +156,14 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         this.particleTask = scheduler.runTaskTimer(this, PortalGun::playAllParticles, 0, PortalGun.particleDelay);
         // TODO: configuration "only players teleports"
         // Entities
-        this.teleportTask = scheduler.runTaskTimerAsynchronously(this, ()->{
+        this.teleportTask = scheduler.runTaskTimer(this, ()->{
             PortalGun.updateTeleportedEntities();
             PortalGun.teleportEntities();
+            Cubes.updateCompanionCubes();
+
+            PortalGun.checkForEntitiesInEmancipationGrid();
         }, 1, PortalGun.particleDelay*3);
-        this.pickEntitiesTask = scheduler.runTaskTimerAsynchronously(this, onPortalgunEntity::updatePickedEntities, 0, PortalGun.pickedEntitiesDelay);
+        this.pickEntitiesTask = scheduler.runTaskTimer(this, onPortalgunEntity::updatePickedEntities, 0, PortalGun.pickedEntitiesDelay);
     }
 
     private static void playAllParticles() {
@@ -162,6 +172,19 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         }
 
         ResetBlocks.getInstance().playAllParticles();
+        ThermalBeams.getInstance().playAllParticles();
+    }
+
+    private static void checkForEntitiesInEmancipationGrid() {
+        onEmancipator emancipatorGridEvent = PortalGun.plugin.getListener(onMove.class).getEmancipatorGridEvent();
+
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity e : getEntities(world)) {
+                if (ResetBlocks.getInstance().insideResetBlock(e.getLocation())) {
+                    emancipatorGridEvent.onEntityGoesThroughEmancipationGrid(e);
+                }
+            }
+        }
     }
 
     // TODO: don't teleport Item Frames
@@ -182,14 +205,11 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
                 final Location destinyLocation = portal.getDestiny(portal.getLocationIndex(entityBlockLocation));
                 if (destinyLocation == null) continue;
 
-                Bukkit.getScheduler().callSyncMethod(PortalGun.plugin, () -> {
-                    if (portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) {
-                        synchronized (PortalGun.teleportedEntities) {
-                            PortalGun.teleportedEntities.put(e, destinyLocation);
-                        }
+                if (portal.teleportToDestiny(e, new EntityWrapper(e).getVelocity(), destinyLocation)) {
+                    synchronized (PortalGun.teleportedEntities) {
+                        PortalGun.teleportedEntities.put(e, destinyLocation);
                     }
-                    return null;
-                });
+                }
             }
         }
     }
@@ -226,8 +246,15 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         this.pickEntitiesTask.cancel();
 
         onPortalgunEntity.clear();
+        Cubes.clear(); // TODO option to keep saved
+        ThermalReceivers.getInstance().destroyAll(); // un-decorate
 
-        if (Config.PERSISTANT.getBoolean()) {
+        // as we read the stair value to get the direction, and we set all the powered blocks to
+        // redstone, if they get saved they will lose their direction; power them off before closing
+        ThermalBeams.getInstance().removeAllBlocksArtificially(); // as they may re-activate the block again, disable them first
+        ThermalReceivers.getInstance().unpowerAll();
+
+        if (Config.PERSISTENT.getBoolean()) {
             getLogger().info("Saving portals...");
             File file = new File(getDataFolder(), "portals.yml");
             BufferedWriter bw = null;

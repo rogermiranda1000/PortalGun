@@ -1,11 +1,13 @@
 package com.rogermiranda1000.portalgun.portals;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
+import com.github.davidmoten.rtreemulti.Entry;
+import com.github.davidmoten.rtreemulti.RTree;
+import com.github.davidmoten.rtreemulti.geometry.Point;
+import com.rogermiranda1000.helper.blocks.CustomBlock;
+import com.rogermiranda1000.portalgun.utils.raycast.Trajectory;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -13,6 +15,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.rogermiranda1000.portalgun.Direction;
@@ -22,7 +25,7 @@ import com.rogermiranda1000.versioncontroller.particles.ParticleEntity;
 
 public abstract class Portal {
     private static HashMap<UUID, Portal[]> portals;
-    private static HashMap<Location, Portal> portalsLocations;
+    private static RTree<Portal, Point> portalsLocations; // TODO instead of just the margins of each portal block, save the rectangle
     private static ParticleEntity[] particles;
     public static Function<Block, Boolean> isEmptyBlock;
     public static Function<Block, Boolean> isValidBlock;
@@ -43,8 +46,7 @@ public abstract class Portal {
     public abstract Location []calculateSupportLocation();
 
     static {
-        Portal.portals = new HashMap<>();
-        Portal.portalsLocations = new HashMap<>();
+        Portal.removeAllPortals(); // initialize
         Portal.particles = new ParticleEntity[2];
     }
 
@@ -126,8 +128,14 @@ public abstract class Portal {
         this.linked = l;
     }
 
-    public static Portal getPortal(Location loc) {
-        return portalsLocations.get(loc);
+    public Portal getLinked() {
+        return this.linked;
+    }
+
+    public synchronized static Portal getPortal(Location loc) {
+        Iterator<Entry<Portal,Point>> matches = Portal.portalsLocations.search(CustomBlock.getPointWithMargin(loc)).iterator();
+        if (!matches.hasNext()) return null;
+        return matches.next().value();
     }
 
     /*public static boolean existsPortal(Location loc) {
@@ -181,7 +189,7 @@ public abstract class Portal {
      * @param id user's UUID
      * @param p new portal
      */
-    public static void setPortal(UUID id, Portal p) {
+    public synchronized static void setPortal(UUID id, Portal p) {
         try {
             p = (Portal)p.clone();
         } catch (CloneNotSupportedException e) {
@@ -204,7 +212,7 @@ public abstract class Portal {
             }
         }
 
-        for (Location l: p.calculateTeleportLocation()) Portal.portalsLocations.put(l, p);
+        for (Location tp : p.calculateTeleportLocation()) Portal.portalsLocations = Portal.portalsLocations.add(p, CustomBlock.getPoint(tp));
         userPortals[pos] = p;
     }
 
@@ -219,10 +227,14 @@ public abstract class Portal {
     /**
      * @param p portal to be eliminated on HashMap (if exists)
      */
-    public static void removePortal(Portal p) {
+    public synchronized static void removePortal(Portal p) {
         if (p != null) {
             if (p.linked != null) p.linked.setLinked(null);
-            for (Location l: p.calculateTeleportLocation()) Portal.portalsLocations.remove(l);
+            final List<Entry<Portal,Point>> toDelete = new ArrayList<>();
+            Portal.portalsLocations.entries().forEach(e -> {
+                if (e.value() == p) toDelete.add(e);
+            });
+            Portal.portalsLocations = Portal.portalsLocations.delete(toDelete);
 
             // TODO instead of searching the owner, add an attribute to the portal
             for (Map.Entry<UUID,Portal[]> usersPortals : Portal.portals.entrySet()) {
@@ -257,9 +269,9 @@ public abstract class Portal {
         return Portal.removePortal(p.getUniqueId());
     }
 
-    public static void removeAllPortals() {
-        Portal.portals.clear();
-        Portal.portalsLocations.clear();
+    public synchronized static void removeAllPortals() {
+        Portal.portals = new HashMap<>();
+        Portal.portalsLocations = RTree.star().dimensions(5).create(); // MSB[world], LSB[world], x, y, z
     }
 
     public String toString() {
@@ -307,6 +319,40 @@ public abstract class Portal {
         return playerYaw % 360;
     }
 
+
+    @NotNull
+    public static Vector rotateAroundY(Vector v, double angle) {
+        double angleCos = Math.cos(angle);
+        double angleSin = Math.sin(angle);
+        double x = angleCos * v.getX() + angleSin * v.getZ();
+        double z = -angleSin * v.getX() + angleCos * v.getZ();
+        return v.setX(x).setZ(z);
+    }
+
+    @NotNull
+    public static Vector rotateAroundZ(Vector v, double angle) {
+        double angleCos = Math.cos(angle);
+        double angleSin = Math.sin(angle);
+        double x = angleCos * v.getX() - angleSin * v.getY();
+        double y = angleSin * v.getX() + angleCos * v.getY();
+        return v.setX(x).setY(y);
+    }
+
+    // based on `Portal.getYaw`
+    private static Vector getVector(Vector vector, Portal in, Portal out) {
+        Vector inApproach = in.getApproachVector(),
+                outApproach = out.getApproachVector();
+
+        if (inApproach.clone().subtract(outApproach).length() <= CustomBlock.EPSILON) vector = vector.multiply(-1); // same vector
+        else if (inApproach.clone().multiply(-1).subtract(outApproach).length() > CustomBlock.EPSILON) { // not equals and not opposite
+            double deltaTheta = -(out.direction.getValue() - in.direction.getValue()),
+                    deltaPhi = (outApproach.getY() - inApproach.getY()) * 90.f;
+            vector = rotateAroundZ(vector, Math.toRadians(deltaPhi));
+            vector = rotateAroundY(vector, Math.toRadians(deltaTheta));
+        }
+        return vector;
+    }
+
     // TODO: Pitch
     private static float getPitch(float playerPitch, Portal in, Portal out) {
         return playerPitch;
@@ -329,6 +375,26 @@ public abstract class Portal {
         return true;
     }
 
+    public Trajectory getNewTrajectory(Trajectory in) {
+        // This function is the result of many try-error combinations, feel free to make it more understandable.
+
+        if (this.linked == null) return in;
+        if (in.getDirection().normalize().dot(this.getApproachVector()) <= 0.f) return in; // not approaching (extracted from `onMove`)
+
+        Vector destinyOffset = Portal.getVector(this.particleLocations[0].toVector().subtract(in.getLocation().toVector()),
+                this, this.linked);
+        if (!this.linked.direction.equals(this.direction)) {
+            // for some reason is 1 block offset
+            // TODO some top/bottom portal are odd
+            destinyOffset = destinyOffset.add(Portal.getVector(new Vector(0,-1,0), this, this.linked));
+        }
+        Location destiny = this.linked.particleLocations[0].clone().add(destinyOffset);
+
+        Vector direction = Portal.getVector(in.getDirection(), this, this.linked);
+
+        return new Trajectory(destiny, direction);
+    }
+
     public boolean teleportToDestiny(Entity e, Vector velocity, short index) {
         return this.teleportToDestiny(e, velocity, getDestiny(index));
     }
@@ -338,7 +404,8 @@ public abstract class Portal {
         if (this.linked == null) return null;
 
         Location []tp = this.linked.calculateTeleportLocation();
-        if (index < 0 || index >= tp.length) index = 0;
+        if (index < 0) index = 0;
+        index %= tp.length;
 
         return tp[index];
     }
