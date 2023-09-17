@@ -12,7 +12,7 @@ public class onPlayerJoin implements Listener {
     /**
      * Given a GET argument 'tool', 'damage'/'custom_model_data' and the pack_format 'format', it generates a resourcepack
      */
-    private static final String RESOURCEPACK_BASE_URL = "http://rogermiranda1000.com/portalgun/index.php"; // TODO custom URL
+    private static final String RESOURCEPACK_BASE_URL = "http://rogermiranda1000.com/pg-tmp/index.php"; // TODO custom URL
 
     private static String getUrl() {
         String identifierKey = null, identifierValue = "";
@@ -22,7 +22,7 @@ public class onPlayerJoin implements Listener {
         }
         else if (VersionController.version.compareTo(Version.MC_1_9) >= 0) {
             identifierKey = "damage";
-            identifierValue = String.valueOf(((float)VersionController.get().getDurability(PortalGun.item)) / PortalGun.item.getType().getMaxDurability());
+            identifierValue = String.valueOf(VersionController.get().getDurability(PortalGun.item));
         }
 
         return RESOURCEPACK_BASE_URL + "?tool=" + PortalGun.item.getType().name() + "&format=" + getPackFormat() +
