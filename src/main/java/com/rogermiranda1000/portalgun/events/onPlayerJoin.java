@@ -12,7 +12,7 @@ public class onPlayerJoin implements Listener {
     /**
      * Given a GET argument 'tool', 'damage'/'custom_model_data' and the pack_format 'format', it generates a resourcepack
      */
-    private static final String RESOURCEPACK_BASE_URL = "http://rogermiranda1000.com/pg-tmp/index.php"; // TODO custom URL
+    private static final String RESOURCEPACK_BASE_URL = "http://rogermiranda1000.com/portalgun-v2/index.php"; // TODO add endpoint to config file
 
     private static String getUrl() {
         String identifierKey = null, identifierValue = "";

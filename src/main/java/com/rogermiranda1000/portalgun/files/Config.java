@@ -5,8 +5,14 @@ import com.rogermiranda1000.portalgun.blocks.ResetBlock;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.blocks.ThermalBeam;
 import com.rogermiranda1000.portalgun.blocks.beam.Beam;
+import com.rogermiranda1000.portalgun.cubes.CompanionCube;
+import com.rogermiranda1000.portalgun.cubes.RedirectionCube;
 import com.rogermiranda1000.portalgun.events.onPortalgunEntity;
 import com.rogermiranda1000.portalgun.events.onUse;
+import com.rogermiranda1000.portalgun.items.ResourcepackedCMDItem;
+import com.rogermiranda1000.portalgun.items.ResourcepackedDamagedItem;
+import com.rogermiranda1000.portalgun.items.ResourcepackedItem;
+import com.rogermiranda1000.portalgun.items.ResourcepackedItemFactory;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
@@ -108,9 +114,21 @@ public enum Config {
 
             Beam.MAX_DISTANCE = Config.BEAM_MAX_LENGTH.getFloat();
 
+            String material = Config.fileConfiguration.getString(MATERIAL.key);
+            Material portalgunMaterial = Material.getMaterial(material);
+            if (portalgunMaterial == null) {
+                PortalGun.plugin.printConsoleErrorMessage("PortalGun's item (" + material + ") does not exists.");
+                throw new IllegalArgumentException("PortalGun's item (" + material + ") does not exists.");
+            }
+
             Config.loadPortalgunMaterial(Config.fileConfiguration.getString(PORTALGUN_NAME.key), Config.fileConfiguration.getStringList(PORTALGUN_LORE.key),
-                    Config.fileConfiguration.getString(MATERIAL.key), Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
+                    portalgunMaterial, Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
                     Config.fileConfiguration.contains(DURABILITY.key) ? Config.fileConfiguration.getInt(DURABILITY.key) : null);
+            if (PortalGun.useResourcePack && PortalGun.item instanceof ResourcepackedItem) {
+                ResourcepackedItem portalgun = (ResourcepackedItem) PortalGun.item;
+                CompanionCube.TEXTURE = ResourcepackedItemFactory.createItem(portalgunMaterial, "Weighted Cube", portalgun.getIdentifier()+5);
+                RedirectionCube.TEXTURE = ResourcepackedItemFactory.createItem(portalgunMaterial, "Redirection Cube", portalgun.getIdentifier()+7);
+            }
 
             Language.loadHashMap(Config.fileConfiguration.getString(LANGUAGE.key));
 
@@ -199,52 +217,42 @@ public enum Config {
 
     /**
      * It creates the PortalGun
-     * @param material PortalGun's material
+     * @param portalgunMaterial PortalGun's material
      * @param customModelData PortalGun's CustomModelData. NULL or -1 if any
-     * @throws IllegalArgumentException Invalid PortalGun material
      */
-    private static void loadPortalgunMaterial(@NotNull String name, @NotNull List<String> lore, @NotNull String material, @Nullable Integer customModelData, @Nullable Integer durability) throws IllegalArgumentException {
-        Material portalgunMaterial = Material.getMaterial(material);
-        if (portalgunMaterial == null) {
-            PortalGun.plugin.printConsoleErrorMessage("PortalGun's item (" + material + ") does not exists.");
-            throw new IllegalArgumentException("PortalGun's item (" + material + ") does not exists.");
-        }
-
-        ItemMeta meta;
+    private static void loadPortalgunMaterial(@NotNull String name, @NotNull List<String> lore, @NotNull Material portalgunMaterial, @Nullable Integer customModelData, @Nullable Integer durability) {
         if (durability != null) {
             try {
-                PortalGun.item = VersionController.get().setUnbreakable(new ItemStack(portalgunMaterial));
-                VersionController.get().setDurability(PortalGun.item, durability);
-                //meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+                PortalGun.item = new ResourcepackedDamagedItem(portalgunMaterial, name, durability, lore);
             } catch (IllegalArgumentException ex) {
                 PortalGun.plugin.printConsoleErrorMessage("Can't use " + PortalGun.item.getType().name() + " with the resourcepack.");
                 PortalGun.useResourcePack = false;
                 PortalGun.item = new ItemStack(portalgunMaterial);
-            } finally {
-                meta = PortalGun.item.getItemMeta();
+
+                ItemMeta meta = PortalGun.item.getItemMeta();
                 meta.setDisplayName(name);
                 meta.setLore(lore);
                 PortalGun.item.setItemMeta(meta);
             }
-            return;
-        }
-
-        PortalGun.item = new ItemStack(portalgunMaterial);
-        meta = PortalGun.item.getItemMeta();
-
-        meta.setDisplayName(name);
-        meta.setLore(lore);
-
-        // resourcepack & item identificator
-        if (customModelData != null) {
-            if (VersionController.version.compareTo(Version.MC_1_14) >= 0) meta.setCustomModelData(customModelData);
-            else throw new IllegalArgumentException("Using custom model data prior to 1.14");
         }
         else {
-            meta.addEnchant(Enchantment.DURABILITY, 10, true); // we need an identifier
-            if (PortalGun.useResourcePack) PortalGun.plugin.printConsoleErrorMessage("The resourcepack won't work on 1.8!");
+            // resourcepack & item identificator
+            if (customModelData != null) {
+                if (VersionController.version.compareTo(Version.MC_1_14) < 0) throw new IllegalArgumentException("Using custom model data prior to 1.14");
+                PortalGun.item = new ResourcepackedCMDItem(portalgunMaterial, name, customModelData, lore);
+            } else {
+                PortalGun.item = new ItemStack(portalgunMaterial);
+                ItemMeta meta = PortalGun.item.getItemMeta();
+
+                meta.setDisplayName(name);
+                meta.setLore(lore);
+
+                meta.addEnchant(Enchantment.DURABILITY, 10, true); // we need an identifier
+                if (PortalGun.useResourcePack) PortalGun.plugin.printConsoleErrorMessage("The resourcepack won't work on 1.8!");
+
+                PortalGun.item.setItemMeta(meta);
+            }
         }
-        PortalGun.item.setItemMeta(meta);
     }
 
     private static void loadValidBlocks() {
