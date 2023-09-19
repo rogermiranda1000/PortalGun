@@ -21,6 +21,6 @@ public class ResourcepackedCMDItem extends ResourcepackedItem {
     }
 
     public int getIdentifier() {
-        return PortalGun.item.getItemMeta().getCustomModelData();
+        return this.getItemMeta().getCustomModelData();
     }
 }

@@ -9,6 +9,7 @@ import com.rogermiranda1000.portalgun.cubes.Cubes;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.cubes.RedirectionCube;
 import com.rogermiranda1000.portalgun.files.Language;
+import com.rogermiranda1000.portalgun.items.PortalGuns;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -43,7 +44,7 @@ public class PortalGunCommands {
                 }),
                 new CustomCommand("portalgun", "portalgun.portalgun", false, "portalgun", Language.HELP_GET_GUN.getText(), (sender, args) -> {
                     Player player = (Player) sender;
-                    player.getInventory().addItem(PortalGun.item);
+                    PortalGuns.addItemToPlayer(player);
                     player.sendMessage(clearPrefix + ChatColor.GREEN + Language.USER_GET_GUN.getText());
                 }),
                 // TODO: give portal gun to others

@@ -3,16 +3,12 @@ package com.rogermiranda1000.portalgun.files;
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.blocks.ResetBlock;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
-import com.rogermiranda1000.portalgun.blocks.ThermalBeam;
 import com.rogermiranda1000.portalgun.blocks.beam.Beam;
 import com.rogermiranda1000.portalgun.cubes.CompanionCube;
 import com.rogermiranda1000.portalgun.cubes.RedirectionCube;
 import com.rogermiranda1000.portalgun.events.onPortalgunEntity;
 import com.rogermiranda1000.portalgun.events.onUse;
-import com.rogermiranda1000.portalgun.items.ResourcepackedCMDItem;
-import com.rogermiranda1000.portalgun.items.ResourcepackedDamagedItem;
-import com.rogermiranda1000.portalgun.items.ResourcepackedItem;
-import com.rogermiranda1000.portalgun.items.ResourcepackedItemFactory;
+import com.rogermiranda1000.portalgun.items.*;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
@@ -42,6 +38,7 @@ public enum Config {
     CUSTOM_MODEL_DATA("portalgun.custom_model_data"),
     DURABILITY("portalgun.durability"),
     CAST_BEAM("portalgun.cast_beam"),
+    SWIPE_COLORS("portalgun.swipe_colors_animation"),
     DELETE_ON_DEATH("portals.remove_on_death"),
     REMOVE_ON_LEAVE("portals.remove_on_leave"),
     MAX_LENGTH("portals.placement_length"),
@@ -108,6 +105,7 @@ public enum Config {
             PortalGun.useResourcePack = Config.fileConfiguration.getBoolean(RESOURCEPACK.key);
             PortalGun.takeEntities = Config.fileConfiguration.getBoolean(TAKE_ENTITIES.key);
             PortalGun.castBeam = Config.fileConfiguration.getBoolean(CAST_BEAM.key);
+            PortalGuns.swipeColorsAnimation = Config.fileConfiguration.getBoolean(SWIPE_COLORS.key);
             PortalGun.blacklistedWorlds = Config.fileConfiguration.getStringList(BLACKLISTED_WORLDS.key);
             PortalGun.wgRegions = (Config.fileConfiguration.getStringList(WG_REGIONS.key).isEmpty() ? null : Config.fileConfiguration.getStringList(WG_REGIONS.key));
             PortalGun.blacklistedWgRegions = (Config.fileConfiguration.getStringList(BLACKLIST_WG_REGIONS.key).isEmpty() ? null : Config.fileConfiguration.getStringList(BLACKLIST_WG_REGIONS.key));
@@ -121,13 +119,19 @@ public enum Config {
                 throw new IllegalArgumentException("PortalGun's item (" + material + ") does not exists.");
             }
 
-            Config.loadPortalgunMaterial(Config.fileConfiguration.getString(PORTALGUN_NAME.key), Config.fileConfiguration.getStringList(PORTALGUN_LORE.key),
-                    portalgunMaterial, Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
+            String portalgunName = Config.fileConfiguration.getString(PORTALGUN_NAME.key);
+            List<String> portalgunLore = Config.fileConfiguration.getStringList(PORTALGUN_LORE.key);
+            Config.loadPortalgunMaterial(portalgunName, portalgunLore, portalgunMaterial,
+                    Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
                     Config.fileConfiguration.contains(DURABILITY.key) ? Config.fileConfiguration.getInt(DURABILITY.key) : null);
-            if (PortalGun.useResourcePack && PortalGun.item instanceof ResourcepackedItem) {
-                ResourcepackedItem portalgun = (ResourcepackedItem) PortalGun.item;
-                CompanionCube.TEXTURE = ResourcepackedItemFactory.createItem(portalgunMaterial, "Weighted Cube", portalgun.getIdentifier()+5);
-                RedirectionCube.TEXTURE = ResourcepackedItemFactory.createItem(portalgunMaterial, "Redirection Cube", portalgun.getIdentifier()+7);
+            if (PortalGun.useResourcePack && PortalGuns.portalGun instanceof ResourcepackedItem) {
+                ResourcepackedItem portalgun = (ResourcepackedItem) PortalGuns.portalGun;
+
+                PortalGuns.orangePortalGun = ResourcepackedItemFactory.createItem(portalgunMaterial, portalgunName, portalgun.getIdentifier()+1, portalgunLore);
+                PortalGuns.bluePortalGun = ResourcepackedItemFactory.createItem(portalgunMaterial, portalgunName, portalgun.getIdentifier()+2, portalgunLore);
+
+                CompanionCube.TEXTURE = ResourcepackedItemFactory.createItem(portalgunMaterial, "Weighted Cube", portalgun.getIdentifier()+6);
+                RedirectionCube.TEXTURE = ResourcepackedItemFactory.createItem(portalgunMaterial, "Redirection Cube", portalgun.getIdentifier()+8);
             }
 
             Language.loadHashMap(Config.fileConfiguration.getString(LANGUAGE.key));
@@ -223,26 +227,26 @@ public enum Config {
     private static void loadPortalgunMaterial(@NotNull String name, @NotNull List<String> lore, @NotNull Material portalgunMaterial, @Nullable Integer customModelData, @Nullable Integer durability) {
         if (durability != null) {
             try {
-                PortalGun.item = new ResourcepackedDamagedItem(portalgunMaterial, name, durability, lore);
+                PortalGuns.portalGun = new ResourcepackedDamagedItem(portalgunMaterial, name, durability, lore);
             } catch (IllegalArgumentException ex) {
-                PortalGun.plugin.printConsoleErrorMessage("Can't use " + PortalGun.item.getType().name() + " with the resourcepack.");
+                PortalGun.plugin.printConsoleErrorMessage("Can't use " + PortalGuns.portalGun.getType().name() + " with the resourcepack.");
                 PortalGun.useResourcePack = false;
-                PortalGun.item = new ItemStack(portalgunMaterial);
+                PortalGuns.portalGun = new ItemStack(portalgunMaterial);
 
-                ItemMeta meta = PortalGun.item.getItemMeta();
+                ItemMeta meta = PortalGuns.portalGun.getItemMeta();
                 meta.setDisplayName(name);
                 meta.setLore(lore);
-                PortalGun.item.setItemMeta(meta);
+                PortalGuns.portalGun.setItemMeta(meta);
             }
         }
         else {
             // resourcepack & item identificator
             if (customModelData != null) {
                 if (VersionController.version.compareTo(Version.MC_1_14) < 0) throw new IllegalArgumentException("Using custom model data prior to 1.14");
-                PortalGun.item = new ResourcepackedCMDItem(portalgunMaterial, name, customModelData, lore);
+                PortalGuns.portalGun = new ResourcepackedCMDItem(portalgunMaterial, name, customModelData, lore);
             } else {
-                PortalGun.item = new ItemStack(portalgunMaterial);
-                ItemMeta meta = PortalGun.item.getItemMeta();
+                PortalGuns.portalGun = new ItemStack(portalgunMaterial);
+                ItemMeta meta = PortalGuns.portalGun.getItemMeta();
 
                 meta.setDisplayName(name);
                 meta.setLore(lore);
@@ -250,7 +254,7 @@ public enum Config {
                 meta.addEnchant(Enchantment.DURABILITY, 10, true); // we need an identifier
                 if (PortalGun.useResourcePack) PortalGun.plugin.printConsoleErrorMessage("The resourcepack won't work on 1.8!");
 
-                PortalGun.item.setItemMeta(meta);
+                PortalGuns.portalGun.setItemMeta(meta);
             }
         }
     }
@@ -297,6 +301,7 @@ public enum Config {
         c.put(Config.RESTARTER_PARTICLES.key, Config.getDefaultRestarterParticle());
         c.put(Config.TAKE_ENTITIES.key, true);
         c.put(Config.CAST_BEAM.key, true);
+        c.put(Config.SWIPE_COLORS.key, true);
         c.put(Config.TAKE_ENTITIES_BLACKLIST.key, getDefaultPickEntitiesBlacklist());
         c.put(Config.BLACKLISTED_WORLDS.key, new String[]{"my-safe-world"});
         c.put(Config.WG_REGIONS.key, new String[]{});

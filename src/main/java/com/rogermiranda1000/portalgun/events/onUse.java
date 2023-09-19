@@ -5,6 +5,7 @@ import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.blocks.ThermalReceivers;
 import com.rogermiranda1000.portalgun.files.Language;
+import com.rogermiranda1000.portalgun.items.PortalGuns;
 import com.rogermiranda1000.portalgun.portals.CeilingPortal;
 import com.rogermiranda1000.portalgun.portals.FloorPortal;
 import com.rogermiranda1000.portalgun.portals.Portal;
@@ -44,15 +45,12 @@ public class onUse implements Listener {
 
     @EventHandler
     public void onPlayerUse(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-
-        if (!VersionController.get().hasItemInHand(player, PortalGun.item)) return;
-        if(event.getAction().equals(Action.PHYSICAL)) return;
+        if (!PortalGuns.userUsedPortalGun(event)) return;
 
         event.setCancelled(true);
 
         boolean leftClick = (event.getAction().equals(Action.LEFT_CLICK_BLOCK) || event.getAction().equals(Action.LEFT_CLICK_AIR));
-        this.playerUsedPortalGun(player, leftClick);
+        this.playerUsedPortalGun(event.getPlayer(), leftClick);
     }
 
     public boolean playerUsedPortalGun(Player player, boolean leftClick) {

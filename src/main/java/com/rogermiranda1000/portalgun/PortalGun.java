@@ -16,6 +16,7 @@ import com.rogermiranda1000.portalgun.events.*;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.FileManager;
 import com.rogermiranda1000.portalgun.files.Language;
+import com.rogermiranda1000.portalgun.items.PortalGuns;
 import com.rogermiranda1000.portalgun.portals.CeilingPortal;
 import com.rogermiranda1000.portalgun.portals.FloorPortal;
 import com.rogermiranda1000.portalgun.portals.Portal;
@@ -37,7 +38,6 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
 
     public static String clearPrefix, errorPrefix;
     public static boolean useResourcePack, takeEntities;
-    public static ItemStack item;
     public static ItemStack botas;
     private static final int particleDelay = 2, pickedEntitiesDelay = 3;
     public static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
@@ -52,7 +52,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
     private BukkitTask pickEntitiesTask;
 
     public PortalGun() {
-        super(new onDead(), new onLeave(), new onMove(new onEmancipator()), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity(), new Cubes(), new ThermalReceiverGuard());
+        super(new onDead(), new onLeave(), new onMove(new onEmancipator()), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity(), new Cubes(), new ThermalReceiverGuard(), new PortalGuns());
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
         this.addCustomBlock(ThermalBeams.setInstance(new ThermalBeams(this)));

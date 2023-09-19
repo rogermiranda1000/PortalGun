@@ -1,6 +1,5 @@
 package com.rogermiranda1000.portalgun.items;
 
-import com.rogermiranda1000.versioncontroller.VersionController;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -27,12 +26,4 @@ public abstract class ResourcepackedItem extends ItemStack {
     }
 
     public abstract int getIdentifier();
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == this) return true;
-
-        if (!(o instanceof ItemStack)) return false;
-        return VersionController.get().sameItem(this, (ItemStack) o);
-    }
 }

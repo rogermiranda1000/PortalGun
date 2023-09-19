@@ -12,7 +12,7 @@ public class ResourcepackedDamagedItem extends ResourcepackedItem {
         super(mat, name, lore);
 
         VersionController.get().setUnbreakable(this);
-        VersionController.get().setDurability(PortalGun.item, damage);
+        VersionController.get().setDurability(this, damage);
         //meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
     }
 
