@@ -8,5 +8,6 @@ import org.jetbrains.annotations.NotNull;
 public interface Decorator {
     void decorate(Location location, Vector facing);
     boolean isDecorate(@NotNull Entity e);
+    boolean isDecorated();
     void destroy();
 }

@@ -104,6 +104,7 @@ public class Beam {
             }
         }
 
+        // TODO we may have synchronization problems, as ThermalReceiver swaps decorates and this is being run on a different thread
         Entity collidingWith = nextLocation.getWorld().getNearbyEntities(nextLocation, 0.25f, 1f, 0.25f)
                 .stream().filter(e -> !ThermalReceivers.getInstance().isDecorate(e) && !ThermalBeams.getInstance().isDecorate(e)).findFirst().orElse(null);
         RedirectionCube redirectionCube = null;
@@ -157,7 +158,7 @@ public class Beam {
         }
     }
 
-    private static Vector yawToVector(float yaw) {
+    public static Vector yawToVector(float yaw) {
         // A value of 0 means south, 90 west, ±180 north, and -90 east.
         // Convert yaw to radians
         double yawRadians = Math.toRadians(yaw);
@@ -167,6 +168,24 @@ public class Beam {
         double z = Math.cos(yawRadians);
 
         return new Vector(x,0,z);
+    }
+
+    public static float vectorToYaw(Vector v) {
+        // Calculate the yaw angle in radians
+        double yawRadians = Math.atan2(-v.getX(), v.getZ());
+
+        // Convert radians to degrees and adjust for Minecraft's yaw convention
+        float yaw = (float) Math.toDegrees(yawRadians);
+
+        // Ensure the yaw value is within the range of -180 to 180
+        while (yaw > 180) {
+            yaw -= 360;
+        }
+        while (yaw <= -180) {
+            yaw += 360;
+        }
+
+        return yaw;
     }
 
     public void playParticles() {

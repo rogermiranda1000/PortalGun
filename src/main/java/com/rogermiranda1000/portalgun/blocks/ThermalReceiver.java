@@ -28,11 +28,12 @@ public class ThermalReceiver {
         this.direction = direction;
         this.poweredBy = 0;
         this.block = VersionController.get().getObject(location.getBlock());
-
-        this.decorate = ThermalReceiver.decoratorFactory.getDecorator();
     }
 
     public void decorate() {
+        if (this.decorate != null && this.decorate.isDecorated()) this.decorate.destroy();
+
+        this.decorate = (this.poweredBy > 0 ? ThermalReceiver.poweredDecoratorFactory.getDecorator() : ThermalReceiver.decoratorFactory.getDecorator());
         this.decorate.decorate(this.location, this.direction);
     }
 
@@ -48,12 +49,7 @@ public class ThermalReceiver {
         this.poweredBy++;
 
         this.location.getBlock().setType(Material.REDSTONE_BLOCK);
-
-        if (this.decorate != null) {
-            this.destroy();
-            this.decorate = ThermalReceiver.poweredDecoratorFactory.getDecorator();
-            this.decorate();
-        }
+        if (this.decorate.isDecorated()) this.decorate();
     }
 
     public void unpower() {
@@ -61,12 +57,7 @@ public class ThermalReceiver {
 
         if (this.poweredBy <= 0) {
             this.block.setType(this.location.getBlock());
-
-            if (this.decorate != null) {
-                this.destroy();
-                this.decorate = ThermalReceiver.decoratorFactory.getDecorator();
-                this.decorate();
-            }
+            if (this.decorate.isDecorated()) this.decorate();
         }
     }
 

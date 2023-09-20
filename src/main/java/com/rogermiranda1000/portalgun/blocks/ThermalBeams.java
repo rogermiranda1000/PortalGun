@@ -86,8 +86,8 @@ public class ThermalBeams extends CustomBlock<ThermalBeam> {
     }
 
     @Override
-    public boolean onCustomBlockBreak(BlockBreakEvent blockBreakEvent, ThermalBeam thermalReceiver) {
-        thermalReceiver.destroy();
+    public boolean onCustomBlockBreak(BlockBreakEvent blockBreakEvent, ThermalBeam thermalBeam) {
+        thermalBeam.destroy();
         return false;
     }
 
