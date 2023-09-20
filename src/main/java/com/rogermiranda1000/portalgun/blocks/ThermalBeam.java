@@ -3,31 +3,49 @@ package com.rogermiranda1000.portalgun.blocks;
 import com.rogermiranda1000.portalgun.blocks.beam.Beam;
 import com.rogermiranda1000.portalgun.blocks.beam.BeamDisruptedEvent;
 import com.rogermiranda1000.portalgun.blocks.beam.CachedBeamDisruptedEvent;
+import com.rogermiranda1000.portalgun.blocks.decorators.Decorator;
+import com.rogermiranda1000.portalgun.blocks.decorators.DecoratorFactory;
+import com.rogermiranda1000.portalgun.blocks.decorators.NoDecorator;
 import com.rogermiranda1000.portalgun.cubes.Cubes;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ThermalBeam implements BeamDisruptedEvent {
+    public static DecoratorFactory<?> decoratorFactory = new DecoratorFactory<>(NoDecorator.class);
 
     private final Location location;
     private final Vector direction;
     private final Beam beam;
     @Nullable public ThermalReceiver powering;
+    private Decorator decorate;
 
     public ThermalBeam(Location location, Vector direction) {
         this.location = location;
         this.direction = direction;
 
+        this.decorate = ThermalBeam.decoratorFactory.getDecorator();
         this.beam = new Beam(new Location(
                 this.location.getWorld(),
                 this.location.getBlockX() + 0.5f + direction.getX()/2,
                 this.location.getBlockY() + 0.5f,
                 this.location.getBlockZ() + 0.5f + direction.getZ()/2
         ), this.direction, new CachedBeamDisruptedEvent(this));
+    }
+
+    public void decorate() {
+        this.decorate.decorate(this.location, this.direction);
+    }
+
+    public boolean isDecorate(@NotNull Entity e) {
+        return this.decorate.isDecorate(e);
+    }
+
+    public void destroy() {
+        this.decorate.destroy();
     }
 
     @Override
