@@ -1,6 +1,7 @@
 package com.rogermiranda1000.portalgun.events;
 
 import com.rogermiranda1000.portalgun.PortalGun;
+import com.rogermiranda1000.portalgun.items.PortalGuns;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import org.bukkit.Bukkit;
@@ -12,20 +13,20 @@ public class onPlayerJoin implements Listener {
     /**
      * Given a GET argument 'tool', 'damage'/'custom_model_data' and the pack_format 'format', it generates a resourcepack
      */
-    private static final String RESOURCEPACK_BASE_URL = "http://rogermiranda1000.com/portalgun/index.php"; // TODO custom URL
+    private static final String RESOURCEPACK_BASE_URL = "http://rogermiranda1000.com/portalgun-v2/index.php"; // TODO add endpoint to config file
 
     private static String getUrl() {
         String identifierKey = null, identifierValue = "";
         if (VersionController.version.compareTo(Version.MC_1_14) >= 0) {
             identifierKey = "custom_model_data";
-            identifierValue = String.valueOf(PortalGun.item.getItemMeta().getCustomModelData());
+            identifierValue = String.valueOf(PortalGuns.portalGun.getItemMeta().getCustomModelData());
         }
         else if (VersionController.version.compareTo(Version.MC_1_9) >= 0) {
             identifierKey = "damage";
-            identifierValue = String.valueOf(((float)VersionController.get().getDurability(PortalGun.item)) / PortalGun.item.getType().getMaxDurability());
+            identifierValue = String.valueOf(VersionController.get().getDurability(PortalGuns.portalGun));
         }
 
-        return RESOURCEPACK_BASE_URL + "?tool=" + PortalGun.item.getType().name() + "&format=" + getPackFormat() +
+        return RESOURCEPACK_BASE_URL + "?tool=" + PortalGuns.portalGun.getType().name() + "&format=" + getPackFormat() +
                 ((identifierKey == null) ? "" : ("&" + identifierKey + "=" + identifierValue));
     }
 

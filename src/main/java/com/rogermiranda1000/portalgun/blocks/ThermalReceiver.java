@@ -1,25 +1,25 @@
 package com.rogermiranda1000.portalgun.blocks;
 
-import com.rogermiranda1000.portalgun.cubes.Cube;
-import com.rogermiranda1000.versioncontroller.Version;
+import com.rogermiranda1000.portalgun.blocks.decorators.Decorator;
+import com.rogermiranda1000.portalgun.blocks.decorators.DecoratorFactory;
+import com.rogermiranda1000.portalgun.blocks.decorators.LegacyThermalReceiverDecorator;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.blocks.BlockType;
-import com.rogermiranda1000.versioncontroller.entities.EntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 public class ThermalReceiver {
+    public static DecoratorFactory<?> decoratorFactory = new DecoratorFactory<>(LegacyThermalReceiverDecorator.class);
+    public static DecoratorFactory<?> poweredDecoratorFactory = new DecoratorFactory<>(LegacyThermalReceiverDecorator.class);
+
     private final Location location;
     private final Vector direction;
     private BlockType block;
     private int poweredBy;
-    private ArmorStand decorate;
+    private Decorator decorate;
 
     public ThermalReceiver(Location location, Vector direction) {
         //if (!direction.isNormalized()) throw new IllegalArgumentException("Direction must be unitary");
@@ -31,42 +31,39 @@ public class ThermalReceiver {
     }
 
     public void decorate() {
-        if (this.decorate != null) this.destroy();
+        if (this.decorate != null && this.decorate.isDecorated()) this.decorate.destroy();
 
-        Location spawnAt = new Location(
-                this.location.getWorld(),
-                this.location.getBlockX() + 0.5f + direction.getX()/4,
-                this.location.getBlockY() + Cube.ARMORSTAND_VERTICAL_OFFSET + 0.1,
-                this.location.getBlockZ() + 0.5f + direction.getZ()/4
-        );
-        this.decorate = (ArmorStand)spawnAt.getWorld().spawnEntity(spawnAt, EntityType.ARMOR_STAND);
-        new EntityWrapper(this.decorate).disableGravity();
-        this.decorate.setVisible(false);
-        this.decorate.setHelmet(new ItemStack(Material.GLASS)); // TODO custom texture
+        this.decorate = (this.poweredBy > 0 ? ThermalReceiver.poweredDecoratorFactory.getDecorator() : ThermalReceiver.decoratorFactory.getDecorator());
+        this.decorate.decorate(this.location, this.direction);
     }
 
     public boolean isDecorate(@NotNull Entity e) {
-        return e.equals(this.decorate);
+        return this.decorate.isDecorate(e);
     }
 
     public void destroy() {
-        if (this.decorate == null) return;
-        this.decorate.remove();
+        this.decorate.destroy();
     }
 
     public void power() {
         this.poweredBy++;
+
         this.location.getBlock().setType(Material.REDSTONE_BLOCK);
+        if (this.decorate.isDecorated()) this.decorate();
     }
 
     public void unpower() {
         this.poweredBy--;
-        if (this.poweredBy <= 0) this.block.setType(this.location.getBlock());
+
+        if (this.poweredBy <= 0) {
+            this.block.setType(this.location.getBlock());
+            if (this.decorate.isDecorated()) this.decorate();
+        }
     }
 
     public void forceUnpower() {
-        this.poweredBy = 0;
-        this.block.setType(this.location.getBlock());
+        this.poweredBy = 1; // -- will cause it to be 0
+        this.unpower();
     }
 
     public Location getPosition() {
