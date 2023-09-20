@@ -7,11 +7,8 @@ import com.rogermiranda1000.helper.RogerPlugin;
 import com.rogermiranda1000.helper.SentryScheduler;
 import com.rogermiranda1000.helper.worldguard.RegionDelimiter;
 import com.rogermiranda1000.portalgun.api.PortalGunAccessibleMethods;
-import com.rogermiranda1000.portalgun.blocks.ThermalBeams;
-import com.rogermiranda1000.portalgun.blocks.ThermalReceiverGuard;
-import com.rogermiranda1000.portalgun.blocks.ThermalReceivers;
+import com.rogermiranda1000.portalgun.blocks.*;
 import com.rogermiranda1000.portalgun.cubes.Cubes;
-import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.events.*;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.FileManager;
@@ -52,7 +49,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
     private BukkitTask pickEntitiesTask;
 
     public PortalGun() {
-        super(new onDead(), new onLeave(), new onMove(new onEmancipator()), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity(), new Cubes(), new ThermalReceiverGuard(), new PortalGuns());
+        super(new onDead(), new onLeave(), new onMove(new onEmancipator()), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity(), new Cubes(), new ThermalReceiverGuard(), new ThermalBeamsGuard(), new PortalGuns());
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
         this.addCustomBlock(ThermalBeams.setInstance(new ThermalBeams(this)));
@@ -248,6 +245,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         onPortalgunEntity.clear();
         Cubes.clear(); // TODO option to keep saved
         ThermalReceivers.getInstance().destroyAll(); // un-decorate
+        ThermalBeams.getInstance().destroyAll(); // un-decorate
 
         // as we read the stair value to get the direction, and we set all the powered blocks to
         // redstone, if they get saved they will lose their direction; power them off before closing

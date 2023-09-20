@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -19,6 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 public class ThermalBeams extends CustomBlock<ThermalBeam> {
@@ -73,9 +75,20 @@ public class ThermalBeams extends CustomBlock<ThermalBeam> {
         return new ThermalBeam(blockPlaceEvent.getBlock().getLocation(), facing);
     }
 
+    public boolean isDecorate(final Entity entity) {
+        final AtomicBoolean matches = new AtomicBoolean(false);
+        this.getAllBlocks(e -> matches.set(e.getKey().isDecorate(entity) || matches.get()));
+        return matches.get();
+    }
+
     @Override
-    public boolean onCustomBlockBreak(BlockBreakEvent blockBreakEvent, ThermalBeam thermalBeam) {
+    public boolean onCustomBlockBreak(BlockBreakEvent blockBreakEvent, ThermalBeam thermalReceiver) {
+        thermalReceiver.destroy();
         return false;
+    }
+
+    public void destroyAll() {
+        this.getAllBlocks(e -> e.getKey().destroy());
     }
 
     public void playAllParticles() {

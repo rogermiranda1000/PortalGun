@@ -45,7 +45,6 @@ public class PortalGuns implements Listener {
         ResourcepackedItem targetGun = (currentClick.equals(Action.LEFT_CLICK_AIR) ? PortalGuns.orangePortalGun : PortalGuns.bluePortalGun);
         if (targetGun == null) return; // can't update
 
-        // TODO replace user's PortalGun
         VCPlayer player = new VCPlayer(event.getPlayer());
         ItemStack []handItems = player.getItemInHand();
         ArrayList<Integer> handsIndexesHoldingPortalGun = new ArrayList<>();

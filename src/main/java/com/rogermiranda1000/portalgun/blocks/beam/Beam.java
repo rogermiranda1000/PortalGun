@@ -1,5 +1,6 @@
 package com.rogermiranda1000.portalgun.blocks.beam;
 
+import com.rogermiranda1000.portalgun.blocks.ThermalBeams;
 import com.rogermiranda1000.portalgun.blocks.ThermalReceivers;
 import com.rogermiranda1000.portalgun.cubes.Cubes;
 import com.rogermiranda1000.portalgun.cubes.RedirectionCube;
@@ -104,7 +105,7 @@ public class Beam {
         }
 
         Entity collidingWith = nextLocation.getWorld().getNearbyEntities(nextLocation, 0.25f, 1f, 0.25f)
-                .stream().filter(e -> !ThermalReceivers.getInstance().isDecorate(e)).findFirst().orElse(null);
+                .stream().filter(e -> !ThermalReceivers.getInstance().isDecorate(e) && !ThermalBeams.getInstance().isDecorate(e)).findFirst().orElse(null);
         RedirectionCube redirectionCube = null;
         if (collidingWith != null && (redirectionCube = Cubes.getCube(collidingWith, RedirectionCube.class)) == null) {
             if (callback != null) callback.onBeamDisrupted(collidingWith, nextLocation);
