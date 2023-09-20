@@ -3,7 +3,10 @@ package com.rogermiranda1000.portalgun.files;
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.blocks.ResetBlock;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
+import com.rogermiranda1000.portalgun.blocks.ThermalBeam;
+import com.rogermiranda1000.portalgun.blocks.ThermalReceiver;
 import com.rogermiranda1000.portalgun.blocks.beam.Beam;
+import com.rogermiranda1000.portalgun.blocks.decorators.*;
 import com.rogermiranda1000.portalgun.cubes.CompanionCube;
 import com.rogermiranda1000.portalgun.cubes.RedirectionCube;
 import com.rogermiranda1000.portalgun.events.onPortalgunEntity;
@@ -132,6 +135,14 @@ public enum Config {
 
                 CompanionCube.TEXTURE = ResourcepackedItemFactory.createItem(portalgunMaterial, "Weighted Cube", portalgun.getIdentifier()+6);
                 RedirectionCube.TEXTURE = ResourcepackedItemFactory.createItem(portalgunMaterial, "Redirection Cube", portalgun.getIdentifier()+8);
+
+                ThermalReceiverDecorator.THERMAL_RECEIVER = ResourcepackedItemFactory.createItem(portalgunMaterial, "Thermal Receiver", portalgun.getIdentifier()+3);
+                PoweredThermalReceiverDecorator.ACTIVE_THERMAL_RECEIVER = ResourcepackedItemFactory.createItem(portalgunMaterial, "Thermal Receiver", portalgun.getIdentifier()+4);
+                ThermalReceiver.decoratorFactory = new DecoratorFactory<>(ThermalReceiverDecorator.class);
+                ThermalReceiver.poweredDecoratorFactory = new DecoratorFactory<>(PoweredThermalReceiverDecorator.class);
+
+                ThermalBeamDecorator.THERMAL_BEAM = ResourcepackedItemFactory.createItem(portalgunMaterial, "Thermal Beam", portalgun.getIdentifier()+5);
+                ThermalBeam.decoratorFactory = new DecoratorFactory<>(ThermalBeamDecorator.class);
             }
 
             Language.loadHashMap(Config.fileConfiguration.getString(LANGUAGE.key));

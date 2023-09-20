@@ -27,6 +27,7 @@ public class ThermalBeam implements BeamDisruptedEvent {
         this.location = location;
         this.direction = direction;
 
+        this.decorate = ThermalBeam.decoratorFactory.getDecorator();
         this.beam = new Beam(new Location(
                 this.location.getWorld(),
                 this.location.getBlockX() + 0.5f + direction.getX()/2,

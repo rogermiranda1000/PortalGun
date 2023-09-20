@@ -41,7 +41,9 @@ public class ThermalBeams extends CustomBlock<ThermalBeam> {
                     Block block = loc.getWorld().getBlockAt(loc);
                     facing = DirectionGetter.getDirection(block).getFacingVector();
                 } catch (IllegalArgumentException | NullPointerException ignore) {}
-                return new ThermalBeam(loc, facing);
+                ThermalBeam thermalBeam = new ThermalBeam(loc, facing);
+                thermalBeam.decorate();
+                return thermalBeam;
             };
         }
 
@@ -72,7 +74,9 @@ public class ThermalBeams extends CustomBlock<ThermalBeam> {
         try {
             facing = DirectionGetter.getDirection(blockPlaceEvent.getBlock()).getFacingVector();
         } catch (IllegalArgumentException ignore) {}
-        return new ThermalBeam(blockPlaceEvent.getBlock().getLocation(), facing);
+        ThermalBeam thermalBeam = new ThermalBeam(blockPlaceEvent.getBlock().getLocation(), facing);
+        thermalBeam.decorate();
+        return thermalBeam;
     }
 
     public boolean isDecorate(final Entity entity) {

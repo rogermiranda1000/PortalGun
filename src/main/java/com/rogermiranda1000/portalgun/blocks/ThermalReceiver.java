@@ -2,7 +2,7 @@ package com.rogermiranda1000.portalgun.blocks;
 
 import com.rogermiranda1000.portalgun.blocks.decorators.Decorator;
 import com.rogermiranda1000.portalgun.blocks.decorators.DecoratorFactory;
-import com.rogermiranda1000.portalgun.blocks.decorators.LegacyReceiver;
+import com.rogermiranda1000.portalgun.blocks.decorators.LegacyThermalReceiverDecorator;
 import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.blocks.BlockType;
 import org.bukkit.Location;
@@ -12,7 +12,8 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 public class ThermalReceiver {
-    public static DecoratorFactory<?> decoratorFactory = new DecoratorFactory<>(LegacyReceiver.class);
+    public static DecoratorFactory<?> decoratorFactory = new DecoratorFactory<>(LegacyThermalReceiverDecorator.class);
+    public static DecoratorFactory<?> poweredDecoratorFactory = new DecoratorFactory<>(LegacyThermalReceiverDecorator.class);
 
     private final Location location;
     private final Vector direction;
@@ -45,17 +46,33 @@ public class ThermalReceiver {
 
     public void power() {
         this.poweredBy++;
+
         this.location.getBlock().setType(Material.REDSTONE_BLOCK);
+
+        if (this.decorate != null) {
+            this.destroy();
+            this.decorate = ThermalReceiver.poweredDecoratorFactory.getDecorator();
+            this.decorate();
+        }
     }
 
     public void unpower() {
         this.poweredBy--;
-        if (this.poweredBy <= 0) this.block.setType(this.location.getBlock());
+
+        if (this.poweredBy <= 0) {
+            this.block.setType(this.location.getBlock());
+
+            if (this.decorate != null) {
+                this.destroy();
+                this.decorate = ThermalReceiver.decoratorFactory.getDecorator();
+                this.decorate();
+            }
+        }
     }
 
     public void forceUnpower() {
-        this.poweredBy = 0;
-        this.block.setType(this.location.getBlock());
+        this.poweredBy = 1; // -- will cause it to be 0
+        this.unpower();
     }
 
     public Location getPosition() {
