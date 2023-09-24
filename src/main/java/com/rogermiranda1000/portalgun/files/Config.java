@@ -79,7 +79,9 @@ public class Config {
 
         @Comment("WorldGuard regions where portals aren't allowed.")
         public List<String> deniedWorldguardRegions = new ArrayList<>();
-    } public _Portals portals = new _Portals();
+    }
+    @Comment("")
+    public _Portals portals = new _Portals();
 
     @Configuration
     public static class _Beam {
@@ -88,7 +90,9 @@ public class Config {
 
         @Comment("Particle to be used for the Thermal Discouragement Beam")
         public String particle = "FLAME";
-    } public _Beam beam = new _Beam();
+    }
+    @Comment("")
+    public _Beam beam = new _Beam();
 
     @Configuration
     public static class _Prefix {
@@ -97,12 +101,16 @@ public class Config {
 
         @Comment("Prefix to be added on every PortalGun error message")
         public String error = "§6§l[PortalGun] §c";
-    } public _Prefix prefix = new _Prefix();
+    }
+    @Comment("")
+    public _Prefix prefix = new _Prefix();
 
     @Configuration
     public static class _Emancipator {
         public String particles = Config.getDefaultRestarterParticle();
-    } public _Emancipator emancipator = new _Emancipator();
+    }
+    @Comment("")
+    public _Emancipator emancipator = new _Emancipator();
 
     @Configuration
     public static class _PortalGun {
@@ -131,13 +139,17 @@ public class Config {
         }
         @Comment("All the configuration related to right-clicking entities.")
         public _TakeEntities takeEntities = new _TakeEntities();
-    } public _PortalGun portalgun = new _PortalGun();
+    }
+    @Comment("")
+    public _PortalGun portalgun = new _PortalGun();
 
     @Configuration
     public static class _TeleportEntities {
         @Comment("Denied entities to be teleported.")
         public List<String> blacklist = Config.getDefaultTeleportEntitiesBlacklist();
-    } public _TeleportEntities teleportEntities = new _TeleportEntities();
+    }
+    @Comment("")
+    public _TeleportEntities teleportEntities = new _TeleportEntities();
 
     @Polymorphic
     @Configuration
@@ -156,6 +168,7 @@ public class Config {
         @Comment("Base Durability used for the 3d models.")
         public int durability = 1;
     }
+    @Comment({"", "Resourcepack-related configuration.", "DO NOT edit the 'type' field."})
     public _Resourcepack resourcepack = (VersionController.version.compareTo(Version.MC_1_14) >= 0) ? new _CMDResourcepack() : new _DurabilityResourcepack();
 
     /**
