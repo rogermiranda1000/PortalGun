@@ -14,7 +14,7 @@ public class FileManager {
         Language.languagePath = new File(FileManager.pluginFolder + File.separator + "languages");
         Language.checkAndCreate();
 
-        Config.checkAndCreate();
+        Config.createAndLoad();
         Config.loadConfig();
     }
 }

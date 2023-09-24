@@ -89,7 +89,7 @@ public abstract class Portal {
     private static void spawnParticle(Location loc, ParticleEntity particle, Player owner) {
         if (loc == null) return;
 
-        if(!Config.ONLY_YOUR_PORTALS.getBoolean()) particle.playParticle(loc.getWorld(), loc);
+        if(!Config.getInstance().portals.useOnlyYours) particle.playParticle(loc.getWorld(), loc);
         else {
             for(Player ply: Bukkit.getOnlinePlayers()) {
                 if(ply.hasPermission("portalgun.overrideotherportals") || ply.equals(owner)) particle.playParticle(ply, loc);

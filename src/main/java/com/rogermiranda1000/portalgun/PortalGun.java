@@ -98,7 +98,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         ResetBlocks.getInstance().updateAllBlocks(); // @pre super.onEnable()
 
         // Load portals
-        if (Config.PERSISTENT.getBoolean()) {
+        if (Config.getInstance().portals.save) {
             getLogger().info("Loading portals...");
             File file = new File(getDataFolder(), "portals.yml");
             if(file.exists()) {
@@ -252,7 +252,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         ThermalBeams.getInstance().removeAllBlocksArtificially(); // as they may re-activate the block again, disable them first
         ThermalReceivers.getInstance().unpowerAll();
 
-        if (Config.PERSISTENT.getBoolean()) {
+        if (Config.getInstance().portals.save) {
             getLogger().info("Saving portals...");
             File file = new File(getDataFolder(), "portals.yml");
             BufferedWriter bw = null;
