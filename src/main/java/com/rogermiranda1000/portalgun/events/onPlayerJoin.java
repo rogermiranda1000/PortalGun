@@ -10,10 +10,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 public class onPlayerJoin implements Listener {
+    private static String PROVIDED = "PROVIDED";
+
     /**
      * Given a GET argument 'tool', 'damage'/'custom_model_data' and the pack_format 'format', it generates a resourcepack
      */
-    private static final String RESOURCEPACK_BASE_URL = "http://rogermiranda1000.com/portalgun-v2/index.php"; // TODO add endpoint to config file
+    public static String RESOURCEPACK_BASE_URL = "http://rogermiranda1000.com/portalgun-v2/index.php";
 
     private static String getUrl() {
         String identifierKey = null, identifierValue = "";
@@ -44,6 +46,7 @@ public class onPlayerJoin implements Listener {
      * 12       1.19.3
      * 13       1.19.4
      * 15       1.20-1.20.1
+     * 18       1.20.2
      * @author <a href="https://minecraft.fandom.com/wiki/Pack_format">Minecraft pack_format</a>
      * @return pack_format
      */
@@ -59,12 +62,14 @@ public class onPlayerJoin implements Listener {
         else if (VersionController.version.compareTo(Version.MC_1_19_3) < 0) return 9; // between 1.19 and 1.19.2
         else if (VersionController.version.compareTo(Version.MC_1_19_4) < 0) return 12; // 1.19.3
         else if (VersionController.version.compareTo(Version.MC_1_20) < 0) return 13; // 1.19.4
-        else return 15; // Version >= 1.20
+        else if (VersionController.version.compareTo(new Version(1,20,2)) < 0) return 15; // between 1.20 and 1.20.1
+        else return 18; // Version >= 1.20.2
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         if (!PortalGun.useResourcePack) return;
+        if (RESOURCEPACK_BASE_URL.toUpperCase().equals(PROVIDED)) return; // already managed by the server
         Bukkit.getScheduler().runTaskLater(PortalGun.plugin, ()->e.getPlayer().setResourcePack(getUrl()), 20L);
     }
 }

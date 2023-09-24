@@ -52,7 +52,8 @@ public enum Language {
      * @return the input's translation
      */
     public String getText() {
-        return Language.translations.get(this);
+        if (Language.translations == null) return "null"; // failed to load the config file
+        return String.valueOf(Language.translations.get(this)); // if null, return "null"
     }
 
     /**

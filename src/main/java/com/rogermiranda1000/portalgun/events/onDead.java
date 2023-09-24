@@ -13,7 +13,7 @@ public class onDead implements Listener {
     @EventHandler
     public void onDead(PlayerDeathEvent e) {
         Player p = (Player)e.getEntity();
-        if(!Config.DELETE_ON_DEATH.getBoolean()) return;
+        if(!Config.getInstance().portals.removeOnDeath) return;
 
         if(Portal.removePortal(p)) p.sendMessage(PortalGun.plugin.getErrorPrefix() + Language.USER_DEATH.getText());
     }
