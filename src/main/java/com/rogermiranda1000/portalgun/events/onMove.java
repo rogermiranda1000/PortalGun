@@ -5,7 +5,6 @@ import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
-import com.rogermiranda1000.versioncontroller.VersionController;
 
 import com.rogermiranda1000.versioncontroller.entities.EntityWrapper;
 import org.bukkit.Location;
@@ -41,7 +40,7 @@ public class onMove implements Listener {
         Portal portal = Portal.getPortal(loc);
         if (portal == null) return;
 
-        if (Config.ONLY_YOUR_PORTALS.getBoolean() && !player.equals(portal.getOwner())) return;
+        if (Config.getInstance().portals.useOnlyYours && !player.equals(portal.getOwner())) return;
 
         Location destiny = portal.getDestiny(portal.getLocationIndex(loc));
         // TODO: player velocity??
@@ -64,7 +63,7 @@ public class onMove implements Listener {
             synchronized (PortalGun.teleportedEntities) {
                 PortalGun.teleportedEntities.put(player, destiny);
             }
-            player.playSound(player.getLocation(), Config.TELEPORT_SOUND.getSound(), 3.0F, 0.5F);
+            player.playSound(player.getLocation(), Config.getInstance().portals.teleportSound, 3.0F, 0.5F);
         }
     }
 }

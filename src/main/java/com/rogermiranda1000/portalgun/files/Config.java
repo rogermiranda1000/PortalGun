@@ -1,14 +1,19 @@
 package com.rogermiranda1000.portalgun.files;
 
+import com.rogermiranda1000.helper.configlib.*;
 import com.rogermiranda1000.portalgun.PortalGun;
 import com.rogermiranda1000.portalgun.blocks.ResetBlock;
 import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.blocks.ThermalBeam;
 import com.rogermiranda1000.portalgun.blocks.ThermalReceiver;
 import com.rogermiranda1000.portalgun.blocks.beam.Beam;
-import com.rogermiranda1000.portalgun.blocks.decorators.*;
+import com.rogermiranda1000.portalgun.blocks.decorators.DecoratorFactory;
+import com.rogermiranda1000.portalgun.blocks.decorators.PoweredThermalReceiverDecorator;
+import com.rogermiranda1000.portalgun.blocks.decorators.ThermalBeamDecorator;
+import com.rogermiranda1000.portalgun.blocks.decorators.ThermalReceiverDecorator;
 import com.rogermiranda1000.portalgun.cubes.CompanionCube;
 import com.rogermiranda1000.portalgun.cubes.RedirectionCube;
+import com.rogermiranda1000.portalgun.events.onPlayerJoin;
 import com.rogermiranda1000.portalgun.events.onPortalgunEntity;
 import com.rogermiranda1000.portalgun.events.onUse;
 import com.rogermiranda1000.portalgun.items.*;
@@ -18,115 +23,168 @@ import com.rogermiranda1000.versioncontroller.VersionController;
 import com.rogermiranda1000.versioncontroller.blocks.BlockType;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
-public enum Config {
-    LANGUAGE("language"),
-    CLEAR_PREFIX("prefix.clear"),
-    ERROR_PREFIX("prefix.error"),
-    RESOURCEPACK("resourcepack.use"),
-    PORTALGUN_NAME("portalgun.name"),
-    PORTALGUN_LORE("portalgun.lore"),
-    MATERIAL("portalgun.material"),
-    CUSTOM_MODEL_DATA("portalgun.custom_model_data"),
-    DURABILITY("portalgun.durability"),
-    CAST_BEAM("portalgun.cast_beam"),
-    SWIPE_COLORS("portalgun.swipe_colors_animation"),
-    DELETE_ON_DEATH("portals.remove_on_death"),
-    REMOVE_ON_LEAVE("portals.remove_on_leave"),
-    MAX_LENGTH("portals.placement_length"),
-    WHITELIST_BLOCKS("portals.whitelist_blocks"),
-    WHITELISTED_BLOCKS("portals.whitelisted_blocks"),
-    ONLY_YOUR_PORTALS("portals.use_only_yours"),
-    PERSISTENT("portals.save"),
-    PARTICLES("portals.particles"),
-    CREATE_SOUND("portals.create_sound"),
-    TELEPORT_SOUND("portals.teleport_sound"),
-    RESTARTER_PARTICLES("emancipator.particles"),
-    TAKE_ENTITIES("portalgun.take_entities.enabled"),
-    TAKE_ENTITIES_BLACKLIST("portalgun.take_entities.blacklist"),
-    BLACKLISTED_WORLDS("portals.blacklisted_worlds"),
-    WG_REGIONS("portals.only_allowed_worldguard_regions"),
-    BLACKLIST_WG_REGIONS("portals.denied_worldguard_regions"),
-    TELEPORT_ENTITIES_BLACKLIST("portalgun.teleport_entities.blacklist"),
-    BEAM_MAX_LENGTH("beam.max_length"),
-    BEAM_PARTICLE("beam.particle");
+@Configuration
+public class Config {
+    @Ignore
+    private static Config instance = null;
 
-    private static FileConfiguration fileConfiguration;
-    private static HashMap<Config, Object> savedConfiguration;
-    private final String key;
+    @Comment({"Language to be used.", "You can find all the languages in the 'languages' folder,", "you can also add new ones."})
+    public String language = "english";
 
-    Config(String key) {
-        this.key = key;
-    }
+    @Configuration
+    public static class _Portals {
+        @Comment("Should the portals be persistent between server restarts?")
+        public boolean save = false;
 
-    public Object getObject() {
-        Object r = Config.savedConfiguration.get(this);
+        @Comment("Should users only be allowed to use their own portals?")
+        public boolean useOnlyYours = false;
 
-        // first time
-        if (r == null) {
-            r = Config.fileConfiguration.get(this.key);
-            Config.savedConfiguration.put(this, r);
+        @Comment("Remove users' portals when they die.")
+        public boolean removeOnDeath = false;
+
+        @Comment("Remove users' portals when they leave the server.")
+        public boolean removeOnLeave = true;
+
+        @Comment("Sound to be used when placing a portal.")
+        public Sound createSound = Sound.valueOf(Config.getDefaultCreateSound());
+
+        @Comment("Sound to be used when using a portal.")
+        public Sound teleportSound = Sound.valueOf(Config.getDefaultTeleportSound());
+        @Comment("Max distance where a player can place a portal.")
+        public float placementLength = 80;
+
+        @Comment("Portal particles.")
+        public List<String> particles = Config.getDefaultParticles();
+
+        @Comment("Use the 'whitelistedBlocks' list.")
+        public boolean whitelistBlocks = false;
+        @Comment("List of blocks where the user will be able to place portals.")
+        public List<String> whitelistedBlocks = Config.getDefaultBlocks();
+
+        @Comment("Worlds where portals aren't allowed.")
+        public List<String> blacklistedWorlds = Arrays.asList("my-safe-world");
+
+        @Comment({"WorldGuard regions where portals can be opened.", "Warning: this will prevent opening portals in every other place except this WG regions."})
+        public List<String> onlyAllowedWorldguardRegions = new ArrayList<>();
+
+        @Comment("WorldGuard regions where portals aren't allowed.")
+        public List<String> deniedWorldguardRegions = new ArrayList<>();
+    } public _Portals portals = new _Portals();
+
+    @Configuration
+    public static class _Beam {
+        @Comment({"Max distance where a beam is propagated.", "Warning: large numbers may cause lag."})
+        public float maxLength = 45;
+
+        @Comment("Particle to be used for the Thermal Discouragement Beam")
+        public String particle = "FLAME";
+    } public _Beam beam = new _Beam();
+
+    @Configuration
+    public static class _Prefix {
+        @Comment("Prefix to be added on every PortalGun message")
+        public String clear = "§6§l[PortalGun] §a";
+
+        @Comment("Prefix to be added on every PortalGun error message")
+        public String error = "§6§l[PortalGun] §c";
+    } public _Prefix prefix = new _Prefix();
+
+    @Configuration
+    public static class _Emancipator {
+        public String particles = Config.getDefaultRestarterParticle();
+    } public _Emancipator emancipator = new _Emancipator();
+
+    @Configuration
+    public static class _PortalGun {
+        @Comment("PortalGun's material name")
+        public String name = "§6§lPortalGun";
+
+        @Comment("PortalGun's material info")
+        public List<String> lore = Arrays.asList("With the PortalGun you can open portals.");
+
+        @Comment("Material to be used for the PortalGun")
+        public Material material = Material.getMaterial("IRON_HOE");
+
+        @Comment("Show a particle trail where the portal is being launched.")
+        public boolean castBeam = true;
+
+        @Comment({"Change the PortalGun colors depending on the last pressed key.", "Note: you need to have the 'resourcepack.use' option enabled."})
+        public boolean swipeColorsAnimation = true;
+
+        @Configuration
+        public static class _TakeEntities {
+            @Comment("Allows the users to take entities.")
+            public boolean enabled = true;
+
+            @Comment("Denied entities to be grabbed.")
+            public List<String> blacklist = Config.getDefaultPickEntitiesBlacklist();
         }
+        @Comment("All the configuration related to right-clicking entities.")
+        public _TakeEntities takeEntities = new _TakeEntities();
+    } public _PortalGun portalgun = new _PortalGun();
 
-        return r;
+    @Configuration
+    public static class _TeleportEntities {
+        @Comment("Denied entities to be teleported.")
+        public List<String> blacklist = Config.getDefaultTeleportEntitiesBlacklist();
+    } public _TeleportEntities teleportEntities = new _TeleportEntities();
+
+    @Polymorphic
+    @Configuration
+    public static abstract class _Resourcepack {
+        @Comment("Enable the PortalGun resourcepack.")
+        public boolean use = (VersionController.version.compareTo(Version.MC_1_9) >= 0);
+
+        @Comment({"Download resourcepack endpoint.", "Set 'PROVIDED' if you force the users to install a custom PortalGun resourcepack via server config."})
+        public String endpoint = "http://rogermiranda1000.com/portalgun-v2/index.php";
     }
-
-    public boolean getBoolean() {
-        return (boolean)this.getObject();
+    public static final class _CMDResourcepack extends _Resourcepack {
+        @Comment("Base CustomModelData used for the 3d models.")
+        public int customModelData = 1;
     }
-
-    public int getInteger() {
-        return ((Number)this.getObject()).intValue();
+    public static final class _DurabilityResourcepack extends _Resourcepack {
+        @Comment("Base Durability used for the 3d models.")
+        public int durability = 1;
     }
+    public _Resourcepack resourcepack = (VersionController.version.compareTo(Version.MC_1_14) >= 0) ? new _CMDResourcepack() : new _DurabilityResourcepack();
 
-    private float getFloat() {
-        return ((Number)this.getObject()).floatValue();
-    }
-
-    public Sound getSound() throws IllegalArgumentException {
-        return Sound.valueOf((String) this.getObject());
-    }
-
+    /**
+     * @pre call `createAndLoad`
+     */
     public static void loadConfig() throws ConfigFileException {
         try {
             Config.loadValidBlocks();
 
-            PortalGun.clearPrefix = Config.fileConfiguration.getString(CLEAR_PREFIX.key);
-            PortalGun.errorPrefix = Config.fileConfiguration.getString(ERROR_PREFIX.key);
+            PortalGun.clearPrefix = Config.getInstance().prefix.clear;
+            PortalGun.errorPrefix = Config.getInstance().prefix.error;
 
-            PortalGun.useResourcePack = Config.fileConfiguration.getBoolean(RESOURCEPACK.key);
-            PortalGun.takeEntities = Config.fileConfiguration.getBoolean(TAKE_ENTITIES.key);
-            PortalGun.castBeam = Config.fileConfiguration.getBoolean(CAST_BEAM.key);
-            PortalGuns.swipeColorsAnimation = Config.fileConfiguration.getBoolean(SWIPE_COLORS.key);
-            PortalGun.blacklistedWorlds = Config.fileConfiguration.getStringList(BLACKLISTED_WORLDS.key);
-            PortalGun.wgRegions = (Config.fileConfiguration.getStringList(WG_REGIONS.key).isEmpty() ? null : Config.fileConfiguration.getStringList(WG_REGIONS.key));
-            PortalGun.blacklistedWgRegions = (Config.fileConfiguration.getStringList(BLACKLIST_WG_REGIONS.key).isEmpty() ? null : Config.fileConfiguration.getStringList(BLACKLIST_WG_REGIONS.key));
+            PortalGun.useResourcePack = Config.getInstance().resourcepack.use;
+            onPlayerJoin.RESOURCEPACK_BASE_URL = Config.getInstance().resourcepack.endpoint;
+            PortalGun.takeEntities = Config.getInstance().portalgun.takeEntities.enabled;
+            PortalGun.castBeam = Config.getInstance().portalgun.castBeam;
+            PortalGuns.swipeColorsAnimation = Config.getInstance().portalgun.swipeColorsAnimation;
+            PortalGun.blacklistedWorlds = Config.getInstance().portals.blacklistedWorlds;
+            PortalGun.wgRegions = (Config.getInstance().portals.onlyAllowedWorldguardRegions.isEmpty() ? null : Config.getInstance().portals.onlyAllowedWorldguardRegions);
+            PortalGun.blacklistedWgRegions = (Config.getInstance().portals.deniedWorldguardRegions.isEmpty() ? null : Config.getInstance().portals.deniedWorldguardRegions);
 
-            Beam.MAX_DISTANCE = Config.BEAM_MAX_LENGTH.getFloat();
+            Beam.MAX_DISTANCE = Config.getInstance().beam.maxLength;
 
-            String material = Config.fileConfiguration.getString(MATERIAL.key);
-            Material portalgunMaterial = Material.getMaterial(material);
-            if (portalgunMaterial == null) {
-                PortalGun.plugin.printConsoleErrorMessage("PortalGun's item (" + material + ") does not exists.");
-                throw new IllegalArgumentException("PortalGun's item (" + material + ") does not exists.");
-            }
-
-            String portalgunName = Config.fileConfiguration.getString(PORTALGUN_NAME.key);
-            List<String> portalgunLore = Config.fileConfiguration.getStringList(PORTALGUN_LORE.key);
+            Material portalgunMaterial = Config.getInstance().portalgun.material;
+            String portalgunName = Config.getInstance().portalgun.name;
+            List<String> portalgunLore = Config.getInstance().portalgun.lore;
             Config.loadPortalgunMaterial(portalgunName, portalgunLore, portalgunMaterial,
-                    Config.fileConfiguration.contains(CUSTOM_MODEL_DATA.key) ? Config.fileConfiguration.getInt(CUSTOM_MODEL_DATA.key) : null,
-                    Config.fileConfiguration.contains(DURABILITY.key) ? Config.fileConfiguration.getInt(DURABILITY.key) : null);
+                    Config.getInstance().resourcepack instanceof _CMDResourcepack ? ((_CMDResourcepack)Config.getInstance().resourcepack).customModelData : null,
+                    Config.getInstance().resourcepack instanceof _DurabilityResourcepack ? ((_DurabilityResourcepack)Config.getInstance().resourcepack).durability : null);
             if (PortalGun.useResourcePack && PortalGuns.portalGun instanceof ResourcepackedItem) {
                 ResourcepackedItem portalgun = (ResourcepackedItem) PortalGuns.portalGun;
 
@@ -145,10 +203,10 @@ public enum Config {
                 ThermalBeam.decoratorFactory = new DecoratorFactory<>(ThermalBeamDecorator.class);
             }
 
-            Language.loadHashMap(Config.fileConfiguration.getString(LANGUAGE.key));
+            Language.loadHashMap(Config.getInstance().language);
 
-            onUse.MAX_LENGTH = Config.MAX_LENGTH.getInteger();
-            onUse.CREATE_SOUND = Config.CREATE_SOUND.getSound();
+            onUse.MAX_LENGTH = (int) Config.getInstance().portals.placementLength;
+            onUse.CREATE_SOUND = Config.getInstance().portals.createSound;
 
             loadPortalParticles();
             loadRestarterParticles();
@@ -159,70 +217,63 @@ public enum Config {
         }
     }
 
-    public static void checkAndCreate() {
-        Config.savedConfiguration = new HashMap<>();
-        Config.fileConfiguration = PortalGun.plugin.getConfig();
-
+    public static void createAndLoad() {
         File configFile = new File(FileManager.pluginFolder, "config.yml");
+        YamlConfigurationProperties properties = YamlConfigurationProperties.newBuilder()
+                                                        .setNameFormatter(NameFormatters.LOWER_UNDERSCORE)
+                                                        .build();
         if (!configFile.exists()) {
             PortalGun.plugin.getLogger().info("Configuration file not found, creating a new one...");
             try {
-                configFile.createNewFile();
-                for (Map.Entry<String, Object> e : getDefaultConfiguration().entrySet()) Config.fileConfiguration.set(e.getKey(), e.getValue());
-                PortalGun.plugin.saveConfig();
-            } catch (IOException e) {
+                YamlConfigurations.save(configFile.toPath(), Config.class, new Config(), properties);
+            } catch (RuntimeException e) {
                 e.printStackTrace();
             }
         }
+
+        Config.instance = YamlConfigurations.load(configFile.toPath(), Config.class, properties);
     }
 
     private static void loadPickEntityBlacklist() {
-        for (String name : Config.fileConfiguration.getStringList(Config.TAKE_ENTITIES_BLACKLIST.key)) {
+        for (String name : Config.getInstance().portalgun.takeEntities.blacklist) {
             onPortalgunEntity.entityPickBlacklist.add(name.toLowerCase());
         }
     }
 
     private static void loadTeleportEntityBlacklist() {
-        for (String name : Config.fileConfiguration.getStringList(Config.TELEPORT_ENTITIES_BLACKLIST.key)) {
+        for (String name : Config.getInstance().teleportEntities.blacklist) {
             PortalGun.entityTeleportBlacklist.add(name.toLowerCase());
         }
     }
 
     private static void loadPortalParticles() throws IllegalArgumentException {
-        List<String> particles = Config.fileConfiguration.getStringList(Config.PARTICLES.key);
-        if (particles.size() != 2) {
-            throw new IllegalArgumentException(Config.PARTICLES.key + " must have only 2 particles!");
+        List<String> portalParticles = Config.getInstance().portals.particles;
+        if (portalParticles.size() != 2) {
+            throw new IllegalArgumentException("'portals.particles' must have only 2 particles!");
         }
 
         try {
-            Portal.setParticle(VersionController.get().getParticle(particles.get(0)), true);
+            Portal.setParticle(VersionController.get().getParticle(portalParticles.get(0)), true);
         } catch (IllegalArgumentException IAEx) {
-            throw new IllegalArgumentException("Particle '" + particles.get(0) + "' does not exists.");
+            throw new IllegalArgumentException("Particle '" + portalParticles.get(0) + "' does not exists.");
         }
 
         try {
-            Portal.setParticle(VersionController.get().getParticle(particles.get(1)), false);
+            Portal.setParticle(VersionController.get().getParticle(portalParticles.get(1)), false);
         } catch (IllegalArgumentException IAEx) {
-            throw new IllegalArgumentException("Particle '" + particles.get(1) + "' does not exists.");
+            throw new IllegalArgumentException("Particle '" + portalParticles.get(1) + "' does not exists.");
         }
 
-        String laserParticle = Config.fileConfiguration.getString(Config.BEAM_PARTICLE.key);
+        String laserParticle = Config.getInstance().beam.particle;
         try {
             Beam.LASER_PARTICLE = VersionController.get().getParticle(laserParticle);
-        } catch (IllegalArgumentException IAEx) {
+        } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException("Particle '" + laserParticle + "' does not exists.");
         }
     }
 
     private static void loadRestarterParticles() throws IllegalArgumentException {
-        String particle = Config.fileConfiguration.getString(Config.RESTARTER_PARTICLES.key);
-        if (particle == null) {
-            // < v.2.3
-            particle = Config.getDefaultRestarterParticle();
-            Config.fileConfiguration.set(Config.RESTARTER_PARTICLES.key, particle);
-            PortalGun.plugin.saveConfig();
-        }
-
+        String particle = Config.getInstance().emancipator.particles;
         try {
             ResetBlock.setParticle(VersionController.get().getParticle(particle));
         } catch (IllegalArgumentException IAEx) {
@@ -273,7 +324,7 @@ public enum Config {
     private static void loadValidBlocks() {
         ArrayList<BlockType> allowedBlocks = new ArrayList<>();
 
-        for (String txt : Config.fileConfiguration.getStringList(Config.WHITELISTED_BLOCKS.key)) {
+        for (String txt : Config.getInstance().portals.whitelistedBlocks) {
             BlockType o = VersionController.get().getMaterial(txt);
             if (o != null) allowedBlocks.add(o);
         }
@@ -281,49 +332,11 @@ public enum Config {
         // TODO: lava restriction?
         // TODO: isPassable?
         Portal.isEmptyBlock = b -> VersionController.get().isPassable(b) && !ResetBlocks.getInstance().insideResetBlock(b.getLocation());
-        Portal.isValidBlock = b -> !VersionController.get().isPassable(b) && (!Config.fileConfiguration.getBoolean(Config.WHITELIST_BLOCKS.key) || allowedBlocks.contains(VersionController.get().getObject(b)));
+        Portal.isValidBlock = b -> !VersionController.get().isPassable(b) && (!Config.getInstance().portals.whitelistBlocks || allowedBlocks.contains(VersionController.get().getObject(b)));
     }
 
-    private static HashMap<String,Object> getDefaultConfiguration() {
-        HashMap<String,Object> c = new HashMap<>();
-
-        c.put(Config.LANGUAGE.key, "english");
-        if (VersionController.version.compareTo(Version.MC_1_9) >= 0) c.put(Config.RESOURCEPACK.key, true);
-        c.put(Config.MATERIAL.key, "IRON_HOE");
-        c.put(Config.CLEAR_PREFIX.key, "§6§l[PortalGun] §a");
-        c.put(Config.ERROR_PREFIX.key, "§6§l[PortalGun] §c");
-        c.put(Config.PORTALGUN_NAME.key, "§6§lPortalGun");
-        c.put(Config.PORTALGUN_LORE.key, new String[]{"With the PortalGun you can open portals."});
-        if (VersionController.version.compareTo(Version.MC_1_14) >= 0) c.put(Config.CUSTOM_MODEL_DATA.key, 1);
-        else if (VersionController.version.compareTo(Version.MC_1_9) >= 0) c.put(Config.DURABILITY.key, 1);
-        c.put(Config.MAX_LENGTH.key, 80);
-        c.put(Config.BEAM_MAX_LENGTH.key, 45);
-        c.put(Config.PARTICLES.key, Config.getDefaultParticles());
-        c.put(Config.BEAM_PARTICLE.key, "FLAME");
-        // TODO config laser hurt player
-        c.put(Config.REMOVE_ON_LEAVE.key, true);
-        c.put(Config.DELETE_ON_DEATH.key, false);
-        c.put(Config.PERSISTENT.key, false);
-        c.put(Config.ONLY_YOUR_PORTALS.key, false);
-        c.put(Config.WHITELIST_BLOCKS.key, false);
-        c.put(Config.WHITELISTED_BLOCKS.key, Config.getDefaultBlocks());
-        c.put(Config.TELEPORT_SOUND.key, Config.getDefaultTeleportSound());
-        c.put(Config.CREATE_SOUND.key, Config.getDefaultCreateSound());
-        c.put(Config.RESTARTER_PARTICLES.key, Config.getDefaultRestarterParticle());
-        c.put(Config.TAKE_ENTITIES.key, true);
-        c.put(Config.CAST_BEAM.key, true);
-        c.put(Config.SWIPE_COLORS.key, true);
-        c.put(Config.TAKE_ENTITIES_BLACKLIST.key, getDefaultPickEntitiesBlacklist());
-        c.put(Config.BLACKLISTED_WORLDS.key, new String[]{"my-safe-world"});
-        c.put(Config.WG_REGIONS.key, new String[]{});
-        c.put(Config.BLACKLIST_WG_REGIONS.key, new String[]{});
-        c.put(Config.TELEPORT_ENTITIES_BLACKLIST.key, getDefaultTeleportEntitiesBlacklist());
-
-        return c;
-    }
-
-    private static Collection<String> getDefaultPickEntitiesBlacklist() {
-        Collection<String> r = new ArrayList<>();
+    private static List<String> getDefaultPickEntitiesBlacklist() {
+        List<String> r = new ArrayList<>();
 
         r.add(Player.class.getSimpleName());
         r.add(ExperienceOrb.class.getSimpleName());
@@ -338,8 +351,8 @@ public enum Config {
         return r;
     }
 
-    private static Collection<String> getDefaultTeleportEntitiesBlacklist() {
-        Collection<String> r = new ArrayList<>();
+    private static List<String> getDefaultTeleportEntitiesBlacklist() {
+        List<String> r = new ArrayList<>();
 
         r.add(ItemFrame.class.getSimpleName());
         r.add(EnderCrystal.class.getSimpleName());
@@ -410,5 +423,9 @@ public enum Config {
         }
 
         return blocks;
+    }
+
+    public static Config getInstance() {
+        return Config.instance;
     }
 }
