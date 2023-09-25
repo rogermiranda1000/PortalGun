@@ -22,7 +22,7 @@ public abstract class ArmorStandDecorator implements Decorator {
 
         Location spawnAt = this.getSpawnLocation(location, direction);
         this.decorate = (ArmorStand)spawnAt.getWorld().spawnEntity(spawnAt, EntityType.ARMOR_STAND);
-        new EntityWrapper(this.decorate).disableGravity(); // TODO lost context; calling `destroy()` and `decorate()` will increase RAM usage
+        new EntityWrapper(this.decorate).disableGravity(); // we can lose the context, as once we remove the entity GravityManager will detect it as invalid and auto-remove it
         this.decorate.setVisible(false);
         this.decorate.setHelmet(this.getHead());
 

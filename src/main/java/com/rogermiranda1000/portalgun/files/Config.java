@@ -343,7 +343,6 @@ public class Config {
         }
 
         // TODO: lava restriction?
-        // TODO: isPassable?
         Portal.isEmptyBlock = b -> VersionController.get().isPassable(b) && !ResetBlocks.getInstance().insideResetBlock(b.getLocation());
         Portal.isValidBlock = b -> !VersionController.get().isPassable(b) && (!Config.getInstance().portals.whitelistBlocks || allowedBlocks.contains(VersionController.get().getObject(b)));
     }

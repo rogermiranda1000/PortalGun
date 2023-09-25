@@ -58,12 +58,12 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
 
     @Override
     public String getClearPrefix() {
-        return (PortalGun.clearPrefix == null || PortalGun.clearPrefix.length() == 0) ? super.getClearPrefix() : PortalGun.clearPrefix;
+        return (PortalGun.clearPrefix == null || PortalGun.clearPrefix.isEmpty()) ? super.getClearPrefix() : PortalGun.clearPrefix;
     }
 
     @Override
     public String getErrorPrefix() {
-        return (PortalGun.errorPrefix == null || PortalGun.errorPrefix.length() == 0) ? super.getErrorPrefix() : PortalGun.errorPrefix;
+        return (PortalGun.errorPrefix == null || PortalGun.errorPrefix.isEmpty()) ? super.getErrorPrefix() : PortalGun.errorPrefix;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         PortalGun.plugin = this;
 
         FileManager.loadFiles();
-        if (PortalGun.blacklistedWorlds.size() > 0) this.regionDelimiter.add(new WorldRegion(PortalGun.blacklistedWorlds));
+        if (!PortalGun.blacklistedWorlds.isEmpty()) this.regionDelimiter.add(new WorldRegion(PortalGun.blacklistedWorlds));
         this.setCommandMessages(Language.USER_NO_PERMISSIONS.getText(), Language.ERROR_UNKNOWN.getText());
 
         super.setCommands(new PortalGunCommands(this.getClearPrefix(), this.getErrorPrefix()).commands); // @pre before super.onEnable() & after loading languages
@@ -151,7 +151,6 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         SentryScheduler scheduler = new SentryScheduler(this);
         // Particles
         this.particleTask = scheduler.runTaskTimer(this, PortalGun::playAllParticles, 0, PortalGun.particleDelay);
-        // TODO: configuration "only players teleports"
         // Entities
         this.teleportTask = scheduler.runTaskTimer(this, ()->{
             PortalGun.updateTeleportedEntities();
@@ -184,7 +183,6 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         }
     }
 
-    // TODO: don't teleport Item Frames
     private static void teleportEntities() {
         for (World world : Bukkit.getWorlds()) {
             for (Entity e : getEntities(world)) {
@@ -230,7 +228,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
      */
     private static void updateTeleportedEntities() {
         synchronized (PortalGun.teleportedEntities) {
-            PortalGun.teleportedEntities.entrySet().removeIf(e -> !e.getKey().isValid()); // Entity no loger exists
+            PortalGun.teleportedEntities.entrySet().removeIf(e -> !e.getKey().isValid()); // Entity no longer exists
             PortalGun.teleportedEntities.entrySet().removeIf(e -> !e.getKey().getLocation().getBlock().getLocation().equals(e.getValue())
                     && (Portal.getPortal(e.getValue()) == null || !Portal.getPortal(e.getValue()).equals(Portal.getPortal(e.getKey().getLocation().getBlock().getLocation())))); // Entity has moved to another portal (or no portal at all)
         }

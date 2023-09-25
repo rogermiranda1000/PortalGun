@@ -43,7 +43,6 @@ public class onMove implements Listener {
         if (Config.getInstance().portals.useOnlyYours && !player.equals(portal.getOwner())) return;
 
         Location destiny = portal.getDestiny(portal.getLocationIndex(loc));
-        // TODO: player velocity??
         if (portal instanceof WallPortal) {
             double approachVelocitySquare = delta.dot(portal.getApproachVector());
             if(approachVelocitySquare <= 0.f) return; // not approaching
