@@ -15,6 +15,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.rogermiranda1000.portalgun.Direction;
@@ -88,7 +89,7 @@ public abstract class Portal {
     private static void spawnParticle(Location loc, ParticleEntity particle, Player owner) {
         if (loc == null) return;
 
-        if(!Config.ONLY_YOUR_PORTALS.getBoolean()) particle.playParticle(loc.getWorld(), loc);
+        if(!Config.getInstance().portals.useOnlyYours) particle.playParticle(loc.getWorld(), loc);
         else {
             for(Player ply: Bukkit.getOnlinePlayers()) {
                 if(ply.hasPermission("portalgun.overrideotherportals") || ply.equals(owner)) particle.playParticle(ply, loc);
@@ -318,6 +319,25 @@ public abstract class Portal {
         return playerYaw % 360;
     }
 
+
+    @NotNull
+    public static Vector rotateAroundY(Vector v, double angle) {
+        double angleCos = Math.cos(angle);
+        double angleSin = Math.sin(angle);
+        double x = angleCos * v.getX() + angleSin * v.getZ();
+        double z = -angleSin * v.getX() + angleCos * v.getZ();
+        return v.setX(x).setZ(z);
+    }
+
+    @NotNull
+    public static Vector rotateAroundZ(Vector v, double angle) {
+        double angleCos = Math.cos(angle);
+        double angleSin = Math.sin(angle);
+        double x = angleCos * v.getX() - angleSin * v.getY();
+        double y = angleSin * v.getX() + angleCos * v.getY();
+        return v.setX(x).setY(y);
+    }
+
     // based on `Portal.getYaw`
     private static Vector getVector(Vector vector, Portal in, Portal out) {
         Vector inApproach = in.getApproachVector(),
@@ -327,8 +347,8 @@ public abstract class Portal {
         else if (inApproach.clone().multiply(-1).subtract(outApproach).length() > CustomBlock.EPSILON) { // not equals and not opposite
             double deltaTheta = -(out.direction.getValue() - in.direction.getValue()),
                     deltaPhi = (outApproach.getY() - inApproach.getY()) * 90.f;
-            vector = vector.rotateAroundZ(Math.toRadians(deltaPhi));
-            vector = vector.rotateAroundY(Math.toRadians(deltaTheta));
+            vector = rotateAroundZ(vector, Math.toRadians(deltaPhi));
+            vector = rotateAroundY(vector, Math.toRadians(deltaTheta));
         }
         return vector;
     }

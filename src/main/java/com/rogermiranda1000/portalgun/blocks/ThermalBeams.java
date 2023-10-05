@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -19,6 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 public class ThermalBeams extends CustomBlock<ThermalBeam> {
@@ -39,7 +41,9 @@ public class ThermalBeams extends CustomBlock<ThermalBeam> {
                     Block block = loc.getWorld().getBlockAt(loc);
                     facing = DirectionGetter.getDirection(block).getFacingVector();
                 } catch (IllegalArgumentException | NullPointerException ignore) {}
-                return new ThermalBeam(loc, facing);
+                ThermalBeam thermalBeam = new ThermalBeam(loc, facing);
+                thermalBeam.decorate();
+                return thermalBeam;
             };
         }
 
@@ -70,12 +74,25 @@ public class ThermalBeams extends CustomBlock<ThermalBeam> {
         try {
             facing = DirectionGetter.getDirection(blockPlaceEvent.getBlock()).getFacingVector();
         } catch (IllegalArgumentException ignore) {}
-        return new ThermalBeam(blockPlaceEvent.getBlock().getLocation(), facing);
+        ThermalBeam thermalBeam = new ThermalBeam(blockPlaceEvent.getBlock().getLocation(), facing);
+        thermalBeam.decorate();
+        return thermalBeam;
+    }
+
+    public boolean isDecorate(final Entity entity) {
+        final AtomicBoolean matches = new AtomicBoolean(false);
+        this.getAllBlocks(e -> matches.set(e.getKey().isDecorate(entity) || matches.get()));
+        return matches.get();
     }
 
     @Override
     public boolean onCustomBlockBreak(BlockBreakEvent blockBreakEvent, ThermalBeam thermalBeam) {
+        thermalBeam.destroy();
         return false;
+    }
+
+    public void destroyAll() {
+        this.getAllBlocks(e -> e.getKey().destroy());
     }
 
     public void playAllParticles() {

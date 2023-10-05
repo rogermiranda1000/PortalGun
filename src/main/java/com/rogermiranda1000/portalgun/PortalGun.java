@@ -7,21 +7,20 @@ import com.rogermiranda1000.helper.RogerPlugin;
 import com.rogermiranda1000.helper.SentryScheduler;
 import com.rogermiranda1000.helper.worldguard.RegionDelimiter;
 import com.rogermiranda1000.portalgun.api.PortalGunAccessibleMethods;
-import com.rogermiranda1000.portalgun.blocks.ThermalBeams;
-import com.rogermiranda1000.portalgun.blocks.ThermalReceiverGuard;
-import com.rogermiranda1000.portalgun.blocks.ThermalReceivers;
+import com.rogermiranda1000.portalgun.blocks.*;
 import com.rogermiranda1000.portalgun.cubes.Cubes;
-import com.rogermiranda1000.portalgun.blocks.ResetBlocks;
 import com.rogermiranda1000.portalgun.events.*;
 import com.rogermiranda1000.portalgun.files.Config;
 import com.rogermiranda1000.portalgun.files.FileManager;
 import com.rogermiranda1000.portalgun.files.Language;
+import com.rogermiranda1000.portalgun.items.PortalGuns;
 import com.rogermiranda1000.portalgun.portals.CeilingPortal;
 import com.rogermiranda1000.portalgun.portals.FloorPortal;
 import com.rogermiranda1000.portalgun.portals.Portal;
 import com.rogermiranda1000.portalgun.portals.WallPortal;
 import com.rogermiranda1000.versioncontroller.Version;
 import com.rogermiranda1000.versioncontroller.VersionController;
+import com.rogermiranda1000.versioncontroller.entities.EntityWrapper;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
@@ -36,7 +35,6 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
 
     public static String clearPrefix, errorPrefix;
     public static boolean useResourcePack, takeEntities;
-    public static ItemStack item;
     public static ItemStack botas;
     private static final int particleDelay = 2, pickedEntitiesDelay = 3;
     public static final HashMap<Entity, Location> teleportedEntities = new HashMap<>();
@@ -51,7 +49,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
     private BukkitTask pickEntitiesTask;
 
     public PortalGun() {
-        super(new onDead(), new onLeave(), new onMove(new onEmancipator()), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity(), new Cubes(), new ThermalReceiverGuard());
+        super(new onDead(), new onLeave(), new onMove(new onEmancipator()), new onUse(new onPortalgunEntity()), new onPlayerJoin(), new onPlayerDamagesEntity(), new Cubes(), new ThermalReceiverGuard(), new ThermalBeamsGuard(), new PortalGuns());
 
         this.addCustomBlock(ResetBlocks.setInstance(new ResetBlocks(this)));
         this.addCustomBlock(ThermalBeams.setInstance(new ThermalBeams(this)));
@@ -60,12 +58,12 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
 
     @Override
     public String getClearPrefix() {
-        return (PortalGun.clearPrefix == null || PortalGun.clearPrefix.length() == 0) ? super.getClearPrefix() : PortalGun.clearPrefix;
+        return (PortalGun.clearPrefix == null || PortalGun.clearPrefix.isEmpty()) ? super.getClearPrefix() : PortalGun.clearPrefix;
     }
 
     @Override
     public String getErrorPrefix() {
-        return (PortalGun.errorPrefix == null || PortalGun.errorPrefix.length() == 0) ? super.getErrorPrefix() : PortalGun.errorPrefix;
+        return (PortalGun.errorPrefix == null || PortalGun.errorPrefix.isEmpty()) ? super.getErrorPrefix() : PortalGun.errorPrefix;
     }
 
     @Override
@@ -90,7 +88,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         PortalGun.plugin = this;
 
         FileManager.loadFiles();
-        if (PortalGun.blacklistedWorlds.size() > 0) this.regionDelimiter.add(new WorldRegion(PortalGun.blacklistedWorlds));
+        if (!PortalGun.blacklistedWorlds.isEmpty()) this.regionDelimiter.add(new WorldRegion(PortalGun.blacklistedWorlds));
         this.setCommandMessages(Language.USER_NO_PERMISSIONS.getText(), Language.ERROR_UNKNOWN.getText());
 
         super.setCommands(new PortalGunCommands(this.getClearPrefix(), this.getErrorPrefix()).commands); // @pre before super.onEnable() & after loading languages
@@ -100,7 +98,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         ResetBlocks.getInstance().updateAllBlocks(); // @pre super.onEnable()
 
         // Load portals
-        if (Config.PERSISTENT.getBoolean()) {
+        if (Config.getInstance().portals.save) {
             getLogger().info("Loading portals...");
             File file = new File(getDataFolder(), "portals.yml");
             if(file.exists()) {
@@ -153,7 +151,6 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         SentryScheduler scheduler = new SentryScheduler(this);
         // Particles
         this.particleTask = scheduler.runTaskTimer(this, PortalGun::playAllParticles, 0, PortalGun.particleDelay);
-        // TODO: configuration "only players teleports"
         // Entities
         this.teleportTask = scheduler.runTaskTimer(this, ()->{
             PortalGun.updateTeleportedEntities();
@@ -186,7 +183,6 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         }
     }
 
-    // TODO: don't teleport Item Frames
     private static void teleportEntities() {
         for (World world : Bukkit.getWorlds()) {
             for (Entity e : getEntities(world)) {
@@ -204,7 +200,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
                 final Location destinyLocation = portal.getDestiny(portal.getLocationIndex(entityBlockLocation));
                 if (destinyLocation == null) continue;
 
-                if (portal.teleportToDestiny(e, VersionController.get().getVelocity(e), destinyLocation)) {
+                if (portal.teleportToDestiny(e, new EntityWrapper(e).getVelocity(), destinyLocation)) {
                     synchronized (PortalGun.teleportedEntities) {
                         PortalGun.teleportedEntities.put(e, destinyLocation);
                     }
@@ -232,7 +228,7 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
      */
     private static void updateTeleportedEntities() {
         synchronized (PortalGun.teleportedEntities) {
-            PortalGun.teleportedEntities.entrySet().removeIf(e -> !e.getKey().isValid()); // Entity no loger exists
+            PortalGun.teleportedEntities.entrySet().removeIf(e -> !e.getKey().isValid()); // Entity no longer exists
             PortalGun.teleportedEntities.entrySet().removeIf(e -> !e.getKey().getLocation().getBlock().getLocation().equals(e.getValue())
                     && (Portal.getPortal(e.getValue()) == null || !Portal.getPortal(e.getValue()).equals(Portal.getPortal(e.getKey().getLocation().getBlock().getLocation())))); // Entity has moved to another portal (or no portal at all)
         }
@@ -247,13 +243,14 @@ public class PortalGun extends RogerPlugin implements PortalGunAccessibleMethods
         onPortalgunEntity.clear();
         Cubes.clear(); // TODO option to keep saved
         ThermalReceivers.getInstance().destroyAll(); // un-decorate
+        ThermalBeams.getInstance().destroyAll(); // un-decorate
 
         // as we read the stair value to get the direction, and we set all the powered blocks to
         // redstone, if they get saved they will lose their direction; power them off before closing
         ThermalBeams.getInstance().removeAllBlocksArtificially(); // as they may re-activate the block again, disable them first
         ThermalReceivers.getInstance().unpowerAll();
 
-        if (Config.PERSISTENT.getBoolean()) {
+        if (Config.getInstance().portals.save) {
             getLogger().info("Saving portals...");
             File file = new File(getDataFolder(), "portals.yml");
             BufferedWriter bw = null;

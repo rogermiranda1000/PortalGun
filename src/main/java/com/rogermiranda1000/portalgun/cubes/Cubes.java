@@ -53,7 +53,9 @@ public class Cubes implements Listener {
 
     @Nullable
     public static <T extends Cube> T getCube(final @NotNull Entity e, Class<T> cls) throws ClassCastException {
-        return cls.cast(Cubes.getCube(e));
+        Cube c = Cubes.getCube(e);
+        if (!cls.isInstance(c)) return null;
+        return cls.cast(c);
     }
 
     public static void spawnCube(Cube c, boolean removeOld) {
@@ -64,7 +66,7 @@ public class Cubes implements Listener {
 
             // remove old (if desired)
             if (removeOld) {
-                ArrayList<Cube> olds = oldCubes.get(loc);
+                ArrayList<Cube> olds = Cubes.oldCubes.get(loc);
                 if (olds != null) {
                     olds = new ArrayList<>(olds);
                     for (Cube oldCube : olds) {
@@ -73,14 +75,15 @@ public class Cubes implements Listener {
                             Cubes.destroyCompanionCube(oldCube);
                         }
                     }
+                    Cubes.oldCubes.remove(loc);
                 }
             }
 
             // add to remove cache
-            ArrayList<Cube> olds = oldCubes.get(loc);
+            ArrayList<Cube> olds = Cubes.oldCubes.get(loc);
             if (olds == null) {
                 olds = new ArrayList<>();
-                oldCubes.put(loc, olds);
+                Cubes.oldCubes.put(loc, olds);
             }
             olds.add(cube);
         }
