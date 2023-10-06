@@ -1,6 +1,5 @@
 package com.rogermiranda1000.portalgun.refactored.portal.influenceds;
 
-import com.rogermiranda1000.portalgun.refactored.portal.EntityTrajectoryInfluencer;
 import com.rogermiranda1000.portalgun.refactored.portal.TrajectoryInfluenced;
 import com.rogermiranda1000.portalgun.refactored.portal.TrajectoryInfluencer;
 import org.bukkit.entity.Entity;

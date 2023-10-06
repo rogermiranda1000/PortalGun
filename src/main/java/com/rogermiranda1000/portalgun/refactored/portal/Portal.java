@@ -3,7 +3,7 @@ package com.rogermiranda1000.portalgun.refactored.portal;
 import com.rogermiranda1000.portalgun.refactored.geometry.DelimitedPlane;
 import com.rogermiranda1000.portalgun.refactored.geometry.Line;
 
-public class Portal extends DelimitedPlane implements EntityTrajectoryInfluencer {
+public class Portal extends DelimitedPlane implements TrajectoryInfluencer {
     /**
      * Portal-like portal
      * @param margin World position: x,y,z,world_msb,world_lsb
@@ -15,6 +15,6 @@ public class Portal extends DelimitedPlane implements EntityTrajectoryInfluencer
 
     @Override
     public Line modifyTrajectory(Line trajectory) {
-        return trajectory;
+        return trajectory; // TODO
     }
 }

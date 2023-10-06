@@ -33,6 +33,15 @@ public class Plane extends GeometricForm {
     }
 
     /**
+     * Projects vector `v` into this plane
+     * @param v Vector to project
+     * @return Projected vector
+     */
+    public Vector project(Vector v) {
+        // TODO
+    }
+
+    /**
      * Check if a line intersects with the plane.
      * @author Intersecting Segment Against Plane, on Real-Time Collision Detection
      * @param line Line to check the intersection with the plane

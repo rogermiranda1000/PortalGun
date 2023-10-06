@@ -4,6 +4,7 @@ package com.rogermiranda1000.portalgun.refactored.geometry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * An Rn vector
@@ -35,6 +36,7 @@ public class Vector implements Cloneable {
     }
 
     public boolean isZero() {
+        // TODO double precision?
         return this.lengthSquared() == 0.f;
     }
 
@@ -74,8 +76,8 @@ public class Vector implements Cloneable {
         return this;
     }
 
-    public double getComponent(int index) throws IndexOutOfBoundsException {
-        if (this.getDimension() <= index) throw new IndexOutOfBoundsException("Can't access index " + index + " for a " + this.getDimension() + " dimensions vector!");
+    public double getComponent(int index) {
+        if (this.getDimension() <= index) return 0;
         return this.vector[index];
     }
 
@@ -85,20 +87,25 @@ public class Vector implements Cloneable {
         return this;
     }
 
-    public double x() throws IndexOutOfBoundsException {
+    public double x() {
         return this.getComponent(0);
     }
 
-    public double y() throws IndexOutOfBoundsException {
+    public double y() {
         return this.getComponent(1);
     }
 
-    public double z() throws IndexOutOfBoundsException {
+    public double z() {
         return this.getComponent(2);
     }
 
     public static double getEpsilon() {
         return 1.0E-6;
+    }
+
+    @Override
+    public String toString() {
+        return '(' + Arrays.stream(this.vector).mapToObj(String::valueOf).collect(Collectors.joining(",")) + ')';
     }
 
     @Override
@@ -109,7 +116,7 @@ public class Vector implements Cloneable {
         Vector that = (Vector) o;
         if (this.getDimension() != that.getDimension()) return false;
         for (int n = 0; n < this.getDimension(); n++) {
-            if (this.vector[n] != that.vector[n]) return false; // not equals
+            if (Math.abs(this.vector[n] - that.vector[n]) > Vector.getEpsilon()) return false; // not equals
         }
         return true; // all equals
     }
