@@ -24,6 +24,14 @@ public class Plane extends GeometricForm {
         this.d = this.normal.dot(this.point); // @ref https://mathinsight.org/distance_point_plane#distance_formula_1
     }
 
+    /**
+     * Check if the plane is aligned with one of the base planes
+     * @return Normal aligned
+     */
+    public boolean isAligned() {
+        return this.normal.isAligned();
+    }
+
     public Vector getPoint() {
         return this.point.clone();
     }

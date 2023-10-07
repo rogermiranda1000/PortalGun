@@ -15,8 +15,16 @@ public class VectorAngle {
         }
     }
 
-    private static double get2dAngle(Vector v1, Vector v2) {
+    private static double get2dAngle(Vector v1, Vector v2) throws IllegalArgumentException {
+        try {
+            v1 = v1.normalize();
+            v2 = v2.normalize();
+        } catch (ArithmeticException ex) {
+            throw new IllegalArgumentException("Couldn't normalize the angles");
+        }
 
+        // the cosine between two unit vectors is the dot product of both
+        return Math.acos(v1.dot(v2));
     }
 
     public Vector applyAngle(Vector v) {

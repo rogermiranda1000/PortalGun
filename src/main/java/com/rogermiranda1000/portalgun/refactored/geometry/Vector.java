@@ -12,8 +12,23 @@ import java.util.stream.Collectors;
 public class Vector implements Cloneable {
     private double []vector;
 
+    /**
+     * If the vector is aligned with one of the planes
+     * (all components except 1 at 0)
+     */
+    private boolean aligned;
+    private boolean zero;
+
     public Vector(double ...vector) throws IllegalArgumentException {
         this.vector = vector.clone();
+
+        int nonZeroComponents = 0;
+        for (double component : vector) {
+            // TODO double precision?
+            if (component != 0) nonZeroComponents++;
+        }
+        this.aligned = (nonZeroComponents == 1);
+        this.zero = (nonZeroComponents == 0);
     }
 
     public int getDimension() {
@@ -35,16 +50,19 @@ public class Vector implements Cloneable {
         return sum;
     }
 
+    public boolean isAligned() {
+        return this.aligned;
+    }
+
     public boolean isZero() {
-        // TODO double precision?
-        return this.lengthSquared() == 0.f;
+        return this.zero;
     }
 
     public boolean isNormalized() {
         return Math.abs(this.lengthSquared() - 1.0) < getEpsilon();
     }
 
-    public Vector normalize() {
+    public Vector normalize() throws ArithmeticException {
         if (this.isNormalized()) return this;
 
         double length = this.length();
@@ -71,7 +89,7 @@ public class Vector implements Cloneable {
         return this;
     }
 
-    public Vector divide(double amount) {
+    public Vector divide(double amount) throws ArithmeticException {
         for (int n = 0; n < this.getDimension(); n++) this.setComponent(n, this.getComponent(n) / amount);
         return this;
     }
